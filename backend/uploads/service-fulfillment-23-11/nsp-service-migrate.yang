@@ -1,0 +1,39 @@
+module nsp-service-migrate {
+
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service-migrate";
+    prefix "nsp-service-migrate";
+    import nsp-model-extensions { prefix "model-ext"; }
+    revision "2023-02-16" { description "Initial revision.";}
+
+    grouping migrate-template-response {
+        list skipped {
+            leaf service-id {
+                type string;
+            }
+        }
+    }
+
+    rpc migrate-template {
+        description "Migrate Template";
+        model-ext:operation java {
+            model-ext:class com.nokia.nsp.sf.app.service.migrate.operations.ServiceTemplateMigrateOperationExecutor;
+        }
+        input {
+            leaf target-template {
+                type string;
+                description "The target template.";
+            }
+
+            leaf-list service-ids {
+                type string;
+                min-elements 1;
+                max-elements 200;
+                description "List of services to be migrated.";
+            }
+        }
+        output {
+            uses migrate-template-response;
+        }
+    }
+}

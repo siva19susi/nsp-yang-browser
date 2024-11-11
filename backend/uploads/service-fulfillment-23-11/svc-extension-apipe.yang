@@ -1,0 +1,37 @@
+module svc-extension-apipe {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:svc-extension:apipe";
+    prefix "svc-extension-apipe";
+    import nsp-model-extensions { prefix model-ext; }
+    import service-extension-common { prefix "svc-common"; }
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds apipe service Augmentation";
+    revision "2023-06-27" { description "Move to extension common"; }
+    revision "2022-10-26" { description "Endpoint tenant-id"; }
+    revision "2022-10-13" { description "Initial setup"; }
+
+    grouping apipe-svc {
+        container apipe-svc {
+            model-ext:table-name "service-extension-apipe-svc";
+            uses svc-common:svc-extension-common;
+        }
+    }
+
+    grouping apipe-site {
+        container apipe-site {
+            model-ext:table-name "service-extension-apipe-site";
+            uses svc-common:site-extension;
+        }
+    }
+
+    grouping apipe-endpoint {
+        container apipe-endpoint {
+            model-ext:table-name "service-extension-apipe-endpoint";
+            uses svc-common:endpoint-extension;
+        } //container
+    } //augment apipe endpoint
+
+}

@@ -1,0 +1,331 @@
+module nsp-sync {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-sync";
+    prefix "nsp-sync";
+    import nsp-model-extensions { prefix model-ext; }
+    import nsp-service { prefix "svc" ; }
+    import service-extension-common { prefix "svc-ext-common"; }
+
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds MDM tunnel configuration model";
+    revision "2023-10-10" {description "adding the index for tunnel-binding site-id"; }
+    revision "2023-08-01" {description "adding the endpoint-id in site"; }
+    revision "2023-07-27" {description "adding the bgp-evpn"; }
+    revision "2020-06-25" { description "nsp sync model DRAFT"; }
+    revision "2021-08-24" { description "Remove unused properties. Added include-sources"; }
+    revision "2021-11-24" { description "Add customer"; }
+    revision "2022-06-15" { description "Add admin-group"; }
+
+    model-ext:include-sources true;
+
+    container sites {
+        list eline-site {
+            uses l2-site;
+            uses bgp-evpn;
+            list bgp {
+                key bgp-instance;
+                uses bgp;
+                model-ext:notif-suppress true;
+            }
+            key "site-id name";
+            description "The eline-site uses/rides/connects endpoints, sites.";
+            model-ext:notif-suppress true;
+        }
+        list elan-site {
+            uses l2-site;
+            leaf-list endpoint-identifier {
+                type string;
+                description "the endpoint identifier for hco";
+            }
+            container bgp-evpn {
+                description "An EVPN instance";
+                leaf evi {
+                    type uint32;
+                    description "The evi.";
+                }
+                model-ext:notif-suppress true;
+            }
+            list bgp {
+                key bgp-instance;
+                uses bgp;
+                model-ext:notif-suppress true;
+            }
+            key "site-id name";
+            description "The elan-site uses/rides/connects endpoints, sites, and resources.";
+            model-ext:notif-suppress true;
+        }
+        list l3vpn-site {
+            uses l3-site;
+            leaf-list endpoint-identifier {
+                type string;
+                description "the endpoint identifier for hco";
+            }
+            uses svc-ext-common:route-distinguisher;
+            container route-target-import {
+                uses svc-ext-common:route-target;
+                model-ext:notif-suppress true;
+            }
+            container route-target-export {
+                uses svc-ext-common:route-target;
+                model-ext:notif-suppress true;
+            }
+            uses svc-ext-common:bgp-evpn;
+
+            key "site-id name";
+            description "The l3vpn-site uses/rides/connects endpoints, sites, and resources.";
+            model-ext:notif-suppress true;
+        }
+        list ies-site {
+            uses l3-site;
+            key "site-id name";
+            description "The ies-site uses/rides/connects endpoints, sites, and resources.";
+            model-ext:notif-suppress true;
+        }
+         list mpr-backhaul-site {
+            uses mpr-backhaul-site;
+            key "site-id name";
+            description "The mpr-backhal-site uses/rides/connects endpoints, sites, and resources.";
+            model-ext:notif-suppress true;
+                }
+        list customer{
+           uses customer-def;
+           key "site-id name";
+           description "customer configuration";
+           model-ext:notif-suppress true;
+        }
+        list admin-group {
+            leaf site-id {
+                description "The site identifier.";
+                type string;
+            }
+            leaf name {
+                description "The name of the admin group.";
+                type string;
+            }
+            leaf value {
+                type uint32 {
+                    range "0..31";
+                }
+                mandatory true;
+                description "Integer value associated with the group";
+            }
+
+            key "site-id name";
+            description "The admin group name configuration.";
+            model-ext:notif-suppress true;
+        }
+    }
+
+    grouping l2-site {
+        description "The Service Site";
+        leaf ne-service-id {
+            type string;
+            description "The neServiceId";
+        }
+
+        leaf mtu {
+            type int32 {
+                range "1..9782";
+            }
+            description "The service-mtu";
+        }
+        uses svc:common-properties-def;
+        uses site-def;
+
+        list endpoint {
+            description "An endpoint of a site.";
+            key "endpoint-id";
+            uses endpoint;
+            model-ext:notif-suppress true;
+        }
+        list tunnel-binding {
+            description "Tunnel-binding of a site.";
+            key "name";
+            uses svc:common-properties-def;
+            uses svc:resource-binding-def;
+            model-ext:notif-suppress true;
+            model-ext:index-fields "site-id";
+            container tunnel-binding-details {
+                description "The tunnel binding details";
+                uses svc:tunnel-binding-details;
+                model-ext:notif-suppress true;
+            }
+        }
+    }
+
+     grouping mpr-backhaul-site {
+            description "The Service Site";
+            leaf ne-service-id {
+                type string;
+                description "The neServiceId";
+            }
+
+
+            uses svc:common-properties-def;
+            uses site-def;
+
+            list endpoint {
+                description "An endpoint of a site.";
+                key "endpoint-id";
+                uses endpoint;
+                model-ext:notif-suppress true;
+            }
+        }
+
+    grouping l3-site {
+        description "The Service Site.";
+        leaf ne-service-id {
+            type string;
+            description "The neServiceId";
+        }
+
+        uses svc:common-properties-def;
+        uses site-def;
+
+        list endpoint {
+            description "An endpoint of a site.";
+            key "endpoint-id";
+            uses endpoint;
+            model-ext:notif-suppress true;
+        }
+        list tunnel-binding {
+            description "Tunnel-binding of a site.";
+            key "name";
+            uses svc:common-properties-def;
+            uses svc:resource-binding-def;
+            model-ext:notif-suppress true;
+            model-ext:index-fields "site-id";
+            container tunnel-binding-details {
+                description "The tunnel binding details.";
+                uses svc:tunnel-binding-details;
+                model-ext:notif-suppress true;
+            }
+        }
+    }
+
+    grouping endpoint{
+        description "An endpoint of a service.";
+
+        uses svc:common-properties-def;
+        uses endpoint-def;
+        container ipservice-endpoint-detail {
+            uses svc:ipservice-endpoint-detail;
+            model-ext:notif-suppress true;
+        }
+    }
+
+    grouping site-def {
+        description "Properties specific to 'site'.";
+
+        leaf site-id {
+            description "The site identifier.";
+            type string;
+        }
+        leaf customer-name {
+            type string;
+            description "The customer's name.";
+        }
+    }
+
+    grouping endpoint-def {
+        description "Properties specific to 'endpoint'";
+
+        leaf endpoint-id {
+            description "The endpoint identifier";
+            type string;
+            default "";
+        }
+
+        leaf site-id {
+             description "The site identifier";
+             type string;
+        }
+    }
+
+    grouping bgp {
+        description "BGP parameters common to all pseudowires.";
+        leaf bgp-instance {
+            type int32 {
+                range "1..2";
+            }
+            description "BGP instance";
+        }
+
+        leaf route-distinguisher {
+            type union {
+                type enumeration {
+                    enum "auto-rd" {value 1;}
+                }
+                type string;
+            }
+            description "High-order 6 bytes that are used as string to compose VSI-ID for use in NLRI";
+        }
+
+        container route-target-import {
+            uses svc-ext-common:route-target;
+            model-ext:notif-suppress true;
+        }
+
+        container route-target-export {
+            uses svc-ext-common:route-target;
+            model-ext:notif-suppress true;
+        }
+    }
+
+    grouping bgp-evpn {
+        container bgp-evpn {
+            description "An EVPN instance";
+            model-ext:notif-suppress true;
+            leaf evi {
+                type uint32;
+                description "The evi.";
+            }
+            leaf local-ac-name {
+                type string;
+                description "the local attachement circuit name";
+            }
+            leaf local-eth-tag {
+                type int32;
+                description "ethernet tag of the local attachement circuit";
+            }
+            leaf remote-ac-name {
+                type string;
+                description "the remote attachement circuit name";
+            }
+            leaf remote-eth-tag {
+                type int32;
+                description "ethernet tag of the remote attachement circuit";
+            }
+        }
+    }
+
+    grouping customer-def {
+        leaf site-id {
+            description "The site identifier.";
+            type string;
+        }
+        leaf customer-id {
+            type int32;
+            description "The customer's identifier.";
+        }
+        leaf name {
+            type string;
+            description "The customer's name.";
+        }
+        leaf description {
+            type string;
+            description "The customer's description.";
+        }
+        leaf phone-number {
+            type string;
+            description "The customer's phone number.";
+        }
+        leaf contact {
+            type string;
+            description "The customer's contact.";
+        }
+    }
+}

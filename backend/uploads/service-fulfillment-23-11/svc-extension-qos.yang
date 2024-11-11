@@ -1,0 +1,548 @@
+module svc-extension-qos {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:svc-extension:qos";
+    prefix "svc-extension-qos";
+
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Servce qos";
+
+    revision "2023-06-27" { description "Remove unused imports"; }
+    revision "2021-02-10" { description "service qos"; }
+
+    typedef services-sap-queuing-type {
+        type enumeration {
+            enum "none"                         { value 1; }
+            enum "shared"                       { value 2; }
+            enum "multipoint-shared"            { value 3; }
+        }
+        description "The services sap ingress queuing type.";
+    }
+
+    typedef qos-qgrp-instance-id {
+        type uint32 {
+            range "1..65535";
+        }
+        description "The identification number of a QoS queue group instance.";
+    }
+
+    grouping network-configuration-details {
+        container ingress {
+            description "Service sdp-bind ingress information.";
+
+            container filter {
+                description "Service sdp-bind ingress filter information.";
+
+                leaf ip {
+                    type string {
+                        length "1..64";
+                    }
+                    description "IP filter identifier.";
+                }
+            } // container filter
+
+            container qos {
+                description "Ingress network policy parameters.";
+
+                leaf policy-name {
+                    type string;
+                    description "Ingress network policy name applied to this SDP binding.";
+                }
+
+                container fp-redirect-group {
+                    description "Forwarding-plane queue group information.";
+
+                    leaf group-name {
+                         type string;
+                         description "Forwarding-plane queue group policy for this SDP binding.";
+                    }
+
+                    leaf instance {
+                         type qos-qgrp-instance-id;
+                         description "Instance of the forwarding-plane ingress Queue Group for this SDP binding.";
+                    }
+
+                } // container fp-redirect-group
+            } // container qos
+        } // container ingress
+
+        container egress {
+            description "Service sdp-bind egress information";
+
+            container filter {
+                description "Service sdp-bind egress filter information.";
+
+                leaf ip {
+                    type string {
+                        length "1..64";
+                    }
+                    description "IP filter identifier.";
+                }
+            } // container filter
+
+            container qos {
+                description "Egress network policy parameters";
+                leaf policy-name {
+                    type string;
+                    description "Egress network policy name applied to this SDP binding.";
+                }
+
+                container port-redirect-group {
+                    description "Port queue group policy information.";
+
+                    leaf group-name {
+                         type string;
+                         description "Port queue group policy for this SDP binding.";
+                    }
+
+                    leaf instance {
+                         type qos-qgrp-instance-id;
+                         description
+                             "Instance of the port egress Queue Group for this SDP binding.";
+                    }
+
+                } // container port-redirect-group
+            } // container qos
+        } // container egress
+    }
+
+    grouping access-configuration-details {
+        container ingress {
+            description "SAP ingress information.";
+
+            leaf queue-group-redirect-list {
+                type string;
+                description "Assign queue-group redirect list.";
+            }
+
+            container qos {
+                description "SAP ingress QoS information.";
+
+                leaf match-qinq-dot1p {
+                    type enumeration {
+                        enum "none"                         { value 1; }
+                        enum "top"                          { value 2; }
+                        enum "bottom"                       { value 3; }
+                    }
+                    description "Ingress match QinQ Dot1p.";
+                }
+
+                container sap-ingress {
+                    description "SAP ingress policy information";
+
+                    leaf policy-name {
+                        type string;
+                        description "Sap ingress policy name.";
+                    }
+
+                    leaf queuing-type {
+                        type services-sap-queuing-type;
+                        description "Ingress queuing type.";
+                    }
+
+                    container overrides {
+                        description "SAP ingress QoS policy overrides.";
+
+                        list queue {
+                            key "queue-id";
+                            description "Ingress queue override parameters.";
+
+                            leaf queue-id {
+                                type int32 {
+                                    range "1..32";
+                                }
+                                description "The unique identifier for the queue.";
+                            }
+
+                            leaf cbs {
+                                type union {
+                                    type uint32 {
+                                        range "0..1048576";
+                                    }
+                                    type enumeration {
+                                        enum "no-override"     { value -2; }
+                                        enum "auto"            { value -1; }
+                                    }
+                                }
+                                units "kilobps";
+                                description "Specify CBS.";
+                            }
+
+                            leaf mbs {
+                                type union {
+                                    type uint32 {
+                                        range "0..1073741824";
+                                    }
+                                    type enumeration {
+                                        enum "no-override"     { value -2; }
+                                        enum "auto"            { value -1; }
+                                    }
+                                }
+                                description "Specify MBS.";
+                            }
+                            container rate {
+                                description "Enter the rate context";
+                                leaf pir {
+                                    type union {
+                                        type int64 {
+                                            range "1..6400000000";
+                                        }
+                                        type enumeration {
+                                            enum "no-override"     { value -2; }
+                                            enum "max" { value -1; }
+                                        }
+                                    }
+                                    description "Specify the PIR rate.";
+                                    units "kilobps";
+                                }
+                                leaf cir {
+                                    type union {
+                                        type int64 {
+                                            range "0..6400000000";
+                                        }
+                                        type enumeration {
+                                            enum "no-override"     { value -2; }
+                                            enum "max" { value -1; }
+                                        }
+                                    }
+                                    units "kilobps";
+                                    description "The CIR rate";
+                                }
+                            } // container rate
+                        } // list queue
+
+                        list policer {
+                            key "policer-id";
+                            description "Ingress policer override parameters.";
+
+                            leaf policer-id {
+                                type uint32 {
+                                    range "1..63";
+                                }
+                                description "Ingress policier identifier.";
+                            }
+
+                            leaf cbs {
+                                type union {
+                                    type uint32  {
+                                        range "0..16777216";
+                                    }
+                                    type enumeration {
+                                        enum "no-override"     { value -2; }
+                                        enum "auto"            { value -1; }
+                                    }
+                                }
+                                units "bytes";
+                                description "Exceed threshold of the CIR leaky bucket of this policer";
+                            }
+
+                            leaf mbs {
+                                type union {
+                                    type uint32  {
+                                        range "0..16777216";
+                                    }
+                                    type enumeration {
+                                        enum "no-override"     { value -2; }
+                                        enum "auto"            { value -1; }
+                                    }
+                                }
+                                units "bytes";
+                                description "High priority 'violate' threshold of PIR leaky bucket of this policer";
+                            }
+                        } // list policer
+                    } // container overrides
+                } // sap-ingress
+
+                container policer-control-policy {
+                    description "Policer control policy parameters";
+                    leaf policy-name {
+                        type string;
+                        description "Policer control policy name.";
+                    }
+                } // container policer-control-policy
+
+                container scheduler-policy {
+                    description "Ingress scheduler policy parameters.";
+
+                    leaf policy-name {
+                        type string;
+                        description "Scheduler policy name.";
+                    }
+
+                    container overrides {
+                        description "Enter the overrides context.";
+
+                        list scheduler {
+                            key "scheduler-name";
+                            description "Enter the scheduler list instance.";
+                            leaf scheduler-name {
+                                type string {
+                                    length "1..32";
+                                }
+                                description "Scheduler override policy name.";
+                            }
+                            container rate {
+                                description "Enter the rate context.";
+                                leaf pir {
+                                    type union {
+                                        type int64 {
+                                            range "1..6400000000";
+                                        }
+                                        type enumeration {
+                                            enum "no-override" { value -2; }
+                                            enum "max"         { value -1; }
+                                        }
+                                    }
+                                    description "Specifies the administrative PIR.";
+                                }
+                                leaf cir {
+                                    type union {
+                                        type int64 {
+                                            range "0..6400000000";
+                                        }
+                                        type enumeration {
+                                            enum "sum"         { value -3; }
+                                            enum "no-override" { value -2; }
+                                            enum "max"         { value -1; }
+                                        }
+                                    }
+                                    description "Specifies the administrative CIR.";
+                                }
+                            } // container rate
+                        }//list scheduler
+                    } // container overrides
+                } // container scheduler-policy
+            } // container qos
+
+            container filter {
+                description "SAP filter information.";
+
+                leaf ip {
+                    type string;
+                    description "IP filter identifier.";
+                }
+
+                leaf ipv6 {
+                    type string;
+                    description "IPv6 filter identifier.";
+                }
+            } // container filter
+        } // container ingress
+
+        container egress {
+            description "SAP egress information.";
+
+            leaf queue-group-redirect-list {
+                type string;
+                description "Assign queue-group redirect list.";
+            }
+
+            container qos {
+                description "SAP egress QoS information.";
+
+                leaf qinq-mark-top-only {
+                    type boolean;
+                    default "false";
+                    description "Whether top Q-tags are marked.";
+                }
+
+                container sap-egress {
+                    description "SAP egress policy information.";
+
+                    leaf policy-name {
+                        type string;
+                        description "Sap egress policy name.";
+                    }
+
+                    container overrides {
+                        description "SAP egress QoS policy overrides.";
+
+                        list queue {
+                            key "queue-id";
+                            description "Egress queue override parameters.";
+
+                            leaf queue-id {
+                                type int32 {
+                                    range "1..32";
+                                }
+                                description "The unique identifier for the queue.";
+                            }
+
+                            leaf cbs {
+                                type union {
+                                    type uint32 {
+                                        range "0..1048576";
+                                    }
+                                    type enumeration {
+                                        enum "no-override"     { value -2; }
+                                        enum "auto"            { value -1; }
+                                    }
+                                }
+                                units "kilobps";
+                                description "Specify CBS.";
+                            }
+
+                            leaf mbs {
+                                type union {
+                                    type uint32 {
+                                        range "0..1073741824";
+                                    }
+                                    type enumeration {
+                                        enum "no-override"     { value -2; }
+                                        enum "auto"            { value -1; }
+                                    }
+                                }
+                                description "Specify MBS.";
+                            }
+                            container rate {
+                                description "Enter the rate context";
+                                leaf pir {
+                                    type union {
+                                        type int64 {
+                                            range "1..6400000000";
+                                        }
+                                        type enumeration {
+                                            enum "no-override" { value -2; }
+                                            enum "max"         { value -1; }
+                                        }
+                                    }
+                                    description "Specify the PIR rate.";
+                                    units "kilobps";
+                                }
+                                leaf cir {
+                                    type union {
+                                        type int64 {
+                                            range "0..6400000000";
+                                        }
+                                        type enumeration {
+                                            enum "no-override" { value -2; }
+                                            enum "max"         { value -1; }
+                                        }
+                                    }
+                                    units "kilobps";
+                                    description "CIR rate.";
+                                }
+                            } // container rate
+                        } // list queue
+
+                        list policer {
+                            key "policer-id";
+                            description "Egress policer override parameters.";
+
+                            leaf policer-id {
+                                type uint32 {
+                                    range "1..63";
+                                }
+                                description "Egress policier id.";
+                            }
+
+                            leaf cbs {
+                                type union {
+                                    type uint32  {
+                                        range "0..16777216";
+                                    }
+                                    type enumeration {
+                                       enum "no-override"     { value -2; }
+                                       enum "auto"            { value -1; }
+                                    }
+                                }
+                                units "bytes";
+                                description "Exceed threshold of the CIR leaky bucket of this policer";
+                            }
+
+                            leaf mbs {
+                                type union {
+                                    type uint32  {
+                                       range "0..16777216";
+                                    }
+                                    type enumeration {
+                                        enum "no-override"     { value -2; }
+                                        enum "auto"            { value -1; }
+                                    }
+                                }
+                                units "bytes";
+                                description "High priority 'violate' threshold of PIR leaky bucket of this policer";
+                            }
+
+                        } // list policer
+                    } // container overrides
+                } // sap-egress
+
+                container policer-control-policy {
+                    description "Policer control policy parameters";
+                    leaf policy-name {
+                        type string;
+                        description "Policer control policy name.";
+                    }
+                } // container policer-control-policy
+
+                container scheduler-policy {
+                    description "Ingress scheduler policy parameters.";
+
+                    leaf policy-name {
+                        type string;
+                        description "Scheduler policy name.";
+                    }
+                    container overrides {
+                        description "Enter the overrides context";
+
+                        list scheduler {
+                            key "scheduler-name";
+                            description "Enter the scheduler list instance";
+                            leaf scheduler-name {
+                                type string {
+                                    length "1..32";
+                                }
+                                description "Scheduler override policy name.";
+                            }
+                            container rate {
+                                description "Enter the rate context.";
+                                leaf pir {
+                                    type union {
+                                        type int64 {
+                                            range "1..6400000000";
+                                        }
+                                        type enumeration {
+                                            enum "no-override" { value -2; }
+                                            enum "max"         { value -1; }
+                                        }
+                                    }
+                                    description "Specifies the administrative PIR.";
+                                }
+                                leaf cir {
+                                    type union {
+                                        type int64 {
+                                            range "0..6400000000";
+                                        }
+                                        type enumeration {
+                                            enum "sum"         { value -3; }
+                                            enum "no-override" { value -2; }
+                                            enum "max"         { value -1; }
+                                        }
+                                    }
+                                    description "Specifies the administrative CIR.";
+                                }
+                            } // container rate
+                        }//list scheduler
+                    } // container overrides
+                } // container scheduler-policy
+            } // container qos
+
+            container filter {
+                description "SAP filter information.";
+
+                leaf ip {
+                    type string;
+                    description "IP filter identifier.";
+                }
+
+                leaf ipv6 {
+                    type string;
+                    description "IPv6 filter identifier.";
+                }
+            } // container filter
+        } // container egress
+    }
+}

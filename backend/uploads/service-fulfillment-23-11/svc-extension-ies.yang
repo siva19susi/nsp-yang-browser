@@ -1,0 +1,39 @@
+module svc-extension-ies {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:svc-extension:ies";
+    prefix "svc-extension-ies";
+    import nsp-model-extensions { prefix model-ext; }
+    import service-extension-common { prefix "svc-common"; }
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds ies service Augmentation";
+    revision "2023-06-27" { description "Move to extension common"; }
+    revision "2022-10-28" { description "Ies site/ep extension"; }
+    revision "2022-04-19" { description "Add composite service association"; }
+    revision "2020-10-13" { description "extension of the ies service-dmodel"; }
+
+    grouping ies-svc {
+        container ies-svc {
+            model-ext:table-name "service-extension-ies-svc";
+            uses svc-common:svc-extension-common;
+        }
+    }
+
+    grouping ies-site {
+        container ies-site {
+            model-ext:table-name "service-extension-ies-site";
+            uses svc-common:site-extension;
+        }
+    }
+
+    grouping ies-endpoint {
+        container ies-endpoint {
+            model-ext:table-name "service-extension-ies-endpoint";
+            uses svc-common:endpoint-extension;
+        } //container
+    } //augment ies endpoint
+
+
+}

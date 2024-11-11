@@ -1,0 +1,161 @@
+module nsp-tunnel-intent {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-tunnel-intent";
+    prefix "nsp-tunnel-intent";
+    import service-extension-common-types { prefix "svc-common-types"; }
+    import nsp-intent-common-types { prefix "nsp-intent-common-types"; }
+    organization "NOKIA Corp";
+    contact "";
+    description "";
+
+    revision "2023-09-25" { description "Add deployment-state and deployment-tracking-id to intent-base"; }
+    revision "2023-06-27" { description "Move to extension common"; }
+    revision "2022-09-28" {
+        description
+                "23.4 change - remove schemaMount";
+    }
+
+    revision "2020-08-01" {
+        description
+                "Initial revision.";
+    }
+
+    container intent-base {
+
+        list intent {
+            key "source-ne-id sdp-id intent-type";
+
+            leaf intent-type {
+                 type string;
+                 description "The intent type.";
+            }
+
+            leaf source-ne-id {
+                type string;
+                description "The source network element id of the tunnel.";
+            }
+
+            leaf sdp-id {
+                type string;
+                description "The tunnel Identifier";
+            }
+
+            leaf intent-type-version {
+                  type string;
+                  description "The intent type version.";
+            }
+
+            leaf olc-state {
+                type svc-common-types:olc;
+                default "saved";
+                description "The desired object life cycle state.";
+            }
+
+            leaf template-name {
+                type string;
+                description "The template name.";
+            }
+
+            leaf deployment-state {
+                type nsp-intent-common-types:deployer-state-type;
+                default notstarted;
+                config false;
+                description "overall deployment state";
+            }
+
+            leaf deployment-tracking-id {
+                type string;
+                config false;
+                description "deployment tracking xpath, contains info on submitted jobs from intents.";
+            }
+
+        }
+
+   }
+
+    rpc audit {
+        input {
+            leaf intent-type {
+                type string;
+                description "The intent type.";
+            }
+
+            leaf source-ne-id {
+                type string;
+                description "The source network element id of the tunnel.";
+            }
+
+            leaf sdp-id {
+                type string;
+                description "The tunnel Identifier";
+            }
+        }
+     }
+
+    rpc synchronize {
+        input {
+            leaf intent-type {
+                type string;
+                description "The intent type.";
+            }
+
+            leaf source-ne-id {
+                type string;
+                description "The source network element id of the tunnel.";
+            }
+
+            leaf sdp-id {
+                type string;
+                description "The tunnel Identifier";
+            }
+        }
+     }
+
+     rpc change-olc-state {
+         input {
+             leaf intent-type {
+                 type string;
+                 description "The intent type.";
+             }
+
+            leaf source-ne-id {
+                type string;
+                description "The source network element id of the tunnel.";
+            }
+
+            leaf sdp-id {
+                type string;
+                description "The tunnel Identifier";
+            }
+
+             leaf target-state {
+                 type svc-common-types:olc;
+                 description "The desired olc state.";
+             }
+
+             leaf ignore-blocking-workflow {
+                 type boolean;
+                 description "Ignore blocking workflow with a failed execution state.";
+             }
+         }
+     }
+
+    rpc rerun-blocking-workflow {
+        input {
+            leaf intent-type {
+                type string;
+                description "The intent type.";
+            }
+
+            leaf source-ne-id {
+                type string;
+                description "The source network element id of the tunnel.";
+            }
+
+            leaf sdp-id {
+                type string;
+                description "The tunnel Identifier";
+            }
+        }
+    }
+}

@@ -1,0 +1,415 @@
+module svc-extension-elan {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:svc-extension:elan";
+    prefix "svc-extension-elan";
+    import service-extension-common { prefix "svc-common"; }
+    import nsp-model-extensions { prefix model-ext; }
+    import nsp-common {prefix common;}
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds elan service Augmentation";
+    revision "2023-06-27" { description "Move to extension common"; }
+    revision "2023-01-20" { description "common l2-auto-bind-tunnel"; }
+    revision "2022-10-26" { description "Endpoint tenant-id"; }
+    revision "2022-04-19" { description "Add composite service association"; }
+    revision "2021-11-30" { description "Add site-id to extension endpoint"; }
+    revision "2020-10-13" { description "extension of the elan service-dmodel"; }
+
+    typedef elan-site-type {
+        type enumeration {
+            enum standard       { value 0; }
+            enum bvpls          { value 1; }
+            enum ivpls          { value 2; }
+            enum mvpls          { value 3; }
+            enum rvpls          { value 4; }
+            enum evpn           { value 5; }
+            enum etree          { value 6; }
+        }
+        description "Specifies the elan site type.";
+    }
+
+    typedef pbb-type {
+        type enumeration {
+            enum "none"                         { value 0; }
+            enum "b-vpls"                       { value 2; }
+            enum "i-vpls"                       { value 3; }
+        }
+        description "Type of VPLS.";
+    }
+
+    typedef stp-mode {
+        type enumeration {
+            enum "rstp"                         { value 2; }
+            enum "comp-dot1w"                   { value 3; }
+            enum "dot1w"                        { value 4; }
+            enum "mstp"                         { value 5; }
+            enum "pmstp"                        { value 6; }
+        }
+        description "Specifies the stp mode.";
+    }
+    typedef autobind-type {
+        type enumeration {
+            enum none;
+            enum gre;
+            enum ldp;
+            enum rsvp-te;
+            enum sr-isis;
+            enum sr-ospf;
+            enum sr-te;
+            enum bgp;
+            enum any;
+        }
+        description "Specifies the autobind type.";
+    }
+
+    typedef bgp-evpn-force-vc-forwarding {
+        type enumeration {
+            enum "vlan"   { value 1; }
+        }
+        description "Force VC forwarding options for BGP EVPN.";
+    }
+
+    grouping elan-svc {
+        container elan-svc {
+            model-ext:table-name "service-extension-elan-svc";
+            uses svc-common:svc-extension-common;
+        }
+    }//grouping elan-svc
+
+    grouping elan-site {
+        container elan-site {
+            model-ext:table-name "service-extension-elan-site";
+            uses svc-common:site-extension;
+
+
+            leaf etree {
+                type boolean;
+                default "false";
+                description "Use VPLS as an E-Tree VPLS";
+            }
+            leaf m-vpls {
+                type boolean;
+                default "false";
+                description "Specify whether this is a management VPLS";
+            }
+
+            leaf pbb-type {
+                type pbb-type;
+                description "PBB VPLS type";
+            }
+            container pbb { // pbb of two types - b-vpls and i-vpls.
+
+                leaf force-qtag-forwarding {
+                    when "../../pbb-type='i-vpls'";
+                    type boolean;
+                    description "Add an IEEE 802.1q tag after the Customer MAC address when the PBB header is built.";
+                    default "false";
+                }
+
+                leaf backbone-vpls-service-name {
+                    when "../../pbb-type='i-vpls'";
+                    type string;
+                    description "The backbone vpls service name.Applicable for pbb-type=i-vpls";
+                }
+                leaf isid {
+                    type int32;
+                    description "The service instance ID.";
+                }
+                container source-bmac {
+                    when "../../pbb-type='b-vpls'";
+                    description "Enter the source-bmac context.";
+
+                    leaf address {
+                        type svc-common:ieee-address;
+                        description "The base source BMAC address for the B-VPLS.";
+                    }
+
+                    leaf use-es-bmac-lsb {
+                        type boolean;
+                        default "false";
+                        description "Use LSB from Ethernet-segment backbone MAC.";
+                    }
+
+                    leaf use-mclag-bmac-lsb {
+                        type boolean;
+                        default "false";
+                        description "Use MC LAG backbone MAC LSB.";
+                    }
+                }
+            } //pbb
+
+            uses bgp-evpn;
+            list bgp {
+                key bgp-instance;
+                uses bgp;
+            }
+            uses vxlan;
+            container routed-vpls {
+                presence "Enable to allow IP interface binding information.";
+                description "Enter the routed-vpls context.";
+
+                leaf vxlan-ipv4-tep-ecmp {
+                    type boolean;
+                    default "false";
+                    description "Use ECMP on VXLAN IPv4 destinations for R-VPLS services.";
+                }
+
+                leaf evpn-mpls-ecmp {
+                    type boolean;
+                    default "false";
+                    description "Enable/disable ECMP behavior on R-VPLS services.";
+                }
+
+                container multicast {
+                    description "Enter the multicast context";
+
+                    leaf ip-multicast-ecmp {
+                        type boolean;
+                        default "false";
+                        description "ECMP behaviour for multicast traffic on bgp-evpn mpls and vxlan.";
+                    }
+
+                    container ipv4 {
+                        description "Enter the ipv4 context.";
+
+                        leaf forward-to-ip-interface {
+                            type boolean;
+                            default "false";
+                            description "Forward IPv4 multicast from RVPLS to L3 interface.";
+                        }
+
+                        container igmp-snooping {
+                            description "Enter the igmp-snooping context.";
+
+                            leaf mrouter-port {
+                                type boolean;
+                                default "false";
+                                description "Operate VPLS L3 interface as a multicast router port.";
+                            }
+
+                        } // container igmp-snooping
+
+                    } // container ipv4
+
+                    container ipv6 {
+                        description "Enter the ipv6 context";
+
+                        leaf forward-to-ip-interface {
+                            type boolean;
+                            default "false";
+                            description "Forward IPv6 multicast from RVPLS to L3 interface.";
+                        }
+
+                        container mld-snooping {
+                            description "Enter the mld-snooping context";
+
+                            leaf mrouter-port {
+                                type boolean;
+                                default "false";
+                                description "Operate VPLS L3 interface as a multicast router port.";
+                            }
+
+                        } // container mld-snooping
+
+                    } // container ipv6
+
+                } // container multicast
+
+            } // container routed-vpls
+
+            container mac-move {
+                description "Enter the mac-move context.";
+
+                leaf admin-state {
+                    type common:admin-state;
+                    default "unlocked";
+                    description "Administrative state of MAC move.";
+                }
+
+                leaf move-frequency {
+                    type uint32 {
+                        range "1..10";
+                    }
+                    default "2";
+                    description "Move frequency to be used, in 5-second intervals. For the default move-frequency of 2 (moves per second), the system will disable a VPLS sap/spoke-sdp as soon as the number of relearns detected has reached, for instance, 10 relearns within a 5 second interval.";
+                }
+
+                leaf retry-count {
+                    type union {
+                        type uint32 {
+                            range "1..255";
+                        }
+                        type enumeration {
+                            enum "unlimited"                    { value 0; }
+                        }
+                    }
+                    default "3";
+                    description "Number of retries for re-enabling.";
+                }
+
+                leaf hold-down-time {
+                    type uint32 {
+                        range "0..600";
+                    }
+                    units "seconds";
+                    default "10";
+                    description "Time to wait before a SAP that has been disabled after exceeding the maximum re-learn rate is re-enabled.";
+                }
+
+                leaf primary-cumulative-factor {
+                    type uint32 {
+                        range "3..10";
+                    }
+                    default "3";
+                    description "Factor for the primary ports defining how many MAC-relearn periods should be used to measure the MAC-relearn rate. This rate must be exceeded during consecutive periods before the corresponding ports (SAP and/or spoke-SDP) are blocked by the MAC-move feature.";
+                }
+
+                leaf secondary-cumulative-factor {
+                    type uint32 {
+                        range "2..9";
+                    }
+                    default "2";
+                    description "Factor for the secondary ports defining how many MAC-relearn periods should be used to measure the MAC-relearn rate. This rate must be exceeded during consecutive periods before the corresponding ports (SAP and/or spoke-SDP) are blocked by the MAC-move feature.";
+                }
+
+
+                //TO DO SAP and SPOKE SDP NEEDED?
+
+            } // container mac-move
+
+            container mfib {
+                description "Enter the mfib context";
+
+                container table {
+                    description "Enter the table context";
+
+                    leaf high-wmark {
+                        type int32 {
+                            range "0..100";
+                        }
+                        default "95";
+                        description "High watermark for the FDB table.";
+                    }
+
+                    leaf low-wmark {
+                        type int32 {
+                            range "0..100";
+                        }
+                        default "90";
+                        description "Low watermark for the FDB table.";
+                    }
+
+                    leaf size {
+                        type int32 {
+                            range "0..511999";
+                        }
+                        default "250";
+                        description "Maximum MAC entries in the FDB.";
+                    }
+
+                }  // container table
+            }//container mfib
+        }
+    }// grouping elan-site
+
+
+    grouping elan-endpoint {
+        container elan-endpoint {
+            model-ext:table-name "service-extension-elan-endpoint";
+            uses svc-common:endpoint-extension;
+        } //container
+    } //grouping elan-endpoint
+
+
+
+    grouping bgp-evpn {
+        container bgp-evpn {
+            description "An EVPN instance";
+
+
+            leaf evi {
+                type uint32;
+                description "The evi.";
+            }
+            list mpls {
+                key "bgp-instance";
+                leaf bgp-instance {
+                    type int32 {
+                        range "1..2";
+                    }
+                    description "BGP instance";
+                }
+                leaf force-vc-forwarding {
+                    type bgp-evpn-force-vc-forwarding;
+                    description "VC forwarding action";
+                }
+                leaf ingress-replication-bum-label {
+                    type boolean;
+                    default "false";
+                    description "Use a separate label for BUM (Broadcast, Unknown unicast and Multicast) traffic than the one advertised for unicast traffic.";
+                }
+
+                leaf ecmp {
+                    type int32;
+                    default "1";
+                    description "Maximum ECMP routes information.";
+                }
+                uses svc-common:l2-auto-bind-tunnel;
+            }
+        }
+    }
+
+    grouping bgp {
+        description "BGP parameters common to all pseudowires.";
+        leaf bgp-instance {
+            type int32 {
+                range "1..2";
+            }
+            description "BGP instance";
+        }
+
+        leaf route-distinguisher {
+            type union {
+                type enumeration {
+                    enum "auto-rd" {value 1;}
+                }
+                type string;
+            }
+            description "High-order 6 bytes that are used as string to compose VSI-ID for use in NLRI";
+        }
+
+        container route-target-import {
+            uses svc-common:route-target;
+        }
+
+        container route-target-export {
+            uses svc-common:route-target;
+        }
+    }
+
+
+
+    grouping vxlan {
+        container vxlan {
+            list instance {
+                description "instance list instance";
+                key "vxlan-instance-id";
+                leaf vxlan-instance-id {
+                    type uint32 {
+                        range "1..2";
+                    }
+                    description "VXLAN instance";
+                }
+
+                leaf vni {
+                    type uint32 {
+                        range "1..16777215";
+                    }
+                    description "VNI of the VXLAN";
+                }
+            }
+        }
+    }
+}

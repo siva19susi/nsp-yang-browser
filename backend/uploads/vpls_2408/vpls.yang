@@ -1,0 +1,719 @@
+module vpls {
+    namespace "http://www.nokia.com/management-solutions/vpls";
+    yang-version 1.1;
+    prefix "vpls";
+    import qos-filter-common { prefix "qos-filter-common"; }
+    import sdp-binding-common { prefix "sdp-binding-common"; }
+    import sap-common { prefix "sap-common"; }
+    import svc-common { prefix "svc-common"; }
+    import vpls-eth-cfm-common { prefix "vpls-eth-cfm-common"; }
+    import ietf-inet-types { prefix "inet-types"; }
+    organization "NOKIA Corp";
+    contact "";
+    description "";
+    revision "2024-08-17" {
+        description "24.8 changes";
+    }
+    revision "2021-08-24" {
+        description
+                "21.11 changes";
+    }
+    revision "2021-06-15" {
+        description
+                "Initial revision.";
+    }
+    typedef ieee-address {
+        type string {
+            pattern "([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})";
+        }
+        description "The ieee-address type represents an IEEE 802 MAC address.";
+    }
+
+    typedef ipv4-address {
+        type inet-types:ipv4-address-no-zone {
+            pattern "[0-9\\.]*";
+            pattern "(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(%[\\p{N}\\p{L}]+)?";
+        }
+        description "An IPv4 address.";
+    }
+
+    grouping configuration-details {
+        container vpls {
+            uses svc-common:svc-details;  
+
+            leaf vpls-type {     
+                type enumeration {
+                    enum standard       { value 0; }
+                    enum bvpls          { value 1; }
+                    enum ivpls          { value 2; }
+                }
+                description "test";
+                default standard;
+            }
+
+            leaf is-management-vpls {
+                type boolean;
+                default "false";
+                description "Enable IP Interface binding";
+            }
+
+            leaf mtu {
+                type uint16;
+                description "svc mtu";
+            }
+
+            leaf ne-service-id {
+                type uint32 {
+                    range "1..2147483647";
+                }
+                description "Specify Service Id";
+            }
+
+            container site-details{
+                list site {
+                    key "device-id";
+
+                    uses svc-common:site-details;
+
+                    leaf is-routed-vpls {
+                        type boolean;
+                        default "false";
+                        description "Enable IP Interface binding";
+                    }
+
+                    container stp {
+                        leaf admin-state {
+                            type enumeration {
+                                enum unlocked;
+                                enum locked;
+                            }
+                            description "STP Administrative State.";
+                        }
+
+                        leaf mode {
+                            type enumeration {
+                                enum "rstp"                         { value 2; }
+                                enum "comp-dot1w"                   { value 3; }
+                                enum "dot1w"                        { value 4; }
+                                enum "mstp"                         { value 5; }
+                                enum "pmstp"                        { value 6; }
+                            }
+                            description "Configure protocol version";
+                        }
+
+                        leaf priority {
+                            type int32 {
+                                range "0..65535";
+                            }
+                            description "Configure STP bridge priority";
+                        }
+                    }
+
+                    container mac-flush {
+                        description "Enter the mac-flush context";
+
+                        container tldp {
+                            description "Enter the tldp context";
+
+                            leaf propagate {
+                                type boolean;
+                                description "Propagate MAC flush messages received from the T-LDP";
+                            }
+
+                            leaf send-on-failure {
+                                type boolean;
+                                description "Send MAC withdraw message on SAP/Spoke-SDP failure";
+                            }
+
+                        } // container tldp
+
+                    } // container mac-flush
+
+                    container fdb {
+                        description "Enter the fdb context";
+
+                        leaf discard-unknown {
+                            type boolean;
+                            description "Discard packets with unknown destination MAC addresses";
+                        }
+
+                        container table {
+                            description "Enter the table context";
+
+                            leaf high-wmark {
+                                type int32 {
+                                    range "0..100";
+                                }
+                                description "High watermark for the FDB table";
+                            }
+
+                            leaf low-wmark {
+                                type int32 {
+                                    range "0..100";
+                                }
+                                description "Low watermark for the FDB table";
+                            }
+
+                            leaf size {
+                                type int32 {
+                                    range "1..511999";
+                                }
+                                description "Maximum MAC entries in the FDB";
+                            }
+
+                        } // container table
+
+                        container mac-learning {
+                            description "Enter the mac-learning context";
+
+                            leaf learning {
+                                type boolean;
+                                description "Enable learning of new MAC addresses";
+                            }
+
+                            leaf aging {
+                                type boolean;
+                                description "Enable aging of MAC addresses";
+                            }
+
+                            leaf local-age-time {
+                                type int32 {
+                                    range "60..86400";
+                                }
+                                description "Aging time for locally learned MAC addresses";
+                            }
+
+                            leaf remote-age-time {
+                                type int32 {
+                                    range "60..86400";
+                                }
+                                description "Aging time for locally learned MAC addresses";
+                            }
+
+                        } // container mac-learning
+                    } // container fdb
+
+                    list split-horizon-group {
+                        key "shg-name";
+                        leaf shg-name {
+                            type string;
+                            description "SHG name to which the SDP belongs";
+                        }
+
+                        leaf description {
+                            type string;
+                            description "Text description";
+                        }
+
+                        container fdb {
+                            description "Enter the fdb context";
+
+                            container saps {
+                                description "Enter the saps context";
+
+                                leaf discard-unprotected-dest-mac {
+                                    type boolean;
+                                    description "Discard packet with unprotected destination MAC address";
+                                }
+                            }
+                        }
+                    }
+
+                    container pbb {
+                        leaf source-bmac {
+                            when "../../../../vpls-type = 'bvpls'";
+                            type ieee-address;
+                            description "Base source BMAC address for the B-VPLS";
+                        }
+
+                        container backbone-vpls {
+                            when "../../../../vpls-type = 'ivpls'";
+                            leaf backbone-vpls-service-name {
+                                type string;
+                                description "Backbone VPLS service";
+                            }
+
+                            leaf isid {
+                                type int32 {
+                                    range "0..16777215";
+                                }
+                                description "Backbone VPLS ISID";
+                            }
+                        }
+                    }
+
+                    container pim-snooping {
+                        when "not(../../../vpls-type = 'bvpls') and not(../../../is-management-vpls = 'true')";
+                        presence "Enable the pim-snooping context";
+                        description "Enable the pim-snooping context";
+
+                        leaf hold-time {
+                            type uint32 {
+                                range "0..300";
+                            }
+                            units "seconds";
+                            description "Duration that allows the PIM-snooping switch to snoop all the PIM states in the VPLS";
+                        }
+
+                        leaf-list group-policy {
+                            type string {
+                                length "1..255";
+                            }
+                            max-elements 5;
+                            ordered-by user;
+                            description "Group policy name";
+                        }
+
+                        container ipv4 {
+                            description "Enter the ipv4 context";
+
+                            leaf admin-state {
+                                type enumeration {
+                                    enum unlocked;
+                                    enum locked;
+                                }
+                                description "Administrative state of snooping for multicast traffic";
+                            }
+                        } // container ipv4
+
+                        container ipv6 {
+                            when "not(../../../../vpls-type = 'ivpls')";
+                            description "Enter the ipv6 context";
+
+                            leaf admin-state {
+                                type enumeration {
+                                    enum unlocked;
+                                    enum locked;
+                                }
+                                description "Administrative state of snooping for multicast traffic";
+                            }
+                        } // container ipv6
+
+                        leaf mode {
+                            type enumeration {
+                                enum snoop;
+                                enum proxy;
+                            }
+                            description "Pim-snooping mode";
+                        }
+                    } // container pim-snooping
+
+                    container sap-details{
+                        list sap {
+                            key "port-id inner-vlan-tag outer-vlan-tag";
+                            uses sap-common:sap-details;
+                            uses qos-filter-common:access-configuration-details;
+
+                            leaf split-horizon-group {
+                                type leafref {
+                                    path "../../../split-horizon-group/shg-name";
+                                }
+                                description "Name of the split horizon group where the spoke SDP bind belongs to";
+                            }
+
+                            container fdb {
+                                description "Enter the fdb context";
+
+                                leaf maximum-mac-addresses {
+                                    type int32 {
+                                        range "1..511999";
+                                    }
+                                    description "Maximum number of MAC entries in the FDB";
+                                }
+
+                                leaf discard-unknown-source {
+                                    type boolean;
+                                    description "Discard frames with unknown source";
+                                }
+
+                                leaf mac-pinning {
+                                    type boolean;
+                                    description "Enable MAC address pinning on this SAP";
+                                }
+
+                                leaf auto-learn-mac-protect {
+                                    type boolean;
+                                    description "Enable automatic update of MAC protect list";
+                                }
+
+                                container mac-learning {
+                                    description "Enter the mac-learning context";
+
+                                    leaf learning {
+                                        type boolean;
+                                        description "Enable learning of new MAC addresses";
+                                    }
+
+                                    leaf aging {
+                                        type boolean;
+                                        description "Enable aging of MAC addresses";
+                                    }
+                                }//container mac-learning
+
+                            } // fdb
+
+                            container managed-vlan-list {
+                                when "../../../../../is-management-vpls = 'true'";
+                                description "Enter the managed-vlan-list context";
+
+                                list range {
+                                    key "vlan-range";
+                                    description "Add a list entry for range";
+
+                                    leaf vlan-range {
+                                        type string {
+                                            pattern "((([0-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-4]))(\\.\\.(([0-9]|[1-9][0-9]{1,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-4])))?)|(default-sap)";
+                                        }
+                                        description "Range of vlans that are associated with the Mvpls SAP.";
+                                    }
+                                } // list range
+                            } // container managed-vlan-list
+
+                            container dhcp {
+                                when "../../../../../vpls-type = 'standard' ";
+
+                                leaf admin-state {
+                                    type enumeration {
+                                        enum unlocked;
+                                        enum locked;
+                                    }
+                                    description "Administrative state of DHCP";
+                                }
+
+                                leaf snoop {
+                                    type boolean;
+                                    description "Enable DHCP snooping on the SAP";
+                                }
+
+                                container lease-populate {
+                                    description "Enter the lease-populate context";
+
+                                    leaf max-leases {
+                                        type uint32 {
+                                            range "0..131071";
+                                        }
+                                        description "Maximum number of DHCPv4 leases";
+                                    }
+
+                                } // container lease-populate
+                            }
+
+                            leaf anti-spoof {
+                                type enumeration {
+                                    enum "source-ip-addr"               { value 1; }
+                                    enum "source-mac-addr"              { value 2; }
+                                    enum "source-ip-and-mac-addr"       { value 3; }
+                                    enum "next-hop-ip-and-mac-addr"     { value 4; }
+                                }
+                                description "Type of anti-spoof filtering";
+                            }
+
+                            leaf oper-group {
+                                type string;
+                                description "Operational group";
+                            }
+
+                            container igmp-snooping {
+                                leaf import-policy {
+                                    type string;
+                                    description "Import policy that filters IGMP packets";
+                                }
+
+                                leaf maximum-number-groups {
+                                    type uint32 {
+                                        range "1..16000";
+                                    }
+                                    description "Maximum groups allowed";
+                                }
+
+                                leaf send-queries {
+                                    type boolean;
+                                    description "Generate IGMP general queries";
+                                }
+
+                                container mcac {
+                                    description "Enter the mcac context";
+                                    leaf policy {
+                                        type string;
+                                        description "Multicast CAC policy name";
+                                    }
+                                    container bandwidth {
+                                        description "Enter the bandwidth context";
+
+                                        leaf total {
+                                            type union {
+                                                type int32 {
+                                                    range "0..max";
+                                                }
+                                                type enumeration {
+                                                    enum "unlimited"                    { value -1; }
+                                                }
+                                            }
+                                            description "Maximum allowed bandwidth";
+                                        }
+
+                                        leaf mandatory {
+                                            type union {
+                                                type int32 {
+                                                    range "0..max";
+                                                }
+                                                type enumeration {
+                                                    enum "unlimited"                    { value -1; }
+                                                }
+                                            }
+                                            description "Pre-reserved bandwidth for all mandatory channels";
+                                        }
+
+                                    } // container bandwidth
+                                }
+
+                                container static {
+                                    description "Enter the static context";
+
+                                    list group {
+                                        key "group-address";
+                                        description "Enter the group list instance";
+
+                                        leaf group-address {
+                                            type ipv4-address;
+                                            description "Group address of static IGMP multicast channel";
+                                        }
+
+                                        choice source-or-starg {
+                                            mandatory true;
+                                            case source {
+                                                list source {
+                                                    key "source-address";
+                                                    description "Add a list entry for source";
+                                                    leaf source-address {
+                                                        type ipv4-address;
+                                                        description "Source IP address of multicast channel sending data";
+                                                    }
+                                                } // list source
+                                            }
+                                            case starg {
+                                                leaf starg {
+                                                    type empty;
+                                                    description "any source address (*,G)";
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            container pim-snooping {
+                                when "not(../../../../../vpls-type = 'bvpls') and not(../../../../../is-management-vpls = 'true')";
+                                description "Enter the pim-snooping context";
+
+                                leaf maximum-number-groups {
+                                    type uint32 {
+                                        range "0..16000";
+                                    }
+                                    description "Maximum groups for this interface";
+                                }
+                            } // container pim-snooping
+                        }
+                    }
+
+                    container mep {
+                        uses vpls-eth-cfm-common:mep-configuration-details;
+                    }
+
+                    container igmp-snooping {
+                        when "../../../vpls-type = 'standard' ";
+                        leaf admin-state {
+                            type enumeration {
+                                enum unlocked;
+                                enum locked;
+                            }
+                            description "Administrative state of snooping.";
+                        }
+                        leaf report-source-address {
+                            type ipv4-address;
+                            description "Source IP address used when generating IGMP reports";
+                        }
+                        leaf query-source-address {
+                            type union {
+                                type enumeration {
+                                    enum "system"                       { value 1; }
+                                }
+                                type ipv4-address;
+                            }
+                            description "Source address for IGMP queries";
+                        }
+                    }
+
+                    container management-interface-details{
+                        when "../../../vpls-type = 'standard' ";
+                        list interface {
+                            key "interface-name";
+                            description "Enter the interface list instance";
+
+                            leaf interface-name {
+                                type string;
+                                description "Router interface name";
+                            }
+
+                            leaf admin-state {
+                                type enumeration {
+                                    enum unlocked;
+                                    enum locked;
+                                }
+                                description "Router interface Administrative State.";
+                                default unlocked;
+                            }
+
+                            leaf mac {
+                                type ieee-address;
+                                description "MAC address for the interface";
+                            }
+
+                            container ipv4 {
+                                leaf address {
+                                    type string;
+                                    mandatory true;
+                                    description "IP address of the interface";
+                                }
+
+                                leaf prefix-length {
+                                    type uint32 {
+                                        range "0..32";
+                                    }
+                                    mandatory true;
+                                    description "IPv4 address prefix length";
+                                }
+                            }
+                        }
+                    }
+                    container proxy-nd {
+                        when "../../../vpls-type = 'standard' ";
+                        presence "Enable proxy nd configuration information.";
+                        description "Enter the proxy-nd context";
+                        uses svc-common:proxy-nd;
+                    }
+                }
+            }
+            container sdp-details{
+                list sdp {
+                    key "source-device-id sdp-id";
+                    description "VPLS spoke SDP information";
+                    leaf sdp-type {
+                        type enumeration {
+                            enum "mesh"                        { value 1; }
+                            enum "spoke"                         { value 2; }
+                        }
+                        default "mesh";
+                    }
+
+                    leaf vc-type {
+                        type enumeration {
+                            enum "ether"                        { value 2; }
+                            enum "vlan"                         { value 4; }
+                        }
+                        default "ether";
+                        description "Type of virtual circuit (VC) associated with the SDP binding";
+                    }
+
+                    uses sdp-binding-common:sdp-binding-details;
+
+                    container fdb {
+                        description "Enter the fdb context";
+
+                        leaf maximum-mac-addresses {
+                            type int32 {
+                                range "1..511999";
+                            }
+                            description "Maximum number of MAC entries in the FDB";
+                        }
+
+                        leaf discard-unknown-source {
+                            type boolean;
+                            description "Discard frames with unknown source";
+                        }
+
+                        leaf mac-pinning {
+                            type boolean;
+                            description "Enable MAC address pinning on this SAP";
+                        }
+
+                        leaf auto-learn-mac-protect {
+                            type boolean;
+                            description "Enable automatic update of MAC protect list";
+                        }
+
+                        leaf protected-src-mac-violation-action {
+                            type enumeration {
+                                enum sdp-bind-oper-down             { value 1; }
+                                enum alarm-only                     { value 2; }
+                                enum discard                        { value 3; }
+                            }
+
+                            description "Action when a relearn request for a protected MAC is received on the SDP";
+                        }
+
+                        container mac-learning {
+                            when "../../sdp-type = 'spoke'";
+                            description "Enter the mac-learning context";
+
+                            leaf learning {
+                                type boolean;
+                                description "Enable learning of new MAC addresses";
+                            }
+
+                            leaf aging {
+                                type boolean;
+                                description "Enable aging of MAC addresses";
+                            }
+                        } // container mac-learning
+
+                    } // container fdb
+
+                    container igmp-snooping {
+                        description "Enter the igmp-snooping context";
+                        leaf maximum-number-groups {
+                            type uint32 {
+                                range "1..16000";
+                            }
+                            description "Maximum groups allowed";
+                        }
+                    } // container igmp-snooping
+
+                    container dhcp {
+                        leaf snoop {
+                            type boolean;
+                            description "Allow DHCP snooping of DHCP messages on the SAP or SDP";
+                        }
+                    }
+
+                    leaf force-vc-forwarding {
+                        type enumeration {
+                            enum "vlan"                         { value 1; }
+                            enum "qinq-c-tag-c-tag"             { value 2; }
+                            enum "qinq-s-tag-c-tag"             { value 3; }
+                        }
+                        description "VC forwarding action";
+                    }
+
+                    leaf control-word {
+                        type boolean;
+                        description "Use the control word as preferred";
+                    }
+
+                    container pim-snooping {
+                    when "not(../../../vpls-type = 'bvpls') and not(../../../is-management-vpls = 'true') and ../sdp-type = 'spoke'";
+                        description "Enter the pim-snooping context";
+
+                        leaf maximum-number-groups {
+                            type uint32 {
+                                range "0..16000";
+                            }
+                            description "Maximum groups for this interface";
+                        }
+                    } // container pim-snooping
+                } // container sdp
+            }
+        }
+    }
+    uses vpls:configuration-details;
+}

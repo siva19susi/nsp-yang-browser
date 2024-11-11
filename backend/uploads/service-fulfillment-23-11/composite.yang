@@ -1,0 +1,184 @@
+module composite {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:composite";
+    prefix "composite";
+    import nsp-service { prefix "svc"; }
+    import nsp-model-extensions { prefix model-ext; }
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds composite service Augmentation to service layer";
+    revision "2023-01-06" { description "Add unknown oper-state identity"; }
+    revision "2022-03-23" { description "first iteration of composite model"; }
+
+    augment "/svc:services/svc:service-layer" {
+        uses composite;
+    }
+
+    grouping composite {
+        list composite {
+            model-ext:table-name "service-layer-composite";
+            description "The service connects 2 or more services.";
+            key "service-id";
+            leaf service-id {
+                description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                type string;
+            }
+                        
+
+            leaf name {
+                description "The user friendly visible name";
+                type string;
+            }
+        
+            leaf description {
+                description "The user friendly text describing the service";
+                type string;
+            }
+            
+            leaf admin-state {
+                description "The administrative state of composite service";
+                type identityref {
+                    base admin-state;
+                    }
+            }
+            
+            leaf oper-state {
+                description "The operational state of composite service";
+                type identityref {
+                    base oper-state;
+                    }
+            }
+
+            list tenant {
+                description "Specific customer details that are associated with a service";
+                key "id";
+
+                uses customer-details;
+            }
+
+            list service-connector {
+                key name;
+                uses service-connector;
+            }
+
+            leaf-list services {
+                description "The services that are connected into a single composite service.";
+                type instance-identifier {
+                    require-instance false;
+                }
+            }
+
+        }// list composite
+    }// grouping composite
+
+    grouping customer-details {
+        description "Properties specific to 'customer-details'";
+        leaf id {
+             description "The unique identifier for the customer";
+             type string;
+        }
+        
+        leaf name {
+             description "The name of the customer";
+             type string;
+        }
+        
+    }//customer-details
+
+    grouping service-connector {//this is a list
+        description "List of service connectors uniquely identified by name'";
+        
+        leaf name {
+             description "Name of the connector, src-dest ";
+             type string;
+        }
+
+        leaf type {
+             description "The type of service connector";
+             type identityref {
+                base connector-type;
+            }
+        }
+
+        leaf-list connects {
+            description "The services that are connected into a single composite service.";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }//service-connector
+
+    //
+    // Identity: oper-state
+    //
+    identity oper-state {
+        description "The operational state of composite service
+                    partial: Atleast 1 service in composite is down and Atleast 1 service in composite is up
+                    enabled: All services in composite are up
+                    disabled: All services in composite are down
+                    unknown: Operational state is unknown in Planned/Saved/Removed state";
+    }
+    identity partial {
+        base oper-state;
+        description "The resource maybe operable and available for use";
+    }
+    identity enabled {
+        base oper-state;
+        description "The resource is operable and available for use";
+    }
+    identity disabled {
+        base oper-state;
+        description "The resource is totally inoperable and unable to provide services";
+    }
+    identity unknown {
+        base oper-state;
+        description "The resource operational state is unknown";
+    }
+
+
+    //
+    // Identity: connector-type
+    //
+    identity connector-type {
+        description "The types of service connectors";
+    }
+    identity unknown-connector {
+        base connector-type;
+    }
+    identity spoke {
+        base connector-type;
+    }
+    identity scp {
+        base connector-type;
+    }
+    identity cross-connect {
+        base connector-type;
+    }
+    identity routed-vpls {
+        base connector-type;
+    }
+    identity vprn-route-target {
+        base connector-type;
+    }
+
+    //
+    // Identity: admin-state
+    //
+    identity admin-state {
+        description "The admin state of composite service
+                    enabled: All services in composite are up
+                    disabled: All services in composite are down";
+    }
+    identity unlocked {
+        base admin-state;
+        description "The resource is administratively permitted to perform services. In other words, the resource is 'up'.";
+    }
+    identity locked {
+        base admin-state;
+        description "The resource is administratively prohibited from performing services. In other words, the resource is 'down'";
+    }
+
+}

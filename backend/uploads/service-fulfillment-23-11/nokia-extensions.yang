@@ -1,0 +1,44 @@
+module nokia-extensions {
+
+    yang-version "1";
+
+    namespace "urn:com:nokia:yang:nsp:mdm:nokia-extensions";
+
+    prefix "nokia-ext";
+    
+    organization "Nokia ION NSM NSP";
+
+    contact
+        "www.nokia.com";
+
+    description
+        "This module provides extensions to the YANG language to allow
+         OpenConfig specific functionality and meta-data to be defined.";
+
+    revision "2017-07-28" {
+        description
+            "Initial revision";
+             reference "TBD";
+    }
+
+    extension model-version {
+        argument "semver" {
+            yin-element false;
+        }
+        description
+            "The model version for the module. This is
+             expressed as a semantic version number of the form:
+               x.y.z
+             where:
+                * x corresponds to the major version,
+                * y corresponds to a minor version,
+                * z corresponds to a patch version.";
+    }
+
+    extension display-name {
+        argument "title" {
+            yin-element false;
+        }
+        description "The name used in UI for this element.";
+    }
+}

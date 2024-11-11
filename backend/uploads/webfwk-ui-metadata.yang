@@ -1,0 +1,113 @@
+// Contents of "epg-gui-metadata"
+module webfwk-ui-metadata {
+    namespace "http://www.nokia.com/management-solutions/webfwk/ui-metadata";
+    prefix "uimeta";
+
+    revision 2017-11-08 {
+        description "Initial revision";
+    }
+
+    extension group {
+        description "This extension take group name as argument and defines a group on the UI. It can contain the sub statements: i18n-text, order
+            i18n-text statement nested within this statement will be rendered as title of the group in UI.";
+        argument "group";
+    }
+
+    extension group-ref{
+        description "This extension can be nested within a leaf to mention to which group the leaf belongs to.";
+        argument "groupRef";
+    }
+    extension order {
+        description "This extension takes integer as argument.
+            This extension can be nested within a group statement or within a leaf.
+            When nested within group: UI can use this value to layout the various groups according to the order
+            When nested within a leaf: UI will know how to order the attributes within the group.";
+        argument "order";
+    }
+    extension i18n-text {
+        description "The default English text displayed at the UI. Translation key shall be derived by the client based on hirarchy of this statement.
+            value of this extions should be persisted into translation table; the translation key shall be computed by the module which is depolying a particular yang.
+            ex: s2d subsystem";
+        argument "value";
+    }
+
+    extension modify-warning {
+        description "i18n-label should be nested within this extension.
+            GUI needs to display the warning message mentioned in this extension in an instance modify screen.
+            ex: leaf qosProfile{
+                   ui:modify-warning \"service will be disrupted for a moment on modifying this attribute\";
+                }
+            }
+            GUI shall decide to show this warning or not based on context.
+            Example: It makes sense to show this warning while modifying a service instance, but not during creation.
+            ";
+        argument "warningMessage";
+    }
+
+    extension suggest {
+        description "This extension takes a provider name as argument.
+            This extension can hint the GUI on how to auto suggest valid values for an input field
+            ex: in S2D value provider name will be mapped to a function name in mapping script.";
+        argument "valueProviderName";
+    }
+
+    // Is this needed ?
+    extension entrypoint-provider {
+        description "etnrypoint provider";
+        argument "entrypointProviderName";
+    }
+    extension scannable {
+        description "GUI can use this as an indication that the value of this attribute
+           could be retrieved by scanning a barcode";
+   }
+    extension is-hidden {
+        description "The flag to denote whether a field is visible in the UI or not. By default it is false, ie all fields are visible.
+            When set to true, the corresponding field will be hidden in the UI.
+            ex: leaf qosProfile{
+                    ui:is-hidden \"true\";
+                }
+            }";
+        argument "is-hidden";
+    }
+     extension action {
+         description "This extension indicates that the rpc is used as an action that has to be displayed at the UI.";
+     }
+     extension i18n-warning {
+         description "A warning text that can be displayed at the bottom of an action dialog.
+                      This is used within an action";
+         argument "i18nWarning";
+     }
+     extension separator-before {
+         description "This flag indicates whether a separator must be displayed in the menu before the current menu item.
+                      This is used within an action";
+         argument "separatorBefore";
+     }
+     extension permission {
+         description "The menu item will be visible to the user if this extension is not used or if the user has at least
+                      one of these Keycloak permissions in his role. Otherwise the menu item will be hidden.
+                      This is used within an action.";
+         argument "permission";
+     }
+     extension function {
+         description "The name of the JavaScript function that has to be called when the user triggers the action.
+                      This is used within an action";
+         argument "function";
+     }
+     extension confirmation-box {
+         description "a boolean that indicates whether a confirmation box must be displayed if there is no input container in the YANG of the action. This is usefull if the action is just displaying results";
+         argument "confirmation-box";
+     }
+     extension graph {
+         description "a boolean that indicates whether the list of data must be displayed as a graph or not. This makes sense only if
+                      all the elements of the list are of type 'leaf'.";
+     }
+     extension x-axis {
+         description "indicates that the leaf must be used as X-axis. There must be one and only one leaf with this
+                      extension in a list. To be used in combination with 'ui:graph'.";
+
+     }
+     extension y-axis {
+         description "indicates that the leaf that must be added to the Y-axis. To be used in combination with 'ui:graph'.";
+
+     }
+}

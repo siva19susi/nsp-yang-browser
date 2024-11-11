@@ -1,0 +1,105 @@
+module nsp-model-notification {
+    yang-version 1.1;
+
+    namespace "urn:nokia:nsp:model-meta:notification";
+    prefix notif;
+
+
+    import ietf-yang-types {
+        prefix yang;
+    }
+
+
+    organization "Nokia ION NSM NSP";
+
+    contact
+        "www.nokia.com";
+
+    description
+        "This module defines model object notifications";
+
+    revision "2018-06-28" {
+        description
+            "Initial revision";
+    }
+
+    notification object-created {
+        description "A notification that a new YANG subtree was created";
+        uses EntityNotification;
+    }
+    
+    notification object-replaced {
+        description "A notification that YANG subtree was replaced by a new subtree (a delete followed by a create)";
+        uses EntityNotification;
+    }
+
+    notification object-deleted {
+        description "A notification that a YANG subtree was deleted";
+        uses EntityNotification;
+    }
+
+    notification object-changed {
+        description "A notification that a YANG container / list item was updated. Only leaf / leaf-lists in the 
+                     container / list are notified. Changes to children containers and list items are notified 
+                     separately.";
+                     
+        uses Notification;
+        
+        list changes {
+            key name;
+            
+            leaf name {
+                description "The name of the property that changed. The name is the context of the notification's
+                             instance-id.";
+                mandatory true;
+                type string;
+            }
+            
+            anydata old-value {
+                description "The previous value of the leaf / leaf-list with the given name on object identified by 
+                             instance-id. The type matches the type of the corresponding leaf / leaf-list property.";
+            }
+            
+            anydata new-value {
+                description "The new value of the leaf / leaf-list with the given name on object identified by 
+                             instance-id. The type matches the type of the corresponding leaf / leaf-list property.";
+            }
+        }
+    }
+
+    grouping Notification {
+        leaf event-time {
+            description "The time the notification was generated";
+            mandatory true;
+            type yang:date-and-time;
+        }
+        
+        leaf schema-nodeid  {
+            description "The Yang schema node identifier in XPath format, includes mount point for device models";
+            mandatory true;
+            type string;
+        }
+        
+        leaf instance-id {
+            description "The instance identifier of schema node in XPath format, includes mount point for device models";
+            mandatory true;
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf context {
+            description "The optional name of the app / component performing the change. It is a free formed string.";
+            mandatory false;
+            type string;
+        }
+    }
+    
+    grouping EntityNotification {
+        uses Notification;
+        
+        anydata tree {
+            description "The newly created entity tree. May be omitted in some cases.";
+        }    
+    }
+}

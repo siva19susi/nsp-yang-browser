@@ -1,0 +1,79 @@
+module reference-action-intent {
+    yang-version 1.1;
+    namespace "http://www.nokia.com/management-solutions/reference-action-intent";
+    prefix "ibsf-intent-action";
+    import webfwk-ui-metadata { prefix "ui"; }
+    organization "NOKIA Corp";
+    contact "";
+    description "This module defines the Action in Intent Type";
+
+    revision "2022-11-11" {
+      description "remove RPC for reverse mapping to support reconcile() support";
+    }
+
+    revision "2022-03-28" {
+        description "Changing the reference-action-intent container to config false";
+    }
+   
+    revision "2021-08-01" {
+        description "Initial revision";
+    }
+
+    container reference-action-intent {
+        config false;
+    }
+
+    rpc execute-lifecycle-state-change {
+        description "This RPC will execute State changes";
+        ui:action {
+            ui:order 1;
+            ui:i18n-text "Local Action with output";
+            ui:separator-before false;
+            ui:function "executeStateAction";
+        }
+        input {
+            leaf from-state {
+                type enumeration {
+                    enum saved            { value 0; }
+                    enum planned         { value 1; }
+                    enum deployed        { value 2; }
+                    enum deployed-modified { value 3; }
+                    enum removed         { value 4; }
+                    enum deleted          { value 5; }
+                    enum open             { value 6; }
+                    enum planned-failed   { value 7; }
+                    enum deployed-modified-failed { value 8; }
+                    enum pull-from-network-saved { value 9; }
+                }
+                ui:i18n-text "from-state";
+                ui:order 1;
+            }
+            leaf to-state {
+                type enumeration {
+                    enum saved            { value 0; }
+                    enum planned         { value 1; }
+                    enum deployed        { value 2; }
+                    enum deployed-modified { value 3; }
+                    enum removed         { value 4; }
+                    enum deleted          { value 5; }
+                    enum open          { value 6; }
+                    enum pull-from-network-saved { value 9; }
+                }
+                ui:i18n-text "to-state";
+                ui:order 2;
+            }
+
+            leaf template-name {
+                type string;
+                ui:i18n-text "template-name";
+                ui:order 3;
+            }
+
+            leaf bf-svc {
+                type boolean;
+                ui:i18n-text "bf-svc";
+                ui:order 4;
+            }
+        }
+    }
+}

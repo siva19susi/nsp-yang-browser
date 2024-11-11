@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Closer Intersecting Diamonds with Tailwind</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
+  <!-- Outer fixed-size container -->
+  <div class="flex items-center justify-center w-64 h-64 bg-gray-200">
+    <!-- Inner container for the diamond shapes -->
+    <div class="relative w-48 h-48">
+      <!-- First diamond (rotated square) -->
+      <div class="absolute top-12 left-4 w-24 h-24 bg-red-500 bg-opacity-50 transform rotate-45"></div>
+      <!-- Second diamond (rotated square) -->
+      <div class="absolute top-12 right-4 w-24 h-24 bg-blue-500 bg-opacity-50 transform rotate-45"></div>
+      <!-- Intersecting area (diamond) with centered content -->
+      <div class="absolute top-12 left-12 w-24 h-24 transform rotate-45 flex items-center justify-center">
+        <!-- Inner div to keep text straight -->
+        <div class="transform -rotate-45 text-white font-bold">
+          Center
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

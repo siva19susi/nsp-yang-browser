@@ -1,0 +1,340 @@
+module nsp-useraccesscontrol {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-useraccesscontrol";
+    prefix useraccesscontrol;
+
+
+    import nsp-core {
+        prefix core;
+    }
+    
+    import ietf-yang-types {
+        prefix yang;
+    }
+    
+
+    import nsp-model-extensions {
+        prefix model-ext;
+    }
+
+    organization "Nokia";
+    
+    contact 
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    
+    description 
+        "YANG NBI definition for nsp-useraccesscontrol model.";
+
+
+       revision 2020-01-28 {
+           description "Initial revision";
+       }
+
+    
+    //
+    // Entity: access-control-enable
+    //
+    grouping access-control-enable {
+        description "Access control enabler";
+    
+        uses access-control-enable-def;
+    }
+    
+    grouping access-control-enable-def {
+        description "Properties specific to 'access-control-enable'";
+        
+        leaf accesstype {
+             type string;
+        }
+        
+        leaf access-enabled {
+             type boolean;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: user-group
+    //
+    grouping user-group {
+        description "A NSP user group";
+    
+        uses user-group-def;
+    }
+    
+    grouping user-group-def {
+        description "Properties specific to 'user-group'";
+        
+        leaf user-group-name {
+             type string;
+        }
+        
+        leaf description {
+             type string;
+        }
+        
+        leaf-list roles {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Entity: role
+    //
+    grouping role {
+        description "The function that can be assigned to a user group or user";
+    
+        uses role-def;
+    }
+    
+    grouping role-def {
+        description "Properties specific to 'role'";
+        
+        leaf role-name {
+             type string;
+        }
+        
+        leaf description {
+             type string;
+        }
+        
+        list access-rights {
+            description "The accessRights assigned to this role.";
+            uses access-right;
+        
+        }
+        
+    }
+    
+    
+    //
+    // Entity: access-right
+    //
+    grouping access-right {
+        description "An approval to perform an operation on one or more resources.";
+    
+        uses access-right-def;
+    }
+    
+    grouping access-right-def {
+        description "Properties specific to 'access-right'";
+        
+        leaf ac-name {
+             type string;
+        }
+        
+        leaf operation {
+             type useraccesscontrol:operation;
+        }
+        
+        leaf assigned-role {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Entity: user-group-access-level
+    //
+    grouping user-group-access-level {
+        description "A user group and access level container";
+    
+        uses user-group-access-level-def;
+    }
+    
+    grouping user-group-access-level-def {
+        description "Properties specific to 'user-group-access-level'";
+        
+        leaf has-read-access {
+             type boolean;
+        }
+        
+        leaf has-write-access {
+             type boolean;
+        }
+        
+        leaf has-execute-access {
+             type boolean;
+        }
+        
+        leaf associated-user-group {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Entity: user-role-access-level
+    //
+    grouping user-role-access-level {
+        description "A user role and access level container";
+    
+        uses user-role-access-level-def;
+    }
+    
+    grouping user-role-access-level-def {
+        description "Properties specific to 'user-role-access-level'";
+        
+        leaf has-read-access {
+             type boolean;
+        }
+        
+        leaf has-write-access {
+             type boolean;
+        }
+        
+        leaf has-execute-access {
+             type boolean;
+        }
+        
+        leaf associated-user-role {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Entity: profile
+    //
+    grouping profile {
+        description "An abstract profile";
+    
+        uses profile-def;
+    }
+    
+    grouping profile-def {
+        description "Properties specific to 'profile'";
+        
+        leaf resource-fdn {
+             type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf-list access-rights {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Entity: engine-work-item
+    //
+    grouping engine-work-item {
+    
+        uses engine-work-item-def;
+    }
+    
+    grouping engine-work-item-def {
+        description "Properties specific to 'engine-work-item'";
+        
+        leaf type {
+             description "Type of work item";
+             type useraccesscontrol:work-item-type;
+        }
+        
+        leaf in-progress {
+             description "This work item is being worked on";
+             type boolean;
+        }
+        
+        leaf changed-object {
+             description "The fdn of the object that needs to be worked on";
+             type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf instigator {
+             description "Changes to objects can trigger more work items to be created, this is the object that triggered this work item to be created.";
+             type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf creation-time {
+             description "Time this entry was added to the Database";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    
+    
+    
+    //
+    // Enumeration: operation
+    //
+    typedef operation {
+        description "The action (typically a verb) that can be performed by a role (user)";
+    
+        type enumeration {
+            enum read {
+                value 0;
+            }
+    
+            enum write {
+                value 1;
+            }
+    
+            enum execute {
+                value 2;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: work-item-type
+    //
+    typedef work-item-type {
+    
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+    
+            enum s-y-s-t-e-m_-r-e-s-t-a-r-t {
+                value 10;
+            }
+    
+            enum u-a-c_-c-h-a-n-g-e-d {
+                value 1000;
+            }
+    
+            enum g-r-a-n-d_-p-a-r-e-n-t_-o-b-j-e-c-t_-c-h-a-n-g-e {
+                value 2000;
+            }
+    
+            enum p-a-r-e-n-t_-o-b-j-e-c-t_-c-h-a-n-g-e {
+                value 3000;
+            }
+    
+            enum o-b-j-e-c-t_-c-h-a-n-g-e-d {
+                value 4000;
+            }
+    
+        }
+    }
+    
+    
+    
+}

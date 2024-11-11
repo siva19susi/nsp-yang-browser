@@ -1,0 +1,30 @@
+module steering-parameters {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:steering-parameters";
+    prefix "steering-parameters";
+
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds service policy configuration model";
+    revision "2023-06-27" { description "Move to extension common"; }
+    revision "2021-03-31" { description "policy configuration"; }
+
+    container parameters {
+        list parameter {
+            key "label";
+             leaf id {
+                 type uint8 {
+                    range "0..31";
+                 }
+                 description "The steering parameter identifier.";
+             }
+            leaf label {
+                type string;
+                description "The steering parameter label.";
+            }
+        }
+    }
+
+ }

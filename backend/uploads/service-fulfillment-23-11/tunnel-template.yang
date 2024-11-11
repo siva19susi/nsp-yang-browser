@@ -1,0 +1,33 @@
+module tunnel-template {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:tunnel-template";
+    prefix "template";
+    import template-common { prefix "template-common"; }
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds service template configuration model";
+    revision "2022-10-11" { description "rpc tunnel-template-report"; }
+    revision "2021-07-20" { description "tunnel template configuration"; }
+
+    container templates {
+        list template {
+            key "name";
+            uses template-common:template;
+        }
+    }
+
+    rpc tunnel-template-report {
+        input {
+            leaf template-name {
+                mandatory true;
+                type string;
+                description "The template name.";
+            }
+        }
+        output {
+            uses template-common:template-report-info;
+        }
+    }
+}

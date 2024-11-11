@@ -1,0 +1,181 @@
+module nsp-service-stitch {
+    yang-version "1.1";
+    namespace "urn:nokia:nsp:nsp-service-stitch";
+    prefix "nsp-service-stitch";
+    import nsp-common {prefix common;}
+    import service-common {prefix service-common;}
+    import nsp-model-extensions { prefix model-ext; }
+    organization "Nokia";
+    contact
+            "Nokia NSP Support
+             Web: <http://www.nokia.com>";
+    description "YANG definition nsp-service related operations";
+
+    revision "2023-03-02" { description  "change input of stitch TS related RPCs and remove delete TS RPC"; }
+    revision "2023-02-11" { description  "add service stitch TS related RPCs"; }
+    revision "2023-01-25" { description  "add enum service-name in algorithm"; }
+    revision "2023-01-20" { description  "add nsp-service-auto-stitch-configs"; }
+
+    typedef algorithm{
+        type enumeration {
+             enum unspecified;
+             enum vcid;
+             enum route-target;
+             enum evi;
+             enum local;
+             enum service-name;
+        }
+        description "Specify the service stitching algorithm.";
+    }
+
+    rpc stitchservices{
+        description "This rpc usage is to stitch services.";
+        input {
+            leaf service-type {
+                type service-common:service-type;
+                description "Specify the service type to stitch";
+            }
+            leaf algorithm {
+                type string;
+                description "Specify the service stitching algorithm.";
+            }
+            leaf-list site {
+                type string;
+                description "Specify the list of site-id to stitch";
+            }
+        }
+    }
+
+    rpc merge-services{
+        input {
+            leaf target-service-identifier {
+                type string;
+                description "Specify the nsp-model:identifier of target service";
+            }
+            leaf-list from-service-identifiers {
+                type string;
+                description "Specify the list of the nsp-model:identifier of the services to be merged from";
+            }
+        }
+   }
+
+    rpc move-sites {
+        description "This rpc usage is to move multiple sites to a service.";
+        input {
+            leaf target-service-identifier {
+                type string;
+                description "Specify the nsp-model:identifier of target service";
+            }
+            leaf-list service-site-identifiers {
+                type string;
+                description "Specify the list of nsp-model:identifier of sites to merge";
+            }
+        }
+    }
+
+    rpc get-servicestitchexerecords{
+        description "This rpc usage is to fetch service stitch records.";
+        input {
+            leaf service-type {
+                type service-common:service-type;
+                description "Specify the stitch service type";
+            }
+            leaf algorithm {
+                type algorithm;
+                description "Specify the stitch algorithm";
+            }
+            leaf tracking-id {
+                type string;
+                description "Specify the stitch tracking ID";
+            }
+            leaf start-time {
+                type string;
+                description "Specify the start time (UTC time format) of TS record creationtime";
+            }
+            leaf end-time {
+                type string;
+                description "Specify the end time (UTC time format) of TS record creationtime";
+            }
+            leaf-list stitch-exe-states {
+                type string;
+                description "Specify the list of stitch-exe-states";
+            }
+        }
+        output {
+            list servicestitchexerecords {
+                description "List of servicestitchexerecords";
+            }
+        }
+   }
+
+   rpc get-servicestitchexerecord-page{
+        description "This rpc usage is to fetch stitch records by pagination.";
+        input {
+            leaf page-size {
+                type uint16;
+                description "The maximum number of records that shall be returned";
+            }
+            leaf page-number {
+                type uint64;
+                description "The page number";
+            }
+            leaf service-type {
+                type service-common:service-type;
+                description "Specify the stitch service type";
+            }
+            leaf algorithm {
+                type algorithm;
+                description "Specify the stitch algorithm";
+            }
+            leaf tracking-id {
+                type string;
+                description "Specify the stitch tracking ID";
+            }
+            leaf start-time {
+                type string;
+                description "Specify the start time (UTC time format) of TS record creationtime";
+            }
+            leaf end-time {
+                type string;
+                description "Specify the end time (UTC time format) of TS record creationtime";
+            }
+            leaf-list stitch-exe-states {
+                type string;
+                description "Specify the list of stitch-exe-states";
+            }
+        }
+        output {
+            list servicestitchexerecords {
+                description "List of servicestitchexerecords";
+            }
+        }
+   }
+
+    container nsp-service-auto-stitch-configs{
+        description "This is use for auto stitch configs.";
+        list nsp-service-auto-stitch-config{
+            model-ext:table-name "nsp-service-auto-stitch-config";
+            key "service-type";
+            leaf service-type {
+                type service-common:service-type;
+                description "Specify the service type to stitch";
+            }
+            leaf admin-state {
+                type common:admin-state;
+                description "To enable or disable auto-stitch for this specific service type.";
+            }
+            list algorithm-config {
+                model-ext:table-name "nsp-service-auto-stitch-config-algorithm";
+                key "algorithm";
+                leaf algorithm {
+                    type algorithm;
+                    description "Specify the service stitching algorithm.";
+                }
+                leaf admin-state {
+                    type common:admin-state;
+                    description "To enable or disable auto-stitch for this specific algorithm.";
+                }
+           }
+       }
+   }
+}

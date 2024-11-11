@@ -1,0 +1,218 @@
+module nsp-model-extensions {
+
+    yang-version "1.1";
+
+    namespace "urn:nokia:nsp:model-meta:extensions";
+
+    prefix "model-ext";
+    
+    organization "Nokia ION NSM NSP";
+
+    contact
+        "www.nokia.com";
+
+    description
+        "This module provides extensions to the YANG language to allow for model persistence meta-data to 
+         be provided";
+
+    revision "2022-05-12" {
+        description
+            "NSP 22.6  -
+             Add index fields extension.";
+    }
+
+
+    revision "2021-06-06" {
+        description
+            "NSP 21.6  -
+             Add schema mount type extension.
+             Add schema-mount version extension.";
+    }
+    revision "2020-10-27" {
+        description
+            "NSP 21.3  -
+             Add sources extension.
+             Add notif-suppress extension.
+             Add container-source-fdn extension.
+             Add auto-incr extension.
+             Add display-meta extension.";
+    }
+
+    revision "2020-09-14" {
+        description
+            "Initial revision";
+    }
+
+    extension table-name {
+        argument name;
+        description "The database table name applied to a container or list node.";
+    }
+
+    extension valid-values {
+        argument values;
+        description "A comma delimited list of valid values applied to a type definition. If applied to an
+                     identityref, the names must follow the normal prefixing rules.";
+    }
+
+    extension secure {
+        argument value;
+        description "Value of true or false indicating whether an attribute contains sensitive information or not.";
+    }
+
+    extension data-source {
+        argument value;
+        description "The name of the custom data source from which to read the data. If omitted, the source is determined
+                     by the system. Attempting to add a module whose data source is not known by the system results
+                     in an error.
+
+                     Simple sub-statements may be included within any usage of this data extension (these sub-statements
+                     must also be defined as an extension or reuse an already existing statement). These are sent
+                     as name value pairs to the data source implementation. The supported name values pairs depends
+                     on the data source implementation.
+
+                     Example:
+
+                     import some-module {
+                        // contains the definitions of 'field' and 'location' sub-statements
+                        prefix some;
+                     }
+
+                     leaf name {
+                        type string;
+                        model-ext:data-source custom-source {
+                            some:field n;
+                            some:location /x/y/z;
+                        }
+                     }
+
+                     The data source provider is passed a map with 'some:field' mapped to 'n' and 'module:location'
+                     mapped to '/x/y/z'.
+                     ";
+    }
+
+    extension operation {
+        argument language;
+        description "Used to specify an implementation of an rpc or action.
+
+                     Examples:
+
+                     rpc my-rpc {
+                         model-ext:operation java {
+                            model-ext:class com.nsp.MyRpcImpl;
+                         }
+                     }
+
+                     container my-container {
+                         action my-action {
+                             model-ext:operation java {
+                                model-ext:class com.nsp.MyActionImpl;
+                             }
+                         }
+                     }
+
+                     The only valid language is 'java'. Others may be added in the future.
+
+                     The valid statements within the extension depends on the language.
+
+                     For the 'java' language, the 'class' statement is mandatory and represents the fully qualified
+                     class name.
+                    ";
+    }
+
+    extension class {
+        argument class-name;
+        description "Used to specify a Java class name. Generally used in conjunction with other extensions (such
+                     as 'operation' above";
+    }
+
+
+    extension mount-point {
+        argument name;
+        description "The attachment to device yang.";
+    }
+
+    extension mounted-type {
+        argument type;
+        description "Base module field indicating mounted module type.";
+    }
+
+    extension mounted-version {
+        argument version;
+        description "Base module field indicating mounted module version";
+    }
+
+    extension keys {
+        argument values;
+        description "A comma delimited list of keys";
+    }
+
+    extension ne-type-version {
+        argument values;
+        description "A comma delimited list of ne-types/versions, ex SR-7750[19.5, 19.6,0.0],CISCO-XRV[6.1,6.2],JUNOS[*]";
+    }
+
+    extension use-ne-id {
+        argument value;
+        description "Value of true or false indicating whether to include neId as a key.";
+    }
+
+    extension table-prefix {
+        argument value;
+        description "The database table name prefix applied to a container or list node.";
+    }
+
+    extension custom-impl {
+        argument value;
+        description "Custom CRUDL Implementor";
+    }
+
+    extension auto-incr {
+        argument value;
+        description "Value of true or false indicating auto increment field type";
+    }
+
+    extension display-name {
+        argument value;
+        description "display name";
+    }
+
+    extension include-sources {
+        argument value;
+        description "Value of true or false indicating whether to include sources attribute for the objects defined in this module";
+    }
+
+    extension notif-suppress {
+        argument value;
+        description "Value of true or false indicating notification suppression of object created, replaced, deleted, changed";
+    }
+
+    extension container-source-fdn {
+        argument value;
+        description "Value of true or false indicating whether source FDN based lookup is supported for schemaless containers";
+    }
+
+    extension index-fields {
+         argument fields;
+         description  "A comma delimited list of fields to create the DB index in the table.
+
+                   The index-fields extension can be configured under list or container node using deviation or augment statement.
+
+                   // Example using deviation statement
+                    deviation /nsp-user:mock-container/nsp-user:mock-list {
+                        deviate add {
+                             model-ext:index-fields 'key1,key2';
+                             model-ext:index-fields 'field2';
+                             // for choice : choicename/casename/leafname
+                             model-ext:index-fields 'ip-type/ipv6/destination-ipv6,ip-type/ipv6/ipv6prefix';
+                        }
+                    }
+
+                    // Example using augment statement
+                    augment /nsp-user:mock-container/nsp-user:mock-list/nsp-user:container-index {
+                        model-ext:index-fields 'field3,field4';
+                    }
+              ";
+    }
+
+}
+

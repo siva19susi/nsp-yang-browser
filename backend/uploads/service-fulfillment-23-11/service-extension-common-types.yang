@@ -1,0 +1,72 @@
+module service-extension-common-types {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:service-extension-common-types";
+    prefix "service-extension-common-types";
+    import ietf-yang-types { prefix yang; }
+
+    organization "Nokia";
+
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Add common attributes";
+
+    revision "2023-06-27" { description "Move to extension common"; }
+
+    typedef olc {
+        type enumeration {
+            enum saved            { value 0; }
+            enum planned          { value 1; }
+            enum deployed         { value 2; }
+            enum deployed-modified { value 3; }
+            enum removed          { value 4; }
+            enum deleted          { value 5; }
+            enum open             { value 6; }
+            enum planned-failed   { value 7; }
+            enum deployed-modified-failed { value 8; }
+            enum brownfield       { value 9; }
+            enum pull-from-network-saved        { value 10; }
+            enum pull-from-network-failed       { value 11; }
+            enum composite-managed      { value 12; }
+        }
+        description "Specifies the service life cycle state.";
+    }
+
+    typedef service-category-types {
+        type enumeration {
+            enum none;
+            enum cline;
+            enum ies;
+            enum l3vpn;
+            enum eline-basic;
+            enum evpn-vpws;
+            enum eline;
+            enum vpls;
+            enum evpn-vpls;
+            enum etree;
+            enum mvpls;
+        }
+        description "Specifies the supported service category types.";
+    }
+
+    grouping user-timestamp {
+        leaf creation-time {
+            type yang:date-and-time;
+            description "The creation time.";
+        }
+
+        leaf created-by {
+            type string;
+            description "The user who performed the last update.";
+        }
+        leaf last-updated-time {
+            type yang:date-and-time;
+            description "The last time a update occured.";
+        }
+
+        leaf updated-by {
+            type string;
+            description "The user who performed the last update.";
+        }
+    }
+}

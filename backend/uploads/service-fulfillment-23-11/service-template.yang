@@ -1,0 +1,46 @@
+module service-template {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:service-template";
+    prefix "template";
+    import template-common { prefix "template-common"; }
+    import service-extension-common-types { prefix "svc-common-types"; }
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds service template configuration model";
+    revision "2023-06-27" { description "Move to extension common"; }
+    revision "2022-11-20" { description "remove associate flag"; }
+    revision "2022-11-16" { description "Add auto-associate"; }
+    revision "2022-10-10" { description "rpc service-template-report"; }
+    revision "2021-07-20" { description "split template configuration"; }
+
+    container templates {
+        list template {
+            key "name";
+            uses template-common:template;
+            leaf service-category {
+                type svc-common-types:service-category-types;
+                description "The service category to use for bulk associate.";
+                default "none";
+            }
+        }
+    }
+
+    rpc service-template-report {
+        input {
+            leaf template-name {
+                mandatory true;
+                type string;
+                description "The template name.";
+            }
+            leaf intent-type {
+                type string;
+                description "The template type.";
+            }
+        }
+        output {
+            uses template-common:template-report-info;
+        }
+    }
+}

@@ -1,0 +1,242 @@
+module ip-transport-common {
+    namespace "http://www.nokia.com/management-solutions/ip-transport-common";
+    yang-version 1.1;
+    prefix "ip-transport-common";
+    import ietf-inet-types { prefix "inet-types"; }
+
+    revision "2023-06-27" {
+        description
+            "IP Transport Initial revision.";
+    }
+
+    grouping ip-transport-details {
+
+        leaf transport-port-id {
+            type string;
+            mandatory true;
+            description "Transport Port Identifier";
+        }
+        leaf admin-state {
+            type enumeration {
+                enum locked;
+                enum unlocked;
+            }
+            description "Administrative state for this IP Transport entry";
+            default unlocked;
+        }
+        leaf description {
+            type string {
+                length "0..80";
+            }
+            description "Description of this IP Transport";
+        }
+        container local-host {
+
+            leaf local-host-ip-address {
+                type inet-types:ipv4-address-no-zone;
+                description "Specifies the IP address of the IP Transport Local Host";
+                default "0.0.0.0";
+            }
+
+            leaf local-host-port-number {
+                type int32 {
+                    range "0 .. 49150";
+                }
+                description "Specifies the Internet socket port number";
+                default "0";
+            }
+
+            leaf local-host-protocol {
+                type enumeration {
+                    enum unset;
+                    enum tcp;
+                    enum udp;
+                }
+                description "Specifies the IP protocol that the Local Host";
+                default unset;
+            }
+        }
+        container session-details {
+
+            leaf dscp {
+                type enumeration {
+                    enum be;
+                    enum cp1;
+                    enum cp2;
+                    enum cp3;
+                    enum cp4;
+                    enum cp5;
+                    enum cp6;
+                    enum cp7;
+                    enum cs1;
+                    enum cp9;
+                    enum af11;
+                    enum cp11;
+                    enum af12;
+                    enum cp13;
+                    enum af13;
+                    enum cp15;
+                    enum cs2;
+                    enum cp17;
+                    enum af21;
+                    enum cp19;
+                    enum af22;
+                    enum cp21;
+                    enum af23;
+                    enum cp23;
+                    enum cs3;
+                    enum cp25;
+                    enum af31;
+                    enum cp27;
+                    enum af32;
+                    enum cp29;
+                    enum af33;
+                    enum cp31;
+                    enum cs4;
+                    enum cp33;
+                    enum af41;
+                    enum cp35;
+                    enum af42;
+                    enum cp37;
+                    enum af43;
+                    enum cp39;
+                    enum cs5;
+                    enum cp41;
+                    enum cp42;
+                    enum cp43;
+                    enum cp44;
+                    enum cp45;
+                    enum ef;
+                    enum cp47;
+                    enum nc1;
+                    enum cp49;
+                    enum cp50;
+                    enum cp51;
+                    enum cp52;
+                    enum cp53;
+                    enum cp54;
+                    enum cp55;
+                    enum nc2;
+                    enum cp57;
+                    enum cp58;
+                    enum cp59;
+                    enum cp60;
+                    enum cp61;
+                    enum cp62;
+                    enum cp63;
+                }
+                description "Specifies the Differentiated Services Code Point (DSCP) for all packets sent to Remote Hosts (within the same IP Transport)";
+                default ef;
+            }
+
+            leaf forwarding-class {
+                type enumeration {
+                    enum be;
+                    enum l2;
+                    enum af;
+                    enum l1;
+                    enum h2;
+                    enum ef;
+                    enum h1;
+                    enum nc;
+                }
+                description "Specifies the Forwarding Class (FC) for all packets sent to Remote Hosts (within the same IP Transport).";
+                default ef;
+            }
+
+            leaf filter-unknown-host {
+                type enumeration {
+                    enum enabled;
+                    enum disabled;
+                }
+                description "Specifies whether to allow a connection/session with an unknown remote host";
+                default disabled;
+            }
+
+            leaf profile {
+                type enumeration {
+                    enum in;
+                    enum out;
+                }
+                description "Specifies the profile marking for all packets sent to Remote Hosts (within the same IP Transport).";
+                default in;
+            }
+        }
+        container tcp {
+
+            leaf tcp-max-retries {
+                type int16 {
+                    range "0 .. 10";
+                }
+                description "Specifies the maximum number of consecutive attempts to establish a TCP connection";
+                default "5";
+            }
+
+            leaf tcp-retry-interval {
+                type int16 {
+                    range "1 .. 300";
+                }
+                default "5";
+                description "Specifies the period of time between consecutive attempts to establish a TCP connection.";
+            }
+
+            leaf tcp-in-active-timeout {
+                type int32 {
+                    range "0 .. 65535";
+                }
+                default "30";
+                description "Specifies the maximum period of time a TCP connection can remain idle before tear-down is initiated.";
+            }
+        }
+        container remote-hosts {
+
+            list remote-host {
+                key "remote-host-id";
+
+                leaf remote-host-id {
+                    type uint32 {
+                        range "0..2147483647";
+                    }
+                    default "0";
+                    description "Specifies the identifier for this IP Transport Remote Host";
+                }
+
+                leaf name {
+                    type string {
+                        length "0..64";
+                    }
+                    description "Specifies the name assigned to this IP Transport Remote Host";
+                }
+
+                leaf description {
+                    type string {
+                        length "0..80";
+                    }
+                    description "Specifies the description of this IP Transport Remote Host";
+                }
+
+                leaf remote-host-ip-address {
+                    type inet-types:ipv4-address-no-zone;
+                    description "Specifies the IP address of the IP Transport Remote Host";
+                }
+
+                leaf remote-host-port-number {
+                    type int32 {
+                        range "0 .. 65535";
+                    }
+                    description "Specifies the number of a TCP or UDP port";
+                }
+
+                leaf check-tcp {
+                    type enumeration {
+                        enum doAction;
+                        enum notApplicable;
+                    }
+                    description "TCP connection test to be initiated";
+                    default notApplicable;
+                }
+            }
+        }
+
+    }
+}

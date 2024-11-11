@@ -1,0 +1,64 @@
+module sdp-binding-common {
+    namespace "http://www.nokia.com/management-solutions/sdp-binding-common";
+    prefix "sdp-binding-common";
+    revision "2021-08-01" {
+        description
+                "Initial revision.";
+    }
+    
+    grouping sdp-binding-details {    
+    
+        uses sdp-binding-common:sdp-binding-without-admin-state;
+
+        leaf admin-state {
+            type enumeration {
+                 enum unlocked;
+                 enum locked;
+            }
+            default unlocked;
+            description "The desired state of this Service-SDP binding.";
+        }
+    }
+
+    grouping sdp-binding-without-admin-state {
+
+        leaf source-device-id {
+            type string;
+            description "SDP Source Device Id";
+        }
+
+        leaf destination-device-id {
+            type string;
+            description "SDP Destination Device Id (optional - UI rendering)";
+        }
+
+        leaf steering-parameter {
+            type string;
+            description "Steering parameter used by Service Fulfillment";
+        }
+
+        leaf sdp-id {
+            type string;
+            description "SDP identifier xPath";
+        }
+
+        leaf description {
+            type string;
+            description "User-provided description for the SDP Bind";
+        }
+
+        leaf override-vc-id {
+            type boolean;
+            default "false";
+            description "Override to vc-id to user specified number";
+        }
+
+        leaf vc-id {
+            when "../override-vc-id='true' ";
+            type uint32 {
+                range "1..4294967295";
+            }
+            description "SDP virtual circuit identifier";
+        }
+    }
+}

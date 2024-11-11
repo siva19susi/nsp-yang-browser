@@ -1,0 +1,154 @@
+module nsp-service-intent-type-catalog {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service-intent-type-catalog";
+    prefix "nsp-service-intent-type-catalog";
+    import ietf-yang-types { prefix yang; }
+    organization "NOKIA Corp";
+    contact "";
+    description "";
+
+    revision "2022-10-28" {
+        description "Adding use-reconcile property";
+    }
+
+    revision "2022-03-29" {
+        description "Adding the things. isGeneric";
+    }
+
+    revision "2020-12-02" {
+        description
+                "Initial revision.";
+    }
+
+    typedef object-type {
+        type enumeration {
+            enum service            { value 0; }
+            enum tunnel             { value 1; }
+        }
+        description "Defines the object type enum.";
+    }
+
+    container catalog {
+        list intent-type-info {
+            key "intent-type intent-type-version";
+
+            leaf intent-type {
+                 type string;
+                 description "The intent type.";
+            }
+
+            leaf intent-type-version {
+                 type string;
+                 description "The intent type version.";
+            }
+
+            leaf object-type {
+                type object-type;
+                description "The type of object the intent is defined for.";
+            }
+
+            leaf use-reconcile {
+                type boolean;
+                default false;
+                description "Flag tells IBSF to use IM reconcile() method instead of custom RPC.";
+            }
+
+            leaf namespace {
+                type string;
+                description "The namespace of the intent type.";
+            }
+
+            leaf revision {
+                type string;
+                description "The latest revision.";
+            }
+
+            leaf build {
+                type string;
+                description "The build of the intent type";
+            }
+
+            leaf service-type {
+                type string;
+                description "The service type of the intent";
+            }
+
+            leaf service-extension-path {
+                type string;
+                description "The service type's service extension path.";
+            }
+
+            leaf-list labels {
+                type string;
+                ordered-by user;
+                description "List of labels on the intent-type.";
+            }
+
+            leaf last-updated-time {
+                type string;
+                description "The last time the intent type was updated.";
+            }
+
+            leaf last-import-time {
+                type yang:date-and-time;
+                description "The last time the intent type is imported.";
+            }
+
+            leaf imported-by {
+                type string;
+                description "The user who performed the last import.";
+            }
+
+            list ui-configs {
+                key "name";
+
+                leaf name {
+                    type string;
+                    description "The name of the ui config file.";
+                }
+
+                leaf content {
+                    type string {
+                        length "1..1000000";
+                    }
+                    description "The content of the ui config file.";
+                }
+            }
+
+            list imported-modules {
+                key "module-name";
+
+                leaf module-name {
+                    type string;
+                    description "The imported module name.";
+                }
+
+                leaf namespace {
+                    type string;
+                    description "The namespace of the imported module.";
+                }
+
+                leaf revision {
+                    type string;
+                    description "The latest revision of the imported module.";
+                }
+            }
+        }
+
+    }
+
+    rpc export {
+        input {
+            leaf intent-type {
+                type string;
+                description "The intent type.";
+            }
+
+            leaf intent-type-version {
+                 type string;
+                 description "The intent type version.";
+            }
+        }
+     }
+
+}

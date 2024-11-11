@@ -1,0 +1,49 @@
+module svc-extension-mpr-backhaul {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:svc-extension:mpr-backhaul";
+    prefix "svc-extension-mpr-backhaul";
+    import nsp-model-extensions { prefix model-ext; }
+    import service-extension-common { prefix "svc-common"; }
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds mprBackhaul service Augmentation";
+    revision "2023-06-27" { description "Move to extension common"; }
+    revision "2023-01-19" { description "Endpoint ne-name"; }
+    revision "2022-11-04" { description "Endpoint tenant-id"; }
+    revision "2022-09-15" { description "Initial Version for Wavence Backhaul Service"; }
+
+    grouping mpr-backhaul-svc {
+        container mpr-backhaul-svc {
+            model-ext:table-name "service-extension-mpr-backhaul-svc";
+            uses svc-common:svc-extension-common;
+        }
+    }
+
+
+    grouping mpr-backhaul-site {
+        container mpr-backhaul-site {
+            model-ext:table-name "service-extension-mpr-backhaul-site";
+            uses svc-common:site-extension;
+        }
+    }
+
+    grouping mpr-backhaul-endpoint {
+        container mpr-backhaul-endpoint {
+            model-ext:table-name "service-extension-mpr-backhaul-endpoint";
+            leaf site-id {
+                type string;
+                description "Site Id";
+            }
+            leaf tenant-id {
+                type string;
+                description "The unique identifier for customer";
+            }
+            leaf ne-name {
+                type string;
+                description "The ne name";
+            }
+        } //container
+    } //augment mpr-backhaul endpoint
+}

@@ -1,0 +1,39 @@
+module nsp-core {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-core";
+    prefix core;
+
+
+    import nsp-common {
+        prefix common;
+    }
+    
+    import ietf-yang-types {
+        prefix yang;
+    }
+    
+
+    import nsp-model-extensions {
+        prefix model-ext;
+    }
+
+    organization "Nokia";
+    
+    contact 
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    
+    description 
+        "YANG NBI definition for nsp-core model.";
+
+
+    revision 2019-02-19 {
+        description "Initial revision";
+    }
+
+    
+    
+    
+    
+    
+}

@@ -1,0 +1,933 @@
+module service-extension-common {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:service-extension-common";
+    prefix "service-extension-common";
+    import nsp-common {prefix common;}
+    import svc-extension-qos { prefix "svc-extension-qos"; }
+    import service-template { prefix "svc-template"; }
+    import tunnel-template { prefix "tunnel-template"; }
+    import steering-parameters { prefix sp; }
+    import service-extension-common-types { prefix "svc-common-types"; }
+    import ietf-yang-types { prefix yang; }
+    import ietf-inet-types { prefix inet; }
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Add common attributes";
+    revision "2023-11-15" { description "update description for deployer-job containers"; }
+    revision "2023-11-07" { description "update description for deployer containers"; }
+    revision "2023-10-31" { description "increase slc-details logs length to 10000"; }
+    revision "2023-09-26" { description "adding peer-as and local-as and multihop to bgp group level"; }
+    revision "2023-07-27" { description "adding the bgp-evpn"; }
+    revision "2023-07-21" { description "Move to extension common"; }
+    revision "2023-05-08" { description "Add ipv6 support for local-address"; }
+    revision "2023-04-19" { description "Add restconf-method-type to deployer-job-details"; }
+    revision "2023-03-01" { description "Add mvpls service-category"; }
+    revision "2023-01-26" { description "Add accounting attributes"; }
+    revision "2023-01-20" { description "common l2-auto-bind-tunnel"; }
+    revision "2022-11-18" { description "Add new service-categories"; }
+    revision "2022-11-16" { description "Add auto-associate"; }
+    revision "2022-10-26" { description "Endpoint tenant-id"; }
+    revision "2022-06-14" { description "Add static route attributes"; }
+    revision "2022-05-26" {
+        description "Removing route-type from static-route key";
+    }
+    revision "2022-04-22" {
+        description "Adding composite-managed enum";
+    }
+    revision "2019-04-26" {
+        description "Initial revision.";
+    }
+
+    typedef alignment-action {
+        type enumeration {
+            enum push-to-network;
+            enum pull-from-network;
+        }
+    }
+
+
+    typedef vprn-type {
+        type enumeration {
+            enum unspecified;
+            enum regular;
+            enum hub;
+            enum spoke;
+            enum subscriberSplitHorizon;
+        }
+        description "Specifies the vprn type.";
+    }
+
+    typedef rd-type {
+        type enumeration {
+            enum type0;
+            enum type1;
+            enum type2;
+            enum none;
+        }
+        description "Specifies the rd type.";
+    }
+
+    typedef rt-type {
+        type enumeration {
+            enum unspecified;
+            enum imp;
+            enum exp;
+            enum import-export;
+        }
+        description "Specifies the rt type.";
+    }
+
+    typedef rt-format {
+        type enumeration {
+            enum none;
+            enum as-based;
+            enum ipaddress-based;
+            enum as-4byte;
+            enum unicast;
+        }
+        description "Specifies the rt format.";
+    }
+
+    typedef supported-address-types {
+        type enumeration {
+            enum unspecified;
+            enum ipv4;
+            enum ipv6;
+            enum both;
+        }
+        description "Specifies the supported address types.";
+    }
+
+    typedef static-route-type {
+        type enumeration {
+            enum unknown;
+            enum next-hop;
+            enum indirect;
+            enum black-hole;
+            enum grt;
+        }
+        description "Specifies the static route type.";
+    }
+
+    typedef bgp-peer-type {
+       type enumeration {
+           enum none;
+           enum internal;
+           enum external;
+        }
+        description "Specifies the bgp beer type.";
+    }
+
+    typedef ieee-address {
+        type string {
+            pattern "([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})";
+        }
+        description "The ieee-address type represents an IEEE 802 MAC address";
+    }
+
+    typedef unicast-multicast {
+        type enumeration {
+            enum "unicast"                      { value 1; }
+            enum "multicast"                    { value 2; }
+        }
+        description "Specifies if unicast or multicast mode is used.";
+    }
+
+    typedef job-state-type {
+        type enumeration {
+            enum new {
+                value 0;
+                description "New, never processed ";
+            }
+            enum running {
+                value 1;
+                description "Job is queued/in progress";
+            }
+            enum success {
+                value 2;
+                description "the job succeeded";
+            }
+            enum failed {
+                value 3;
+                description "the job failed";
+            }
+             enum cancelled {
+                value 4;
+                description "the job was cancelled";
+            }
+       }
+       description "state of the job";
+    }
+
+    typedef deployer-state-type {
+        type enumeration {
+            enum running {
+                value 0;
+                description "The deployer is in progress";
+            }
+            enum success {
+                value 1;
+                description "The deployer succeeded";
+            }
+            enum failed {
+                value 2;
+                description "The deployer failed";
+            }
+       }
+       description "state of the deployer";
+    }
+
+    grouping ip-address-config {
+        description "IP address Config";
+
+        list ipv4-addresses-config {
+            key "address";
+            uses ipv4-address-config;
+        }
+        list ipv6-addresses-config {
+            key "address";
+            uses ipv6-address-config;
+        }
+    }
+
+    grouping ipv4-address-config {
+        leaf address {
+            type inet:ipv4-prefix;
+            description "The ipv4 address assigned to the service endpoint.";
+        }
+
+        leaf is-primary {
+            type boolean;
+            description "Specifies if it is the primary ip address.";
+        }
+
+    }
+
+    grouping ipv6-address-config {
+        leaf address {
+            type inet:ipv6-prefix;
+            description "The ipv6 address assigned to the service endpoint.";
+        }
+
+    }
+
+    grouping static-route-config {
+        description "Configurable data for static route.";
+            container static-route {
+                list route {
+                    key "ip-prefix routing-type";
+                    leaf ip-prefix {
+                        type inet:ip-prefix;
+                        description "Enter the route list instance.";
+                    }
+                    leaf routing-type {
+                        type unicast-multicast;
+                        description "Indicates the type of that static-route being configured, either for unicast routing or for use with multicast rpf.";
+                    }
+                    leaf route-type {
+                        type static-route-type;
+                        description "The type of static route.";
+                    }
+
+                    list next-hop {
+
+                        key "ip-address";
+                        leaf ip-address {
+                            type inet:ip-address;
+                            description "The static route's next hop ip address.";
+                        }
+                        leaf preference {
+                            type uint32 {
+                                range "1..255";
+                            }
+                            default "5";
+                            description "Priority of this static route over the routes from different sources.";
+                        }
+                        leaf admin-state {
+                            type common:admin-state;
+                            description "The administrative state of the static route's next hop.";
+                        }
+                        leaf metric {
+                            type uint32;
+                            description "The static route metric.";
+                        }
+
+                    }//list next-hop
+
+                    list indirect {
+                        key "ip-address";
+                        leaf ip-address {
+                            type inet:ip-address;
+                            description "The static route's indirect ip address.";
+                        }
+                        leaf preference {
+                            type uint32 {
+                                range "1..255";
+                            }
+                            default "5";
+                            description "The priority of this static route over the routes from different sources.";
+                        }
+                        leaf admin-state {
+                            type common:admin-state;
+                            description "The administrative state of the static route.";
+                        }
+                        leaf metric {
+                            type uint32;
+                            description "The static route metric.";
+                        }
+
+                    }//list indirect
+
+                    container blackhole {
+                        description "Enter the blackhole context";
+                        leaf description {
+                            type string;
+                            description "The description of the blackhole.";
+                        }
+                        leaf preference {
+                            type uint32 {
+                                range "1..255";
+                            }
+                            default "5";
+                            description "The priority of this static route over the routes from different sources.";
+                        }
+                        leaf admin-state {
+                            type common:admin-state;
+                            description "The administrative state of the static route.";
+                        }
+                        leaf metric {
+                            type uint32;
+                            description "The static route metric.";
+                        }
+                        leaf community {
+                            type string;
+                            description "The community ID associated with the static route.";
+                        }
+
+                    }//container blackhole
+                    leaf device-identifier {
+                        type string;
+                        description "The device-identifier of the service.";
+                    }
+                } //list route
+            } //container static-route
+
+        }
+
+    grouping bgp-group-config {
+        leaf group-name {
+            type string;
+            description "The name of the peer's bgp group.";
+        }
+        leaf peer-as {
+            type uint32;
+            description "The remote peer's autonomous system number.";
+        }
+        leaf local-as {
+           type uint32;
+           description "The local autonomous system number.";
+        }
+        leaf multihop {
+            type uint32 {
+                range "1..255";
+            }
+            description "TTL in IP packet headers for EBGP peers multi-hops away.";
+        }
+        leaf admin-state {
+            type common:admin-state;
+            description "The administrative state of the bgp group.";
+        }
+    }
+
+    grouping bgp-peer-config {
+        description "Configurable data for BGP peer.";
+        leaf group-name {
+            type string;
+            description  "The name of the peer group for the peer.";
+        }
+        leaf peer-as {
+            type uint32;
+            description "The remote peer's autonomous system number.";
+        }
+
+        leaf local-as {
+           type uint32;
+            description "The local autonomous system number.";
+        }
+
+        leaf peer-type {
+            type bgp-peer-type;
+            description "The type of BGP peer.";
+        }
+
+        leaf peer-address {
+            type inet:ip-address;
+            description "The bgp peer's ip address.";
+        }
+
+        leaf local-address {
+           type inet:ip-address;
+            description "The local ip address.";
+        }
+
+        container import {
+            presence "Enter the 'import' context";
+            description "Enable the import context.";
+            leaf-list policy {
+                type string {
+                    length "1..255";
+                    pattern "(.{1,64})|(.*[\\[].*)" {
+                       error-message "Policy name too long or expression not valid";
+                    }
+                }
+                min-elements 1;
+                max-elements 15;
+                ordered-by user;
+                description "BGP import policy name.";
+            }
+        }//container import
+        container export {
+            presence "Enter the 'export' context";
+            description "Enable the export context.";
+            leaf-list policy {
+                type string {
+                    length "1..255";
+                    pattern "(.{1,64})|(.*[\\[].*)" {
+                        error-message "Policy name too long or expression not valid";
+                    }
+                }
+                min-elements 1;
+                max-elements 15;
+                ordered-by user;
+                description "BGP Export policy name.";
+            }
+        }//container export
+    }
+
+    grouping route-distinguisher {
+
+            leaf rd-type {
+               type rd-type;
+                description "The route distinguisher type.";
+            }
+
+            leaf rd-value {
+                type string;
+                description "The route distinguisher admin value.";
+            }
+
+    }
+
+    grouping route-target {
+        leaf-list community {
+            type string {
+               length "1..255";
+            }
+            description "Specify a extended BGP community in the form target:<x>:<y>. x and y are 16 bit integers.";
+        }
+    }
+
+
+    grouping last-state-change-info {
+        leaf occurred-at {
+            type yang:date-and-time;
+            description "The date and time the last state change occurred.";
+        }
+
+        leaf last-saved-by {
+            type string;
+            description "The user who performed the last save.";
+        }
+
+        leaf last-saved-time {
+            type yang:date-and-time;
+            description "The date and time of the most recent service save.";
+        }
+
+        leaf from-state {
+            type svc-common-types:olc;
+            description "From state.";
+        }
+
+        leaf to-state {
+            type svc-common-types:olc;
+            description "To state.";
+        }
+
+        leaf workflow-id {
+            type string;
+            description "The workflow id invoked, if applicable, on this state transition.";
+        }
+
+        leaf blocking {
+            type boolean;
+            description "Indicates if the workflow is blocking or not.";
+        }
+
+        leaf workflow-execution-id {
+            type string;
+            description "The workflow execution id, if applicable, on this state transition.";
+        }
+
+        leaf workflow-execution-state {
+            type string;
+            description "The workflow execution state (RUNNING, SUCCESS, PAUSE, or FAIL). If the state is
+                not SUCCESS and the workflow is blocking, no further state transitions should be allowed.";
+        }
+
+        leaf workflow-execution-time {
+            type uint64;
+            description "The timestamp of the workflow executed.";
+        }
+
+        leaf workflow-execution-timeout {
+            type int32;
+            description "Describes the max timeout in sec, within which workflow is expected to finish.";
+        }
+
+        leaf last-audited-by {
+            type string;
+            description "The user who performed the last audit.";
+        }
+
+        leaf last-audited-time {
+            type yang:date-and-time;
+            description "The date and time of the most recent service audit.";
+        }
+
+        leaf last-alignment-action {
+            type alignment-action;
+            description "The last alignment action(push/pull).";
+        }
+
+        leaf last-alignment-by {
+            type string;
+            description "The user who performed the last alignment action.";
+        }
+
+        leaf last-alignment-time {
+            type yang:date-and-time;
+            description "The date and time of the most recent service alignment.";
+        }
+
+
+        leaf-list logs {
+            type string {
+                length "0..10000";
+            }
+            ordered-by user;
+            description "List of logs/errors during the state transition and config deployment to NEs";
+        }
+    }
+
+    grouping slc-details {
+        container slc-details {
+            uses svc-common-types:user-timestamp;
+            uses last-state-change-info;
+        }
+    }
+
+    grouping deployer-details {
+        container deployer-details {
+
+           description "Specifies the response of each deployments, in case of md node the response will be updated from md-data-deploy app. In case of nfmp, response will be udpated from nfmp-mediators.";
+           config false;
+
+           leaf overall-deployer-state {
+               type deployer-state-type;
+               description "The overall deployer state of the service, actual delpoyment of configuration to NEs";
+           }
+
+           list deployer-info {
+                description "Specifies list of tasks from deployer-job-details, in case MD node, the deployer-info list key will be mapped to request-id from task-details of a deployer-job-details.";
+                key "deployer-id";
+
+                leaf deployer-id {
+                    type string;
+                    description "The identifier of the deployer, for md based node we will have extra identifier from request-id of deployer-job-details/task-details list";
+                }
+
+                leaf deployer-state {
+                    type deployer-state-type;
+                    description "The deployer state for this deployer id.";
+                }
+
+                leaf ne-id {
+                    type string;
+                    description "The network element identifier.updated only for md based node from data-deploy kafka event";
+                }
+
+                leaf additional-info {
+                    type string {
+                        length "0..10000";
+                    }
+                    description "The additional info of the failed deployer id.";
+                }
+
+                list edit-info {
+                    key "edit-id";
+
+                    leaf edit-id {
+                        type string;
+                        description "edit-id in the deployer.";
+                    }
+
+                    leaf edit-state {
+                        type deployer-state-type;
+                        description "The deployer state for the edit id.";
+                    }
+
+                    leaf object-id {
+                        type string;
+                        description "The object identifier.";
+                    }
+                }
+           }
+        }
+    }
+
+    grouping job-details {
+        description "The job information for slc/olc transistion";
+        container slc-job-details {
+
+            description "Specifies the jobs created by ibsf for slc/olc changes, like moving from planned/deployed/deploy-modified.
+                         The job-name in this container is an instance identifier for nsp-job-manager module.";
+            config false;
+
+            leaf job-name {
+                type string;
+                description "The job identifier";
+            }
+
+            leaf state {
+                type job-state-type;
+                description "The job state";
+            }
+
+            leaf start-time {
+                type yang:date-and-time;
+                description "The date and time of the job start time";
+            }
+
+            leaf last-update-time {
+                type yang:date-and-time;
+                description "The date and time of the most recent job status";
+            }
+        }
+
+        container deployer-job-details {
+            description "Specifies jobs created by IM script to deploy service to NEs.
+                         Deploy to NFMP is done through nfm-p-mediators and deploy to MD based node is done through deployer-app inturn uses the MDC.
+                         The job-name in this container is an instance identifier for nsp-job-manager module.
+                         The tasks from the same jobs are stored in task-details list, which will specify info on wheather job-manager submission of tasks are successful or not.
+                         In case of MD nodes there will be list of Edit-Ids in each task which will be edit-id from yang-patch from IM script.";
+            config false;
+
+            leaf job-name {
+                type string;
+                description "The job identifier from nsp-job-manager module";
+            }
+
+            leaf reference {
+                type string;
+                description "The reference identifier for the Job.";
+            }
+
+            list task-details {
+                description "Specify job-manager submission of tasks are successful or not";
+                key "task-name";
+
+                leaf task-name {
+                    type string;
+                    description "The task identifier from nsp-job-manager module";
+                }
+
+                leaf request-id {
+                    type string;
+                    description "The request id from the deployer app respose submitted through job-manager, applicable only for md based node.";
+                }
+
+                leaf restconf-method-type {
+                    type string;
+                    description "The restconf request method type.";
+                }
+
+                leaf task-response {
+                    type string {
+                        length "0..10000";
+                    }
+                    description "The response identifier for each task.";
+                }
+
+                leaf deployer-response {
+                    type string;
+                    description "The response identifier for each deployer request.";
+                }
+
+                leaf-list edit-ids {
+                    type string;
+                    description "List of edit ids in a task,Incase of MD nodes there will be list of Edit-Ids in each task which will be edit-id from yang-patch from IM script";
+                }
+
+             }
+        }
+    }
+    grouping endpoint-extension {
+        leaf site-id {
+            type string;
+            description "Site Id";
+        }
+        leaf tenant-id {
+            type string;
+            description "The unique identifier for customer";
+        }
+        leaf ne-name {
+            type string;
+            description "The ne name";
+        }
+        uses accounting-info;
+        uses svc-extension-qos:access-configuration-details;
+    }
+    grouping site-extension {
+        leaf tenant-id {
+            type string;
+            description "The unique identifier for customer";
+        }
+        leaf ne-name {
+            type string;
+            description "The ne name";
+        }
+    }
+
+    grouping l2-auto-bind-tunnel {
+        container auto-bind-tunnel {
+            container resolution-filter {
+                leaf bgp {
+                    type boolean;
+                    default "false";
+                    description "Use BGP tunneling for next-hop resolution";
+                }
+                leaf ldp {
+                    type boolean;
+                    default "false";
+                    description "Use BGP tunneling for next-hop resolution";
+                }
+                leaf rsvp {
+                    type boolean;
+                    default "false";
+                    description "Use RSVP tunneling for next-hop resolution";
+                }
+                leaf sr-isis {
+                    type boolean;
+                    default "false";
+                    description "Use IS-IS SR tunneling for next-hop resolution";
+                }
+                leaf sr-ospf {
+                    type boolean;
+                    default "false";
+                    description "Use OSPF SR tunneling for next-hop resolution";
+                }
+                leaf sr-te {
+                    type boolean;
+                    default "false";
+                    description "Use SR-TE tunneling for next-hop resolution";
+                }
+                leaf udp {
+                    type boolean;
+                    default "false";
+                    description "Use MPLS over UDP tunneling for next-hop resolution";
+                }
+                leaf mpls-fwd-policy {
+                    type boolean;
+                    default "false";
+                    description "Use MPLS forwarding policy for next-hop resolution";
+                }
+                leaf sr-policy {
+                    type boolean;
+                    default "false";
+                    description "Use SR policies for next-hop resolution";
+                }
+                leaf rib-api {
+                    type boolean;
+                    default "false";
+                    description "Use RIB API gRPC service for next-hop resolution";
+                }
+                leaf sr-ospf-3 {
+                    type boolean;
+                    default "false";
+                    description "Use OSPFv3 SR tunneling for next-hop resolution";
+                }
+            }
+        }
+    }
+
+    grouping accounting-info {
+        leaf collect-stats {
+            type boolean;
+            default "false";
+            description "Collect accounting statistics.";
+        }
+
+        leaf accounting-policy-id {
+            type int32 {
+                range "1..99";
+            }
+            description "The unique identifier for the Accounting policy.";
+        }
+    }
+
+
+    grouping extension-common {
+        leaf job-id {
+            type string;
+            description "The work-order number.";
+        }
+        leaf intent-type {
+            type string;
+            description "The intent-type.";
+        }
+        leaf intent-type-version {
+              type string;
+              description "The intent type version.";
+        }
+        leaf  intent-instance-identifier {
+            type string;
+            description "The intent-instance-identifier of the service.";
+        }
+
+        uses slc-details;
+        uses deployer-details;
+        uses job-details;
+    }
+
+    grouping svc-extension-common {
+        uses extension-common;
+
+        leaf slc-state {
+            type svc-common-types:olc;
+            default deployed;
+            description "The service life cycle state.";
+        }
+
+        leaf misaligned {
+            type boolean;
+            description "Specifies if the service is misaligned with the network";
+            default false;
+        }
+
+        leaf template-name { //TODO - unique and require-instance=true
+            type leafref {
+                require-instance false;
+                path "/svc-template:templates/svc-template:template/svc-template:name";
+            }
+            description "The template-name of the service";
+        }
+
+        leaf composite-service { //TODO - change to leafref
+            type instance-identifier {
+                require-instance false;
+            }
+              description "Specifies composite service association";
+        }
+    }
+
+    grouping steering-parameter {
+        container steering-parameter {
+            list labels {
+                key label;
+                leaf label {
+                    type leafref {
+                        path "/sp:parameters/sp:parameter/sp:label";
+
+                    }
+                    description "Steering-parameter label.";
+                }
+            }
+            leaf label-bit-value {
+               type uint64;
+               description "Steering parameter label bit value.";
+            }
+        }
+    }
+
+    grouping tunnel-extension-common {
+        uses extension-common;
+
+        //Tunnel can't set default values as brownfield need to be null but support steering parameters NSPD-284152
+        leaf slc-state {
+            type svc-common-types:olc;
+            //default deployed;
+            description "The service life cycle state.";
+        }
+
+        leaf misaligned {
+            type boolean;
+            description "Specifies if the tunnel is misaligned with the network";
+            //default false;
+        }
+
+        uses steering-parameter;
+
+        leaf template-name { //TODO - unique and require-instance=true, NSPD-280420 workaround
+            type leafref {
+                 require-instance false;
+                path "/tunnel-template:templates/tunnel-template:template/tunnel-template:name";
+            }
+            description "The template-name of the tunnel.";
+        }
+    }
+
+    grouping bgp-evpn {
+        container bgp-evpn {
+            description "bgp-evpn context";
+            list bgp {
+                key "bgp-instance";
+                description "Enter the bgp list instance";
+                leaf bgp-instance {
+                    type int32 {
+                        range "1";
+                    }
+                    description "BGP instance ID";
+                }
+
+                leaf route-distinguisher {
+                    type union {
+                        type enumeration {
+                            enum "auto-rd" {value 1;}
+                        }
+                        type string;
+                    }
+                    description "High-order 6 bytes that are used as string to compose VSI-ID for use in NLRI";
+                }
+                container route-target-import {
+                    uses route-target;
+                }
+
+                container route-target-export {
+                    uses route-target;
+                }
+                container mpls {
+                    uses l2-auto-bind-tunnel;
+                }
+                container vxlan {
+                    leaf vxlan-instance-id {
+                        type uint32 {
+                            range "1..2";
+                        }
+                        description "VXLAN instance";
+                    }
+                    leaf vni {
+                        type uint32 {
+                            range "1..16777215";
+                        }
+                        description "VNI of the VXLAN";
+                    }
+                }
+
+            }
+        }
+
+    }
+}

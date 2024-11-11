@@ -1,0 +1,145 @@
+module nsp-sf-metadata {
+    yang-version "1.1";
+    namespace "urn:nokia:nsp:nsp-sf-metadata";
+    prefix "nsp-sf-metadata";
+
+    import nsp-model-extensions { prefix model-ext; }
+
+
+    organization "Nokia";
+
+    description "YANG definition for Data Resync Manager";
+
+    revision "2022-01-18" { description  "NSP  definitions (SF metadata plugin, etc)"; }
+    revision "2022-02-06" { description  "NSP  service merge job"; }
+    revision "2022-08-30" { description  "Added author and signature-status to plugin-implmenter.
+                                          Added enum for signature status"; }
+
+    identity signature-status {
+      description "Base identity for enum to specify the signing status of an artifact";
+    }
+
+    identity signed {
+      base signature-status;
+      description "Enum that indicates the artifact is signed";
+    }
+
+    identity notsigned {
+      base signature-status;
+      description "Enum that indicates the artifact is not signed";
+    }
+
+    identity invalid {
+      base signature-status;
+      description "Enum that indicates the artifact's signature is invalid";
+    }
+
+    identity expired {
+      base signature-status;
+      description "Enum that indicates the artifact's signature is expired";
+    }
+        grouping page-def {
+
+           leaf page-number {
+              type uint16;
+              description "if the code is longer than 10485750 then we use page-number to keep order of pages";
+           }
+
+           leaf page {
+                            type string {
+                              length "0..10485760";
+                            }
+               description "java code if all code cannot be fit in one page then add more pages with page-number";
+
+            }
+        }
+
+
+        grouping nsp-metadata-sf-plugin-def {
+
+           leaf node-type {
+                 type string;
+                 description "node type";
+           }
+           leaf node-version {
+                  type string;
+                  description "node version";
+           }
+           leaf version {
+               description "the data mapping version for node type and version if you need to updated then this should be changed then it will be reloaded";
+               default "1.0.0";
+               type string;
+           }
+
+           leaf code-ref {
+               type string;
+               description "java code reference to implementer of ISFPlugin interface";
+           }
+        }
+
+        container nsp-metadata-sf-plugins {
+                 container mdm {
+                      list nsp-metadata-sf-plugin {
+                           model-ext:table-name "nsp-mdm-metadata-sf-plugin";
+                           key "node-type node-version";
+                           uses nsp-metadata-sf-plugin-def;
+                      }
+                      list plugin-implementer {
+                             model-ext:table-name "nsp-mdm-plugin-implementer";
+                             key "java-class-path";
+                             leaf java-class-path {
+                                  type string;
+                                   description "full java class path name";
+                               }
+                               leaf version {
+                                    type string;
+                                    default "1.0";
+                                    description "the java file version if you need to updated then this should be changed then it will be reloaded";
+                                }
+                                leaf author {
+                                    type string;
+                                    default "NSP";
+                                    description "The author of this plugin-implementer class";
+                                }
+                                leaf signature-status {
+                                    type identityref{
+                                      base signature-status;
+                                    }
+                                    default notsigned;
+                                    config false;
+                                    description "Indicates the signature status of this plugin-implementer";
+                                }
+
+                               list java-code {
+                                   model-ext:table-name "nsp-mdm-plugin-implementer-java-code";
+                                           key "page-number";
+                                           uses  page-def;
+                               }
+                      }
+                 }
+        }
+
+        container nsp-service-merge {
+               list merge-job{
+                    model-ext:table-name "nsp-service-merge-job";
+                    key "job-id";
+                    leaf job-id {
+                       type string;
+                    }
+                    leaf service-type{
+                       type string;
+                    }
+                    leaf algorithm {
+                       type string;
+                    }
+                    list site {
+                        model-ext:table-name "nsp-service-merge-job-site";
+                        key "site-db-id";
+                        leaf site-db-id{
+                           type uint32;
+                        }
+                    }
+
+               }
+        }
+}

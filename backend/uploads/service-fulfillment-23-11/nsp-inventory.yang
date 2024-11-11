@@ -1,0 +1,235 @@
+module nsp-inventory {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-inventory";
+    prefix inv;
+
+    import nsp-model-extensions {
+        prefix model-ext;
+    }
+
+    organization "Nokia";
+
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+
+    description
+        "YANG NBI definition for nsp-inventory.";
+
+    revision 2022-11-17 {
+            description
+                "NSP 23.4  -
+                 Added timeField, from, to in find rpc";
+    }
+    revision 2021-12-13 {
+            description
+                "NSP 22.6  -
+                 Added include-meta in find rpc";
+    }
+
+    revision 2021-10-01 {
+        description
+            "NSP 21.11  -
+             Updated find-by-source rpc, added fields, depth";
+    }
+
+    revision 2021-07-01 {
+        description
+            "NSP 21.9  -
+             Updated find rpc, added filter-ext with choice";
+    }
+
+    revision 2021-06-06 {
+        description
+            "NSP 21.6  -
+             Updated find rpc, added filter-ext";
+    }
+
+    revision 2021-01-10 {
+        description "NSP 21.3  -
+            Added find-by-source rpc.
+            Updated find rpc, added start-index, end-index, total-count";
+    }
+
+    revision 2020-04-27 {
+        description "Initial revision";
+    }
+
+    rpc find {
+        model-ext:operation java
+        {
+            model-ext:class com.nokia.nsp.md.restconf.impl.rpc.GenericFindRpcImpl;
+        }
+        description "Retrieve all or part of a specified configuration.";
+        input {
+          leaf xpath-filter {
+            description "XPath expression";
+            type string;
+          }
+          leaf depth {
+             description "used to limit the depth of the subtree returned";
+             type int32;
+             default "-1"; // unbounded
+             mandatory false;
+          }
+          leaf fields {
+             description "used to identify data nodes within the target resource";
+             type string;
+             mandatory false;
+          }
+          leaf-list sort-by {
+            description "will return selected resources in the ascending order ? based on the values of specified attributeName. If the attribute name is prefixed with '-' then the selected resources will be sorted in the descending order.";
+            type string;
+          }
+          leaf offset {
+            description "used to skip the number of records from the result";
+            type int32;
+            default "0"; // No offset
+            mandatory false;
+          }
+          leaf limit {
+            description "retrieve only the number of records specified, unless the query itself returns fewer records than the limit";
+            type int32;
+            default "-1"; // No limit - unbounded
+            mandatory false;
+          }
+          leaf include-meta {
+            description "used to skip the meta data information from the result";
+            type boolean;
+            default "true";
+            mandatory false;
+          }
+
+          leaf time-field {
+            description "used to indicate which timestamped field to filter on. valid value are creationTime and lastModifiedTime";
+            type string;
+            mandatory false;
+          }
+          leaf from {
+            description "the time from in UTC format: e.g. 2022-11-14T18:01:21.363Z";
+            type string;
+            mandatory false;
+          }
+          leaf to {
+            description "the time to in UTC format: e.g. 2022-11-14T18:01:21.363Z";
+            type string;
+            mandatory false;
+          }
+
+          list filter-ext {
+             description "additional filters to enable with parameters, these filters are predefined in the respective dmodel";
+             key name;
+
+             leaf name {
+             	description "name of extra sql filter to enable according to availability defined at dmodel entity";
+                type string;
+             }
+             list params {
+                 description "parameters of extra sql filter to configure at runtime.";
+                 key name;
+
+                 leaf name {
+                    type string;
+                 }
+         	      choice value-type {
+                     case string-value {
+                         leaf value-string {
+                             type string;
+                         }
+                     }
+                    case int-value {
+                         leaf value-int {
+                             type int32;
+                         }
+                     }
+                    case long-value {
+                         leaf value-long {
+                             type int64;
+                         }
+                     }
+                    case boolean-value {
+                         leaf value-boolean {
+                             type boolean;
+                         }
+                     }
+                     case double-value {
+                         leaf value-double {
+                             type decimal64 {
+                                fraction-digits 4;
+                             }
+                         }
+                     }
+                     case strings-value {
+                         leaf-list values-string {
+                             type string;
+                         }
+                     }
+                 }
+    	     }
+          }
+        }
+        output {
+          leaf start-index {
+                 description
+                   "Index of the first listed item, based on offset";
+                 type int32;
+          }
+          leaf end-index {
+                 description
+                   "Index of the last listed item, based on offset and limit";
+                 type int32;
+          }
+          leaf total-count {
+                description
+                  "Total number of items matching the filter";
+                type int32;
+          }
+          anydata data {
+            description
+              "Copy of the data subset that matched
+               the filter (if any).  An empty data container
+               indicates that the request did not produce any results.";
+          }
+        }
+    }
+
+    rpc find-by-source{
+       model-ext:operation java
+       {
+           model-ext:class com.nokia.nsp.md.restconf.impl.rpc.SourcesFindRpcImpl;
+       }
+       description "Retrieve an object based on a set of source FDNs";
+       input {
+         leaf schema-nodeid {
+           description "The Yang schema node Id of the normalized object";
+           type string;
+         }
+
+         leaf-list sources {
+           description "The set of sources to search the DB on";
+           type string;
+         }
+
+         leaf fields {
+           description "used to identify data nodes within the target resource";
+           type string;
+           mandatory false;
+         }
+
+         leaf depth {
+           description "used to limit the depth of the subtree returned";
+           type int32;
+           default "-1"; // unbounded
+           mandatory false;
+         }
+       }
+       output {
+         anydata data {
+           description
+           "Copy of the data subset that matched
+           the sources (if any).  An empty data container
+           indicates that the request did not produce any results.";
+         }
+      }
+    }
+}

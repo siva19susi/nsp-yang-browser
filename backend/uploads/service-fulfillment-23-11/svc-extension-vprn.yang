@@ -1,0 +1,267 @@
+module svc-extension-vprn {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:svc-extension:vprn";
+    prefix "svc-extension-vprn";
+    import nsp-model-extensions { prefix model-ext; }
+    import service-extension-common { prefix "svc-common"; }
+    import ietf-inet-types { prefix inet; }
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds vprn service Augmentation";
+    revision "2023-07-27" {description "adding the bgp-evpn"; }
+    revision "2023-06-27" { description "Move to extension common"; }
+    revision "2022-10-26" { description "Endpoint tenant-id"; }
+    revision "2022-06-29" { description "Add gre auto-bind"; }
+    revision "2022-06-22" { description "Add auto-bind-tunnel"; }
+    revision "2022-06-14" { description "Add router-id"; }
+    revision "2022-04-19" { description "Add composite service association"; }
+    revision "2021-11-30" { description "Add site-id to extension endpoint"; }
+    revision "2021-06-02" { description "extension of the vprn service-dmodel"; }
+
+    typedef host-route-type {
+        type enumeration {
+          enum "static"     { value 1; }
+          enum "dynamic"    { value 2; }
+        }
+        description "Type of ARP or ND entries that generate host routes";
+    }
+
+    grouping l3vpn-svc {
+        container l3vpn-svc {
+            model-ext:table-name "service-extension-l3vpn-svc";
+            uses svc-common:svc-extension-common;
+        }
+    }// service
+
+    grouping l3vpn-site {
+        container l3vpn-site {
+            model-ext:table-name "service-extension-l3vpn-site";
+            uses svc-common:site-extension;
+            leaf vprn-type{
+                type svc-common:vprn-type;
+                default regular;
+                description "The VPRN type.";
+            }
+
+            leaf autonomous-system {
+                type uint32;
+                description "AS number advertised to peers for this router.";
+            }
+            leaf router-id {
+                type inet:ip-address;
+                description "Unique router ID for the router in the AS.";
+            }
+
+            uses svc-common:route-distinguisher;
+
+            container route-target-import {
+               uses svc-common:route-target;
+            }
+            container route-target-export {
+               uses svc-common:route-target;
+            }
+            container vrf-import {
+                uses vrf-policy;
+            }
+            container vrf-export {
+                uses vrf-policy;
+            }
+
+            list bgp-group {
+                key "group-name";
+                uses svc-common:bgp-group-config;
+            }
+            list bgp-peer{
+                key "peer-address";
+                uses svc-common:bgp-peer-config;
+            }
+            uses svc-common:bgp-evpn;
+            container maximum-ipv4-routes {
+                description "Enter the maximum-ipv4-routes context.";
+                leaf maxNumberOfRoutes {
+                    type int32;
+                    description "Maximum number of routes that are configured on this virtual router.";
+                }
+                leaf maxNumberOfRoutesLogOnly {
+                    type boolean;
+                    default "false";
+                    description "Action when the maximum number of routes, held within a VRF context, is reached.";
+                }
+                leaf midRouteThreshold {
+                    type uint32;
+                    units "percent";
+                    description "Mid-level water marker for the number of routes which this VRF holds.";
+                }
+
+            } // container maximum-ipv4-routes
+
+            container maximum-ipv6-routes {
+                description "Enter the maximum-ipv4-routes context.";
+                leaf maxNumberOfRoutes {
+                    type int32;
+                    description "Maximum number of routes that are configured on this virtual router.";
+                }
+                leaf maxNumberOfRoutesLogOnly {
+                    type boolean;
+                    default "false";
+                    description "Action when the maximum number of routes, held within a VRF context, is reached.";
+                }
+                leaf midRouteThreshold {
+                    type uint32;
+                    units "percent";
+                    description "Mid-level water marker for the number of routes which this VRF holds.";
+                }
+
+            } // container maximum-ipv6-routes
+
+            container mc-maximum-routes {
+                description "Enter the mc-maximum-routes context";
+                leaf maxNumberOfMcastRoutes {
+                    type int32;
+                    description "Maximum number of multicast routes to be configured on this virtual router.";
+                }
+                leaf maxNumberOfMcastRoutesLogOnly {
+                    type boolean;
+                        default "false";
+                        description "Action when the maximum number of multicast routes, held within a VRF context, is reached.";
+                }
+                leaf midRouteMcastThreshold {
+                    type uint32;
+                    units "percent";
+                    description "Mid-level water marker for the number of multicast routes which this VRF holds.";
+                }
+
+            } // container mc-maximum-routes
+            uses svc-common:static-route-config;
+
+            container auto-bind-tunnel {
+                container resolution-filter {
+                    leaf bgp {
+                        type boolean;
+                        default "false";
+                        description "Use BGP tunneling for next-hop resolution";
+                    }
+                    leaf gre {
+                        type boolean;
+                        default "false";
+                        description "Use GRE tunneling for next-hop resolution";
+                    }
+                    leaf ldp {
+                        type boolean;
+                        default "false";
+                        description "Use LDP tunneling for next-hop resolution";
+                    }
+                    leaf rsvp {
+                        type boolean;
+                        default "false";
+                        description "Use RSVP tunneling for next-hop resolution";
+                    }
+
+                    leaf sr-isis {
+                        type boolean;
+                        default "false";
+                        description "Use IS-IS SR tunneling for next-hop resolution";
+                    }
+
+                    leaf sr-ospf {
+                        type boolean;
+                        default "false";
+                        description "Use OSPF SR tunneling for next-hop resolution";
+                    }
+
+                    leaf sr-te {
+                        type boolean;
+                        default "false";
+                        description "Use SR-TE tunneling for next-hop resolution";
+                    }
+                    leaf udp {
+                        type boolean;
+                        default "false";
+                        description "Use MPLS over UDP tunneling for next-hop resolution";
+                    }
+                    leaf mpls-fwd-policy {
+                        type boolean;
+                        default "false";
+                        description "Use MPLS forwarding policy for next-hop resolution";
+                    }
+                    leaf sr-policy {
+                        type boolean;
+                        default "false";
+                        description "Use SR policies for next-hop resolution";
+                    }
+                    leaf rib-api {
+                        type boolean;
+                        default "false";
+                        description "Use RIB API gRPC service for next-hop resolution";
+                    }
+                    leaf sr-ospf-3 {
+                        type boolean;
+                        default "false";
+                        description "Use OSPFv3 SR tunneling for next-hop resolution";
+                    }
+                }
+            }
+        }
+    }//grouping l3vpn-site
+
+    grouping l3vpn-endpoint {
+        container l3vpn-endpoint {
+            model-ext:table-name "service-extension-l3vpn-endpoint";
+            uses svc-common:endpoint-extension;
+            container vpls {
+                uses vpls;
+            }
+        } //container
+    } //grouping l3vpn endpoint
+
+
+    //Entity : vrf-policy
+    grouping vrf-policy {
+        leaf-list policy {
+            type string {
+                length "1..255";
+            }
+            description "Name of the import policy. The name of the policy is limited to 64 characters except for the first policy.";
+        }
+    }
+
+    grouping vpls {
+        leaf vpls-name {
+            type string;
+            description "The name of the VPLS service.";
+        }
+        leaf evpn-tunnel {
+          type boolean;
+          default "false";
+          description "Configure interface as VPLS EVPN tunnel.";
+        }
+        container evpn {
+            container arp {
+                leaf learn-dynamic {
+                    type boolean;
+                    default "true";
+                    description "Enable/disable dynamic entries learning.";
+                }
+                list advertise {
+                  key "route-type";
+                  description "Enter the advertise list instance";
+
+                  leaf route-type {
+                    type host-route-type;
+                    description "Type of ARP Host Route";
+                  }
+
+                  leaf route-tag {
+                    type uint32 {
+                      range "0..255";
+                    }
+                    description "Tag value used with the host route from a ARP entry";
+                  }
+
+                } // list advertise
+            }
+        }
+    }
+}

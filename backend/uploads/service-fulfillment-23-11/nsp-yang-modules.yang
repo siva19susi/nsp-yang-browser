@@ -1,0 +1,435 @@
+module nsp-yang-modules {
+    yang-version "1";
+    namespace "urn:nokia:nsp:nsp-yang-modules";
+    prefix "nsp-yang-modules";
+
+    import nsp-model-extensions {
+        prefix model-ext;
+    }
+
+    description "This module defines RPCs to interact with NSP yang modules";
+
+    organization "Nokia ION Network Automation";
+
+    contact "www.nokia.com";
+
+    revision 2022-09-23 {
+        description "Added RPCs to add/update/get/delete type-versions in an existing module set in NSP";
+    }
+
+    revision 2021-02-25 {
+        description "Added RPC to get yang module sets from NSP";
+    }
+    
+    revision 2020-03-20 {
+        description "Added RPCs to add/remove/get yang models from NSP";
+    }
+
+    grouping nsp-module-info {
+        description
+          "A set of parameters that describe a module in NSP";
+        leaf module-set-name {
+            description "module-set 'name' that this yang module belongs to.
+                        The details of module-set-name to be used can be obtained from application document or from yang-library";
+            type string;
+            mandatory true;
+        }
+        leaf dbschema {
+            description "Database schema name to persist the yang model";
+            type string;
+        }
+    }
+
+    rpc add-yang-modules {
+        description "Add the yang modules to NSP dynamically and generated restconf endpoint";
+        input {
+            uses nsp-module-info;
+            list modules {
+                key module-name;
+
+                leaf module-name {
+                    description "The YANG module name.";
+                    type string;
+                    mandatory true;
+                }
+                leaf is-augmentation {
+                    description "Whether the yang model is an augmentation to an existing model in NSP";
+                    type boolean;
+                }
+
+                choice yang-input-info {
+                    mandatory true;
+                    case yang-from-url {
+                        leaf yang-url {
+                            description "URL to download the yang model";
+                            type string;
+                            mandatory true;
+                        }
+                        leaf md5-hash-checksum {
+                            type string;
+                            description "MD5 checksum of the yang file.";
+                        }
+                        leaf proxy-host {
+                            type string;
+                            description "Proxy host name/IP address to be used";
+                        }
+                        leaf proxy-port {
+                            type int16;
+                            description "Proxy port to be used";
+                        }
+                        leaf proxy-secured-port {
+                            type int16;
+                            description "Proxy secured port to be used";
+                        }
+                    }
+                    case yang-as-text {
+                        leaf yang-text {
+                            description "Yang model as string to add to NSP";
+                            type string;
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+        output {
+            leaf result {
+                description "Result of the 'add-yang-modules' operation";
+                type string;
+            }
+        }
+    }
+
+    rpc remove-yang-modules {
+        description "Removes the yang module from NSP dynamically (if empty)";
+        model-ext:operation java
+        {
+            model-ext:class com.nokia.nsp.md.restconf.impl.rpc.DynamicYangRemoveRpcImpl;
+        }
+
+        input {
+            uses nsp-module-info;
+            list modules {
+                key namespace;
+
+                leaf module-name {
+                    description "The YANG module name.";
+                    type string;
+                    mandatory true;
+                }
+                leaf namespace {
+                    description "The XML namespace identifier for this module.";
+                    type string;
+                    mandatory true;
+                }
+                leaf revision {
+                    description "The YANG module revision date.";
+                    type string;
+                    mandatory true;
+                }
+                leaf is-augmentation {
+                    description "Whether the yang model is an augmentation to an existing model in NSP";
+                    type boolean;
+                }
+
+            }
+        }
+
+        output {
+            leaf result {
+                description "Result of the 'remove-yang-modules' operation";
+                type string;
+            }
+        }
+    }
+
+    rpc reset-schema-validation {
+        description "
+            CAUTION: This API is intended for use by a Nokia technical support representative only.
+            Performing any database modifications using the PostgreSQL CLI or custom tools can cause
+            irreparable harm to the database and your network management data.
+            Performing such modifications can void your Nokia warranty and support agreements.
+            Contact your Nokia support representative to help you troubleshoot your database.";
+
+        model-ext:operation java
+        {
+            model-ext:class com.nokia.nsp.md.restconf.impl.rpc.ResetSchemaValidationRpcImpl;
+        }
+        input {
+            list module-set-names {
+                key module-set-name;
+
+                leaf module-set-name {
+                    description "module-set 'name' as returned by yang-library for the yang module";
+                    type string;
+                }
+            }
+        }
+    }
+
+     rpc get-yang-module-sets {
+        description "
+            Get the yang module sets at runtime.";
+
+        model-ext:operation java
+        {
+            model-ext:class com.nokia.nsp.md.restconf.impl.rpc.DynamicGetYangDefinitionsRpcImpl;
+        }
+
+        output {
+            leaf-list module-set {
+                type string;
+            }
+        }
+    }
+
+    rpc get-yang-modules-definitions {
+        description "
+            Get the yang model definitions at runtime.
+            It supports fetching all the  yang models owned by a module-set.
+            It supports fetching specific yang modules owned by a module-set.
+            If the requested the yang module is not available,nothing is returned for that module and status is set to 'not-available'";
+
+        model-ext:operation java
+        {
+            model-ext:class com.nokia.nsp.md.restconf.impl.rpc.DynamicGetYangDefinitionsRpcImpl;
+        }
+
+        input {
+            leaf module-set-name {
+                description "module-set 'name' as returned by yang-library for the yang module";
+                type string;
+                mandatory true;
+            }
+            leaf-list  module-names {
+                description "yang module name(s)";
+                type string;
+                }
+            }
+
+        output {
+            leaf module-set-name {
+                description "module-set 'name' as returned by yang-library for the yang module";
+                type string;
+                mandatory true;
+            }
+            list result {
+                key module-name;
+                leaf module-name {
+                    description "Yang module name";
+                    type string;
+                    mandatory true;
+                }
+                leaf yang-definition {
+                    description "Yang module definition as string";
+                    type string;
+                }
+                leaf status {
+                    type enumeration {
+                        enum success {
+                            description "Set to 'success' on successful retrieval of yang module from NSP";
+                        }
+                        enum not-available {
+                            description "Set to 'not-available' when yang module is not found in NSP ";
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    rpc add-module-set {
+           description "Adds a new module set dynamically";
+           model-ext:operation java
+           {
+              model-ext:class com.nokia.nsp.md.restconf.impl.rpc.AddOwnerRpcImpl;
+           }
+           input {
+             uses nsp-module-info;
+
+             list type-versions {
+                 key type;
+                 leaf type {
+                     description "Type of module set, can be a node type or an intent type";
+                     type string;
+                 }
+
+                 leaf-list version {
+                     description "Versions of this module set, can be a node version or an intent version";
+                     type string;
+                 }
+             }
+             leaf category {
+               description "module set category.  Example is device or intent";
+               type string;
+             }
+             list extra-db-fields {
+               key name;
+               description "Any extra fields required for this module set.";
+                 leaf name {
+                    description "Name of the extra field, for example ne-id";
+                    type string;
+                 }
+
+                 leaf type {
+                    description "Type of the extra field";
+                    type string;
+                 }
+
+                 container db-constraints {
+                     description "DB constraints";
+
+                     leaf length {
+                        description "Db constraint";
+                        type int16;
+                     }
+
+                     leaf min {
+                       description "Db constraint";
+                       type int16;
+                     }
+
+                     leaf max {
+                       description "Db constraint";
+                       type int16;
+                     }
+                 }
+              }
+
+             leaf schema-mount {
+               description "If this schema is mounted or not";
+               type boolean;
+             }
+           }
+           output {
+             leaf result {
+               description "Result of the 'add-module-set' operation";
+               type string;
+             }
+           }
+   }
+
+
+   rpc remove-module-set-type-versions {
+              description "Delete type-versions to an existing module set.";
+              model-ext:operation java
+              {
+                 model-ext:class com.nokia.nsp.md.restconf.impl.rpc.DeleteTypeVersionsRpcImpl;
+              }
+              input {
+                uses nsp-module-info;
+
+                list type-versions {
+                    key type;
+                    leaf type {
+                        description "Type of module set, can be a node type or an intent type";
+                        type string;
+                    }
+
+                    leaf-list version {
+                        description "Versions of this module set, can be a node version or an intent version";
+                        type string;
+                    }
+                }
+              }
+              output {
+                list result {
+                  description "Results of the deletion";
+                  key type;
+                  leaf type {
+                       description "Type of module set, can be a node type or an intent type";
+                       type string;
+                  }
+                  leaf-list version {
+                       description "Versions of this module set, can be a node version or an intent version";
+                       type string;
+                  }
+                  leaf message {
+                       description "info about result";
+                       type string;
+                  }
+                  leaf is-success {
+                       description "the result is success or not";
+                       type boolean;
+                  }
+                }
+              }
+   }
+
+   rpc update-module-set-add-type-versions {
+       description "Adds new type-versions to an existing module set.";
+       model-ext:operation java
+       {
+           model-ext:class com.nokia.nsp.md.restconf.impl.rpc.AddTypeVersionsRpcImpl;
+       }
+       input
+       {
+           leaf module-set-name
+           {
+               description "module-set name";
+               type string;
+               mandatory true;
+           }
+           list type-versions
+           {
+               key type;
+               leaf type
+               {
+                   description "Type of module set, can be a node type or an intent type";
+                   type string;
+               }
+               leaf-list version
+               {
+                   description "Versions of this module set, can be a node version or an intent version";
+                   type string;
+               }
+           }
+       }
+       output
+       {
+           leaf result
+           {
+               description "Result of the 'add-type-versions' operation";
+               type string;
+           }
+       }
+   }
+
+   rpc get-module-set-type-versions {
+          description "Retrieves the currently supported type-versions in an existing module-set.";
+          model-ext:operation java
+          {
+              model-ext:class com.nokia.nsp.md.restconf.impl.rpc.GetTypeVersionsRpcImpl;
+          }
+          input
+          {
+              leaf module-set-name
+              {
+                  description "module-set name";
+                  type string;
+                  mandatory true;
+              }
+          }
+          output
+          {
+              list type-versions
+              {
+                  key type;
+                  leaf type
+                  {
+                      description "Type of module set, can be a node type or an intent type";
+                      type string;
+                  }
+                  leaf-list version
+                  {
+                      description "Versions of this module set, can be a node version or an intent version";
+                      type string;
+                  }
+              }
+          }
+      }
+
+}

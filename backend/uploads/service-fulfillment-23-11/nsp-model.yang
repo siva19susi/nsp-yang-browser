@@ -1,0 +1,54 @@
+module nsp-model {
+
+    yang-version "1.1";
+
+    namespace "urn:nokia:nsp:model-meta";
+
+    prefix "mod";
+    
+     import ietf-yang-metadata {
+       prefix "md";
+     }    
+    
+    organization "Nokia ION NSM NSP";
+
+    contact
+        "www.nokia.com";
+
+    description
+        "This module provides annotation definitions for the NSP YANG model";
+
+    revision "2021-01-21" {
+        description
+            "Update to schema-nodeid";
+    }
+
+    revision "2018-06-28" {
+        description
+            "Initial revision";
+    }
+    
+    md:annotation identifier {
+        type instance-identifier {
+            require-instance false;
+        }
+        description 
+            "This annotation contains the instance-identifier of the annotated instance.";
+    }
+    
+    md:annotation schema-nodeid {
+        type string;
+        description 
+            "This annotation contains the schema-nodeid of the annotated instance. The schema-nodeid is the predicate-less
+             instance-identifier. For example, for the instance-identifier /nsp-mediation:mediation-policy/snmp[name='SNMP-1']
+             the schema-nodeid is /nsp-mediation:mediation-policy/snmp.";
+    }
+
+    md:annotation sources {
+        type string;
+        description
+            "This annotation contains the source identifiers of the annotated instance. It is a free formed string, with some known patterns";
+    }
+    
+}
+

@@ -1,0 +1,197 @@
+module service-extension {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:svc-extension";
+    prefix "svc-extension";
+    import nsp-service { prefix "svc"; }
+    import nsp-model-extensions { prefix model-ext; }
+    import svc-extension-eline { prefix "svc-extension-eline";}
+    import svc-extension-cline { prefix "svc-extension-cline";}
+    import svc-extension-apipe { prefix "svc-extension-apipe";}
+    import svc-extension-hpipe { prefix "svc-extension-hpipe";}
+    import svc-extension-fpipe { prefix "svc-extension-fpipe";}
+    import svc-extension-ipipe { prefix "svc-extension-ipipe";}
+    import svc-extension-mvpls { prefix "svc-extension-mvpls";}
+
+    import svc-extension-elan { prefix "svc-extension-elan";}
+    import svc-extension-vprn { prefix "svc-extension-vprn";}
+    import svc-extension-ies { prefix "svc-extension-ies";}
+    //import svc-extension-mirror { prefix "svc-extension-mirror";}
+    import svc-extension-mpls-tunnel { prefix "svc-extension-mpls-tunnel";}
+    import svc-extension-gre-tunnel { prefix "svc-extension-gre-tunnel";}
+    import svc-extension-composite {prefix "svc-extension-composite";}
+    import svc-extension-mpr-backhaul { prefix "svc-extension-mpr-backhaul";}
+    import composite {prefix "composite";}
+
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds eline service Augmentation";
+    revision "2022-10-28" { description "Ies site/ep extension"; }
+    revision "2022-09-15" { description "extension of mprBackhaul service"; }
+    revision "2022-04-19" { description "extension of composite service"; }
+    revision "2021-05-30" { description "extension of the  service-dmodel"; }
+
+    model-ext:include-sources true;
+    model-ext:container-source-fdn true;
+
+    /**********composite***********/
+
+    augment "/svc:services/svc:service-layer/composite:composite" {
+        uses svc-extension-composite:composite-svc;
+    }
+
+    /**********eline***********/
+
+    augment "/svc:services/svc:service-layer/svc:eline" {
+        uses svc-extension-eline:eline-svc;
+    }
+    augment "/svc:services/svc:service-layer/svc:eline/svc:site" {
+        uses svc-extension-eline:eline-site;
+    }
+    augment "/svc:services/svc:service-layer/svc:eline/svc:endpoint" {
+        uses svc-extension-eline:eline-endpoint;
+    }
+
+    /**********cline***********/
+
+    augment "/svc:services/svc:service-layer/svc:cline" {
+        uses svc-extension-cline:cline-svc;
+    }
+    augment "/svc:services/svc:service-layer/svc:cline/svc:site" {
+        uses svc-extension-cline:cline-site;
+    }
+    augment "/svc:services/svc:service-layer/svc:cline/svc:endpoint" {
+        uses svc-extension-cline:cline-endpoint;
+    }
+
+    /**********elan***********/
+    augment "/svc:services/svc:service-layer/svc:elan" {
+        uses svc-extension-elan:elan-svc;
+    }
+    augment "/svc:services/svc:service-layer/svc:elan/svc:site" {
+        uses svc-extension-elan:elan-site;
+    }
+    augment "/svc:services/svc:service-layer/svc:elan/svc:endpoint" {
+        uses svc-extension-elan:elan-endpoint;
+    }
+
+    /**********vprn***********/
+
+    augment "/svc:services/svc:service-layer/svc:l3vpn" {
+        uses svc-extension-vprn:l3vpn-svc;
+    }
+    augment "/svc:services/svc:service-layer/svc:l3vpn/svc:site" {
+        uses svc-extension-vprn:l3vpn-site;
+
+    }
+    augment "/svc:services/svc:service-layer/svc:l3vpn/svc:endpoint" {
+        uses svc-extension-vprn:l3vpn-endpoint;
+    }
+    /**********ies***********/
+
+    augment "/svc:services/svc:service-layer/svc:ies" {
+        uses svc-extension-ies:ies-svc;
+
+    }
+    augment "/svc:services/svc:service-layer/svc:ies/svc:site" {
+        uses svc-extension-ies:ies-site;
+
+    }
+    augment "/svc:services/svc:service-layer/svc:ies/svc:endpoint" {
+        uses svc-extension-ies:ies-endpoint;
+    }
+
+
+    /**********mirror***********/
+
+    /* augment "/svc:services/svc:service-layer/svc:mirror" {
+        uses svc-extension-mirror:mirror-svc;
+
+    }*/
+
+    /**********tunnel***********/
+
+    augment "/svc:services/svc:tunnel-layer/svc:mpls-tunnel" {
+        uses svc-extension-mpls-tunnel:mpls-tunnel-ext;
+    }
+    augment "/svc:services/svc:tunnel-layer/svc:gre-tunnel" {
+        uses svc-extension-gre-tunnel:gre-tunnel-ext;
+    }
+    
+    /**********mprBackhaul***********/
+
+    augment "/svc:services/svc:service-layer/svc:mpr-backhaul" {
+        uses svc-extension-mpr-backhaul:mpr-backhaul-svc;
+    }
+    augment "/svc:services/svc:service-layer/svc:mpr-backhaul/svc:site" {
+        uses svc-extension-mpr-backhaul:mpr-backhaul-site;
+
+    }
+    augment "/svc:services/svc:service-layer/svc:mpr-backhaul/svc:endpoint" {
+        uses svc-extension-mpr-backhaul:mpr-backhaul-endpoint;
+    }
+
+    /**********apipe***********/
+
+    augment "/svc:services/svc:service-layer/svc:apipe" {
+        uses svc-extension-apipe:apipe-svc;
+    }
+    augment "/svc:services/svc:service-layer/svc:apipe/svc:site" {
+        uses svc-extension-apipe:apipe-site;
+
+    }
+    augment "/svc:services/svc:service-layer/svc:apipe/svc:endpoint" {
+        uses svc-extension-apipe:apipe-endpoint;
+    }
+
+    /**********fpipe***********/
+
+    augment "/svc:services/svc:service-layer/svc:fpipe" {
+        uses svc-extension-fpipe:fpipe-svc;
+    }
+    augment "/svc:services/svc:service-layer/svc:fpipe/svc:site" {
+        uses svc-extension-fpipe:fpipe-site;
+
+    }
+    augment "/svc:services/svc:service-layer/svc:fpipe/svc:endpoint" {
+        uses svc-extension-fpipe:fpipe-endpoint;
+    }
+
+    /**********hpipe***********/
+
+    augment "/svc:services/svc:service-layer/svc:hpipe" {
+        uses svc-extension-hpipe:hpipe-svc;
+    }
+    augment "/svc:services/svc:service-layer/svc:hpipe/svc:site" {
+        uses svc-extension-hpipe:hpipe-site;
+
+    }
+    augment "/svc:services/svc:service-layer/svc:hpipe/svc:endpoint" {
+        uses svc-extension-hpipe:hpipe-endpoint;
+    }
+
+    /**********ipipe***********/
+
+    augment "/svc:services/svc:service-layer/svc:ipipe" {
+        uses svc-extension-ipipe:ipipe-svc;
+    }
+    augment "/svc:services/svc:service-layer/svc:ipipe/svc:site" {
+        uses svc-extension-ipipe:ipipe-site;
+
+    }
+    augment "/svc:services/svc:service-layer/svc:ipipe/svc:endpoint" {
+        uses svc-extension-ipipe:ipipe-endpoint;
+    }
+
+        /**********mvpls***********/
+        augment "/svc:services/svc:service-layer/svc:mvpls" {
+            uses svc-extension-mvpls:mvpls-svc;
+        }
+        augment "/svc:services/svc:service-layer/svc:mvpls/svc:site" {
+            uses svc-extension-mvpls:mvpls-site;
+        }
+        augment "/svc:services/svc:service-layer/svc:mvpls/svc:endpoint" {
+            uses svc-extension-mvpls:mvpls-endpoint;
+        }
+}

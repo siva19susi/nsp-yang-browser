@@ -1,0 +1,3616 @@
+module nsp-service {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service";
+    prefix svc;
+
+
+    import nsp-common {
+        prefix common;
+    }
+    
+    import nsp-core {
+        prefix core;
+    }
+    
+    import nsp-group {
+        prefix group;
+    }
+    
+    import nsp-useraccesscontrol {
+        prefix useraccesscontrol;
+    }
+    
+    import ietf-yang-types {
+        prefix yang;
+    }
+    
+
+    import nsp-model-extensions {
+        prefix model-ext;
+    }
+
+    organization "Nokia";
+    
+    contact 
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    
+    description 
+        "YANG NBI definition for nsp-service model.";
+
+
+    revision 2023-10-24 { description "case insensitive contains filter search"; }
+    revision 2023-05-23 { description "add key to tunnel-binding"; }
+    revision 2022-12-16 { description "Unhide id service layer"; }
+    revision 2019-03-13 {
+        description "Initial revision";
+    }
+
+    typedef service-id {
+        description "The service identifier";
+        type string;
+    }
+
+    typedef rate {
+        description "A service rate";
+        type decimal64 {
+            fraction-digits 4;
+        }
+    }
+
+    container services {
+        config false;
+        container service-layer {
+            list eline {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list elan {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list l3vpn {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list ies {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list apipe {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list ipipe {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list cline {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list hpipe {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list mvpls {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list fpipe {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+            list mpr-backhaul {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "service-id";
+    
+                leaf service-id {
+                     description "This id is used to identify services in IBSF. This id is globally unique across multiple source systems.";
+                     type string;
+                }
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf ne-service-id {
+                     description "The NE identifier of the service. Populated only when same NE service identifier is used across all sites.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list endpoint {
+                    description "An endpoint of a service";
+                    key "endpoint-id";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    leaf site-name {
+                         description "The site name";
+                         type string;
+                    }
+    
+                    uses endpoint;
+                }
+                list site {
+                    description "A service site";
+                    key "site-id name";
+    
+                    leaf service-name {
+                         description "The service name";
+                         type string;
+                    }
+    
+                    uses site;
+                }
+                list tenant {
+                    description "Specific customer details that are associated with a service";
+                    key "id";
+    
+                    uses customer-details;
+                }
+                list tunnel-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+            }
+        }
+        container tunnel-layer {
+            list gre-tunnel {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "id source-ne-id";
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                uses tunnel-details;
+            }
+            list mpls-tunnel {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "id source-ne-id";
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                list lsp-binding {
+                    description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+         between ServiceResourceBinding and ServiceConnector.";
+                    key "name";
+    
+                    uses service-resource-binding;
+                }
+                uses tunnel-details;
+            }
+        }
+        container mpls-layer {
+            list lsp {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "name source-ne-id";
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf origin {
+                     description "Indicates the application who originally created the service";
+                     type svc:origin;
+                }
+    
+                leaf is-nfmp-ip-service {
+                     description "Indicates the service is an IP service in NFMP";
+                     type boolean;
+                     default "false";
+                }
+    
+                uses service;
+                uses lsp-details;
+            }
+        }
+        container physical-layer {
+            list cable {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "id";
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf direction {
+                     description "The NFM service direction";
+                     type svc:direction;
+                }
+    
+                leaf latency {
+                     description "The latency, if known, of the service. The time units are specified in 'latencyUnits'";
+                     type int64;
+                }
+    
+                uses service;
+                list link-endpoint {
+                    description "An endpoint of a service";
+                    key "site-id endpoint-id";
+    
+                    uses endpoint;
+                }
+                list link-site {
+                    description "A service site";
+                    key "site-id";
+    
+                    uses site;
+                }
+            }
+            list radio-link {
+                description "The service uses/rides/connects endpoints, sites, and resources.";
+                key "id";
+    
+                leaf id {
+                     description "For services, this id represents the unique identifier from the originating source system. For Tunnels, this represents tunnel identifier from the node.";
+                     type string;
+                }
+    
+                leaf direction {
+                     description "The NFM service direction";
+                     type svc:direction;
+                }
+    
+                leaf latency {
+                     description "The latency, if known, of the service. The time units are specified in 'latencyUnits'";
+                     type int64;
+                }
+    
+                uses service;
+                list link-endpoint {
+                    description "An endpoint of a service";
+                    key "site-id endpoint-id";
+    
+                    uses endpoint;
+                }
+                list link-site {
+                    description "A service site";
+                    key "site-id";
+    
+                    uses site;
+                }
+            }
+        }
+        container igp-layer {
+            config false;
+            list admin-domain {
+                key "name";
+                config false;
+    
+                uses admin-domain;
+                list routing-instance {
+                    key "id";
+    
+                    uses routing-instance;
+                }
+            }
+            list ip-links {
+                description "Unidirectional IP link originates from a IP node and terminates on another IP node";
+                key "name";
+                config false;
+    
+                uses ip-link;
+            }
+        }
+    }
+
+    
+    //
+    // Helper: common-properties
+    //
+    
+    grouping common-properties-def {
+        description "A convenience superclass object in the service model that defines various common properties";
+        
+        leaf name {
+             description "The user friendly visible name";
+             type string;
+        }
+        
+        leaf description {
+             description "The user friendly text describing the service";
+             type string;
+        }
+        
+        leaf source-type {
+             description "Indicates the type of the source system.
+                    Example: SourceType.mdm";
+             type common:source-type;
+        }
+        
+        list object-details {
+            description "A map of properties that are not modelled
+                     Service: linkType, linkScope, linkDiscoveredFrom, isLagMember, hasLLDPAdjacency
+                     Endpoint: hasUnderlyingEndpoint, containedLinks, isSource, isTarget";
+            key key;
+            
+            leaf key {
+                type string;
+            }
+            
+            leaf value {
+                type string;
+            }
+        }
+        
+        leaf admin-state {
+             description "The administrative state.
+                     For equipment objects, only those with adminState Unlocked will be included in KPI calculation.";
+             type common:admin-state;
+        }
+        
+        leaf oper-state {
+             description "The operational state.
+                     For equipment objects that do not have an operational state,
+                     their operational state can be mapped to:
+                     present = operationally up,
+                     absent = operationally down.";
+             type common:oper-state;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: service
+    //
+    grouping service {
+        description "The service uses/rides/connects endpoints, sites, and resources.";
+    
+        uses common-properties-def;
+        uses service-def;
+    }
+    
+    grouping service-def {
+        description "Properties specific to 'service'";
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: service-details
+    //
+    grouping service-details {
+        description "Specific details that are associated with a service";
+    
+        uses service-details-def;
+    }
+    
+    grouping service-details-def {
+        description "Properties specific to 'service-details'";
+        
+    }
+    
+    
+    //
+    // Entity: customer-details
+    //
+    grouping customer-details {
+        description "Specific customer details that are associated with a service";
+    
+        uses service-details-def;
+        uses customer-details-def;
+    }
+    
+    grouping customer-details-def {
+        description "Properties specific to 'customer-details'";
+        
+        leaf id {
+             description "The unique identifier for the customer";
+             type string;
+        }
+        
+        leaf name {
+             description "The name of the customer";
+             type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: service-connector
+    //
+    grouping service-connector {
+        description "A service connector is used connect multiple services into a composite service. This is NOT the case where one
+             service uses another service (in which case a ServiceResourceBinding should be used), but rather the case where
+             services are brought together to form an all-encompassing service. For example, in the case of IP services,
+             a VPLS service may use the service provided by a service tunnel, and this is a ServiceResourceBinding. But in the
+             case of VLAN hand-off between 2 different VPLS services, a ServiceConnector would be used.";
+    
+        uses common-properties-def;
+        uses service-connector-def;
+    }
+    
+    grouping service-connector-def {
+        description "Properties specific to 'service-connector'";
+        
+        leaf type {
+             description "The type of service connector";
+             type identityref {
+                base connector-type;
+            }
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf composite-service {
+            description "The composite service containing the connector";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf-list connects {
+            description "The services that are connected into a single composite service.";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Entity: site
+    //
+    grouping site {
+        description "A service site";
+    
+        uses common-properties-def;
+        uses site-def;
+    }
+    
+    grouping site-def {
+        description "Properties specific to 'site'";
+        
+        leaf site-id {
+             description "The site identifier";
+             type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf service {
+            description "The service to which this site belongs";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf-list endpoint {
+            description "The endpoints associated with the site";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf-list tunnel-binding {
+            description "The tunnel-bindings associated with the site";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Entity: endpoint
+    //
+    grouping endpoint {
+        description "An endpoint of a service";
+    
+        uses common-properties-def;
+        uses endpoint-def;
+    }
+    
+    grouping endpoint-def {
+        description "Properties specific to 'endpoint'";
+        
+        leaf endpoint-id {
+             description "The endpoint identifier";
+             type string;
+             default "";
+        }
+        
+        leaf type {
+             description "The type of endpoint";
+             type identityref {
+                base endpoint-type;
+            }
+        }
+        
+        leaf site-id {
+             description "The site identifier";
+             type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf service {
+            description "The service to which this endpoint belongs";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf site {
+            description "The site (if any) to which this endpoint belongs";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Helper: resource-binding
+    //
+    
+    grouping resource-binding-def {
+        description "A binding between a SINGLE service object (such as site, service, and endpoint) and a SINGLE resource. The resource
+             is identified by an FDN and may point to any managed object in the service model, another common model, the NFM
+             specific resource, or an app specific resource.";
+        
+        leaf class-name {
+             description "The common model class name, if any, of the bound resource. The common model class name should be specified
+                     in the cases where the resource FDN is a model FDN or not. The non-model FDNs with a common model class are
+                     resolved into the common model FDN. The class name MUST be omitted if this resource has no common model
+                     representation.";
+             type string;
+        }
+        
+        leaf resource {
+             description "The FDN of the resource being used";
+             type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: service-resource-binding
+    //
+    grouping service-resource-binding {
+        description "A resource binding FROM a service TO some resource. Please see comments in ServiceConnector for the distinction
+             between ServiceResourceBinding and ServiceConnector.";
+    
+        uses common-properties-def;
+        uses resource-binding-def;
+        uses service-resource-binding-def;
+    }
+    
+    grouping service-resource-binding-def {
+        description "Properties specific to 'service-resource-binding'";
+        
+        leaf service-name {
+             description "The service name";
+             type string;
+        }
+        
+        leaf site-name {
+             description "The site name";
+             type string;
+        }
+        
+        leaf service {
+            description "The service that is using this resource binding";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf site {
+            description "The site (if any) to which this tunnel-binding belongs";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Entity: service-resource-binding-details
+    //
+    grouping service-resource-binding-details {
+    
+        uses service-resource-binding-details-def;
+    }
+    
+    grouping service-resource-binding-details-def {
+        description "Properties specific to 'service-resource-binding-details'";
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: tunnel-details
+    //
+    grouping tunnel-details {
+        description "Specific details associated to a tunnel";
+    
+        uses service-details-def;
+        uses tunnel-details-def;
+    }
+    
+    grouping tunnel-details-def {
+        description "Properties specific to 'tunnel-details'";
+        
+        leaf tunnel-transport-type {
+             description "Specifies the underlying tunnel type";
+             type svc:tunnel-transport-type;
+        }
+        
+        leaf source-ne-id {
+             description "The source network element id of the path";
+             type string;
+        }
+        
+        leaf source-ne-name {
+             description "The source network element name of the path";
+             type string;
+        }
+        
+        leaf destination-ne-id {
+             description "The destination network element id of the path";
+             type string;
+        }
+        
+        leaf destination-ne-name {
+             description "The destination network element name of the path";
+             type string;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: lsp-details
+    //
+    grouping lsp-details {
+        description "Specific details associated to a LSP";
+    
+        uses service-details-def;
+        uses lsp-details-def;
+    }
+    
+    grouping lsp-details-def {
+        description "Properties specific to 'lsp-details'";
+        
+        leaf source-ne-id {
+             description "The source network element id of the path";
+             type string;
+        }
+        
+        leaf source-ne-name {
+             description "The source network element name of the path";
+             type string;
+        }
+        
+        leaf destination-ne-id {
+             description "The destination network element id of the path";
+             type string;
+        }
+        
+        leaf destination-ne-name {
+             description "The destination network element name of the path";
+             type string;
+        }
+        
+    }
+    
+    
+    //
+    // Embeddable: msd
+    //
+    
+    grouping msd {
+        
+        leaf msd-type {
+             type svc:msd-type;
+        }
+        
+        leaf msd-value {
+             type int32 {
+                range "0..255";
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Embeddable: link-sid
+    //
+    
+    grouping link-sid {
+        
+        leaf value-type {
+             type svc:sid-value-type;
+        }
+        
+        leaf sid {
+             type int64 {
+                range "0..4294967295";
+            }
+        }
+        
+        leaf address-family {
+             type svc:address-family;
+        }
+        
+        leaf is-eligible-for-protection {
+             type boolean;
+        }
+        
+        leaf is-local {
+             type boolean;
+        }
+        
+        leaf is-part-of-set {
+             type boolean;
+        }
+        
+        leaf is-persistent {
+             type boolean;
+        }
+        
+        leaf is-on-lan {
+             type boolean;
+        }
+        
+        leaf weight {
+             type int32 {
+                range "0..255";
+            }
+        }
+        
+    }
+    
+    
+    //
+    // Entity: admin-domain
+    //
+    grouping admin-domain {
+    
+        uses admin-domain-def;
+    }
+    
+    grouping admin-domain-def {
+        description "Properties specific to 'admin-domain'";
+        
+        leaf name {
+             type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: ip-object
+    //
+    grouping ip-object {
+        description "Top level abstract IP object class";
+    
+        uses ip-object-def;
+    }
+    
+    grouping ip-object-def {
+        description "Properties specific to 'ip-object'";
+        
+        leaf name {
+             type string;
+        }
+        
+        leaf admin-state {
+             description "The administrative state.
+                     For equipment objects, only those with adminState Unlocked will be included in KPI calculation.";
+             type common:admin-state;
+        }
+        
+        leaf oper-state {
+             description "The operational state.
+                     For equipment objects that do not have an operational state,
+                     their operational state can be mapped to:
+                     present = operationally up,
+                     absent = operationally down.";
+             type common:oper-state;
+        }
+        
+        leaf standby-state {
+             description "The standby state.";
+             type common:standby-state;
+        }
+        
+        leaf-list availability-state {
+            description "The availability states.";
+            type common:availability-state;
+        }
+        
+        leaf-list state-reason {
+            description "Detailed reasons why the object is in this state.";
+            type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: ip-node
+    //
+    grouping ip-node {
+    
+        uses ip-object-def;
+        uses ip-node-def;
+    }
+    
+    grouping ip-node-def {
+        description "Properties specific to 'ip-node'";
+        
+        leaf id {
+             type string;
+        }
+        
+        leaf node-type {
+             type svc:ip-node-type;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: ad-contained-node
+    //
+    grouping ad-contained-node {
+    
+        uses ip-object-def;
+        uses ip-node-def;
+        uses ad-contained-node-def;
+    }
+    
+    grouping ad-contained-node-def {
+        description "Properties specific to 'ad-contained-node'";
+        
+    }
+    
+    
+    //
+    // Entity: router
+    //
+    grouping router {
+        description "A router aggregates multiple routing instances that each can be multi-protocol capable";
+    
+        uses ip-object-def;
+        uses ip-node-def;
+        uses router-def;
+    }
+    
+    grouping router-def {
+        description "Properties specific to 'router'";
+        
+        leaf ne {
+             type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf last-time-updated {
+             type int64;
+        }
+        
+    }
+    
+    
+    //
+    // Entity: routing-instance
+    //
+    grouping routing-instance {
+    
+        uses ip-object-def;
+        uses ip-node-def;
+        uses ad-contained-node-def;
+        uses routing-instance-def;
+    }
+    
+    grouping routing-instance-def {
+        description "Properties specific to 'routing-instance'";
+        
+        leaf-list protocols {
+            type svc:ip-protocol-type;
+        }
+        
+        leaf router-id {
+             type string;
+        }
+        
+        leaf-list ospf-areas {
+            type string;
+        }
+        
+        leaf system-id {
+             type string;
+        }
+        
+        leaf-list isis-area-ids {
+            type string;
+        }
+        
+        list msds {
+            uses msd;
+        }
+        
+        container router {
+            description "";
+            uses router;
+        
+        }
+        
+    }
+    
+    
+    //
+    // Entity: ip-link
+    //
+    grouping ip-link {
+        description "Unidirectional IP link originates from a IP node and terminates on another IP node";
+    
+        uses ip-object-def;
+        uses ip-link-def;
+    }
+    
+    grouping ip-link-def {
+        description "Properties specific to 'ip-link'";
+        
+        leaf protocol {
+             type svc:ip-protocol-type;
+        }
+        
+        leaf link-type {
+             type svc:link-type;
+        }
+        
+        leaf link-genetic {
+             type svc:link-genetic;
+        }
+        
+        leaf ip-address {
+             type string;
+        }
+        
+        leaf ospf-area {
+             type string;
+        }
+        
+        leaf isis-level {
+             type svc:isis-level;
+        }
+        
+        leaf bw {
+             type int64;
+        }
+        
+        leaf available-bw {
+             type int64;
+        }
+        
+        leaf te-metric {
+             type int32;
+        }
+        
+        leaf latency-units {
+             type common:time-units;
+        }
+        
+        leaf latency {
+             type int32;
+        }
+        
+        leaf cost {
+             type int32;
+        }
+        
+        leaf un-resv-bw {
+             type int64;
+        }
+        
+        leaf one-way-min-delay {
+             type int32;
+        }
+        
+        leaf one-way-max-delay {
+             type int32;
+        }
+        
+        leaf-list admin-groups {
+            type string;
+        }
+        
+        list sids {
+            uses link-sid;
+        }
+        
+        leaf-list srg-labels {
+            description "A list of shared risk group labels / names associated with this service object";
+            type string;
+        }
+        
+        leaf-list admin-domains {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf source-node {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf destination-node {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf opposite-link {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    
+    
+    
+    //
+    // Enumeration: direction
+    //
+    typedef direction {
+        description "The service direction";
+    
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+    
+            enum uni-directional {
+                value 1;
+            }
+    
+            enum bi-directional {
+                value 2;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: protection
+    //
+    typedef protection {
+    
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+    
+            enum unprotected {
+                value 1;
+            }
+    
+            enum protected {
+                value 2;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: protection-kind
+    //
+    typedef protection-kind {
+    
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+    
+            enum one-to-one {
+                value 1;
+            }
+    
+            enum one-to-many {
+                value 2;
+            }
+    
+            enum opsa-protected {
+                value 3;
+                description "Optical Protection Switch A";
+            }
+    
+            enum opsb-protected {
+                value 4;
+                description "Optical Protection Switch B";
+            }
+    
+            enum y-cable-protected {
+                value 5;
+                description "Y-Cable Protection";
+            }
+    
+            enum esncp-snc-i {
+                value 6;
+            }
+    
+            enum esncp-snc-n {
+                value 7;
+            }
+    
+            enum esncp-snc-s {
+                value 8;
+            }
+    
+            enum omsp {
+                value 9;
+                description "Optical Multiplex Section Protection";
+            }
+    
+            enum olp {
+                value 10;
+                description "Optical Line Protection";
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: restoration
+    //
+    typedef restoration {
+    
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+    
+            enum none {
+                value 1;
+            }
+    
+            enum source-based {
+                value 2;
+            }
+    
+            enum guaranteed {
+                value 3;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: endpoint-encap-type
+    //
+    typedef endpoint-encap-type {
+    
+        type enumeration {
+            enum unspecified {
+                value 0;
+            }
+    
+            enum qinq-encap {
+                value 1;
+            }
+    
+            enum q-encap {
+                value 2;
+            }
+    
+            enum null-encap {
+                value 3;
+            }
+    
+            enum cem {
+                value 4;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: endpoint-port-mode
+    //
+    typedef endpoint-port-mode {
+    
+        type enumeration {
+            enum unspecified {
+                value 0;
+            }
+    
+            enum access {
+                value 1;
+            }
+    
+            enum network {
+                value 2;
+            }
+    
+            enum hybrid {
+                value 3;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: tunnel-binding-vc-type
+    //
+    typedef tunnel-binding-vc-type {
+    
+        type enumeration {
+            enum unspecified {
+                value 0;
+            }
+    
+            enum ethernet {
+                value 2;
+                description "Pseudowire of type Ethernet";
+            }
+    
+            enum ethernet_tagged_mode {
+                value 4;
+                description "Pseudowire of type Ethernet Tagged Mode";
+            }
+    
+            enum satop_e1 {
+                value 12;
+                description "Structure-agnostic E1 over Packet";
+            }
+    
+            enum satop_t1 {
+                value 13;
+                description "Structure-agnostic T1 (DS1) over Packet";
+            }
+    
+            enum satop_e3 {
+                value 14;
+                description "Structure-agnostic E3 over Packet";
+            }
+    
+            enum satop_t3 {
+                value 15;
+                description "Structure-agnostic T3 (DS1) over Packet";
+            }
+    
+            enum cesopsn {
+                value 16;
+                description "CESoPSN basic mode";
+            }
+    
+            enum cesopsn_cas {
+                value 17;
+                description "CESoPSN TDM with CAS";
+            }
+    
+            enum satop_serial {
+                value 19;
+                description "Structure-agnostic Serial over Packet";
+            }
+    
+            enum satop_tpif {
+                value 20;
+                description "Structure-agnostic teleprotection over Packet";
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: tunnel-binding-type
+    //
+    typedef tunnel-binding-type {
+    
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+    
+            enum mesh {
+                value 1;
+            }
+    
+            enum spoke {
+                value 2;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: tunnel-transport-type
+    //
+    typedef tunnel-transport-type {
+    
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+    
+            enum rsvp_strict {
+                value 1;
+            }
+    
+            enum rsvp_loose {
+                value 2;
+            }
+    
+            enum bgp {
+                value 3;
+            }
+    
+            enum ldp {
+                value 4;
+            }
+    
+            enum gre {
+                value 5;
+            }
+    
+            enum erp {
+                value 6;
+            }
+    
+            enum odu {
+                value 7;
+            }
+    
+            enum sr_te_strict {
+                value 8;
+            }
+    
+            enum sr_te_loose {
+                value 9;
+            }
+    
+            enum rsvp_pcc {
+                value 10;
+            }
+    
+            enum sr_te_pcc {
+                value 11;
+            }
+    
+            enum sr_isis {
+                value 12;
+            }
+    
+            enum sr_ospf {
+                value 13;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: origin
+    //
+    typedef origin {
+    
+        type enumeration {
+            enum unspecified {
+                value 0;
+            }
+    
+            enum nfmp {
+                value 1;
+            }
+    
+            enum ibsf {
+                value 2;
+            }
+    
+            enum nsd {
+                value 3;
+            }
+    
+            enum ibsf_disassociated {
+                value 4;
+            }
+    
+            enum mdm {
+                value 10;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: ip-protocol-type
+    //
+    typedef ip-protocol-type {
+    
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+    
+            enum isis {
+                value 1;
+            }
+    
+            enum ospf {
+                value 2;
+            }
+    
+            enum static_ {
+                value 3;
+            }
+    
+            enum bgp {
+                value 4;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: isis-level
+    //
+    typedef isis-level {
+    
+        type enumeration {
+            enum l1 {
+                value 1;
+            }
+    
+            enum l2 {
+                value 2;
+            }
+    
+            enum l1l2 {
+                value 3;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: link-type
+    //
+    typedef link-type {
+    
+        type enumeration {
+            enum point-to-point {
+                value 1;
+            }
+    
+            enum broadcast {
+                value 2;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: link-genetic
+    //
+    typedef link-genetic {
+    
+        type enumeration {
+            enum original {
+                value 1;
+            }
+    
+            enum duplicate {
+                value 2;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: ip-node-type
+    //
+    typedef ip-node-type {
+    
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+    
+            enum router {
+                value 1;
+            }
+    
+            enum routing-instance {
+                value 2;
+            }
+    
+            enum subnet {
+                value 3;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: msd-type
+    //
+    typedef msd-type {
+    
+        type enumeration {
+            enum msd-mpls {
+                value 1;
+            }
+    
+            enum msd-erld {
+                value 2;
+            }
+    
+            enum srh-max-s-l {
+                value 41;
+            }
+    
+            enum srh-max-end-pop {
+                value 42;
+            }
+    
+            enum srh-max-h-encaps {
+                value 44;
+            }
+    
+            enum srh-max-end-d {
+                value 45;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: sid-value-type
+    //
+    typedef sid-value-type {
+    
+        type enumeration {
+            enum index {
+                value 1;
+            }
+    
+            enum absolute {
+                value 2;
+            }
+    
+        }
+    }
+    
+    //
+    // Enumeration: address-family
+    //
+    typedef address-family {
+    
+        type enumeration {
+            enum ipv4 {
+                value 1;
+            }
+    
+            enum ipv6 {
+                value 2;
+            }
+    
+        }
+    }
+    
+    
+    //
+    // Identity: layer
+    //
+    identity layer {
+    }
+    identity unknown-layer {
+        base layer;
+        description "An layer not matching any of the other enum values";
+    }
+    identity composite-layer {
+        base layer;
+    }
+    identity service-layer {
+        base layer;
+    }
+    identity tunnel-layer {
+        base layer;
+    }
+    identity mpls-layer {
+        base layer;
+    }
+    identity igp {
+        base layer;
+    }
+    identity electrical-container-layer {
+        base layer;
+    }
+    identity electrical-infrastructure-layer {
+        base layer;
+    }
+    identity photonic-layer {
+        base layer;
+    }
+    identity physical-layer {
+        base layer;
+    }
+    
+    //
+    // Identity: service-type
+    //
+    identity service-type {
+        description "The specific NFM service type";
+    }
+    identity unknown-service {
+        base service-type;
+    }
+    identity inconsistent-service {
+        base service-type;
+    }
+    identity composite-service {
+        base service-type;
+    }
+    identity eline {
+        base service-type;
+    }
+    identity elan {
+        base service-type;
+    }
+    identity l3vpn {
+        base service-type;
+    }
+    identity ies {
+        base service-type;
+    }
+    identity mirror {
+        base service-type;
+    }
+    identity apipe {
+        base service-type;
+    }
+    identity vlan {
+        base service-type;
+    }
+    identity ipipe {
+        base service-type;
+    }
+    identity cline {
+        base service-type;
+    }
+    identity ipsec {
+        base service-type;
+    }
+    identity hpipe {
+        base service-type;
+    }
+    identity pbb-vlan-edge {
+        base service-type;
+    }
+    identity mvpls {
+        base service-type;
+    }
+    identity fpipe {
+        base service-type;
+    }
+    identity mpr-backhaul {
+        base service-type;
+    }
+    identity gre-tunnel {
+        base service-type;
+    }
+    identity mpls-tunnel {
+        base service-type;
+    }
+    identity lsp {
+        base service-type;
+    }
+    identity ip-link {
+        base service-type;
+    }
+    identity dsr {
+        base service-type;
+    }
+    identity oduk-unterminated {
+        base service-type;
+    }
+    identity oduj-unterminated {
+        base service-type;
+    }
+    identity oduj {
+        base service-type;
+    }
+    identity ho-oduk-logical-link {
+        base service-type;
+    }
+    identity ho-oduk-trail {
+        base service-type;
+    }
+    identity och {
+        base service-type;
+    }
+    identity otuk {
+        base service-type;
+    }
+    identity ots {
+        base service-type;
+    }
+    identity oms {
+        base service-type;
+    }
+    identity ops {
+        base service-type;
+    }
+    identity cable {
+        base service-type;
+    }
+    identity radio-link {
+        base service-type;
+    }
+    identity optical-link {
+        base service-type;
+    }
+    identity cross-domain-link {
+        base service-type;
+    }
+    identity cups-link {
+        base service-type;
+    }
+    identity slice {
+        base service-type;
+    }
+    
+    //
+    // Identity: endpoint-type
+    //
+    identity endpoint-type {
+        description "The type of service endpoints";
+    }
+    identity unknown-endpoint {
+        base endpoint-type;
+    }
+    identity service-access-point {
+        base endpoint-type;
+    }
+    identity network-interface {
+        base endpoint-type;
+    }
+    identity physical-port {
+        base endpoint-type;
+    }
+    identity lag {
+        base endpoint-type;
+    }
+    identity subnet {
+        base endpoint-type;
+    }
+    identity bundle {
+        base endpoint-type;
+    }
+    identity radio-endpoint {
+        base endpoint-type;
+    }
+    identity gne-interface {
+        base endpoint-type;
+    }
+    identity network-element-endpoint {
+        base endpoint-type;
+    }
+    
+    //
+    // Identity: connector-type
+    //
+    identity connector-type {
+        description "The types of service connectors";
+    }
+    identity unknown-connector {
+        base connector-type;
+    }
+    identity spoke {
+        base connector-type;
+    }
+    identity scp {
+        base connector-type;
+    }
+    identity cross-connect {
+        base connector-type;
+    }
+    identity routed-vpls {
+        base connector-type;
+    }
+    identity vprn-route-target {
+        base connector-type;
+    }
+    
+    
+    //
+    // Augmentation: ipservice-site-detail
+    //
+    grouping ipservice-site-detail {
+        description "Specific Ip Service site details that are associated site";
+        
+        leaf mtu {
+             description "The maximum size of frame including all Layer 2 headers (IP + Ethernet). FCS is not calculated";
+             type int32;
+        }
+        
+        leaf oper-mtu {
+              config false;
+             description "The operational MTU";
+             type int32;
+        }
+        
+        leaf ne-service-id {
+             description "The node service identifier";
+             type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    augment /svc:services/svc:service-layer/svc:eline/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:elan/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:l3vpn/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:ies/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:apipe/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:ipipe/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:cline/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:hpipe/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:mvpls/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:fpipe/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:mpr-backhaul/svc:site {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-site-detail {
+          uses ipservice-site-detail;
+        }
+    }
+    //
+    // Augmentation: ipservice-endpoint-detail
+    //
+    grouping ipservice-endpoint-detail {
+        description "Specific Ip Service End point details that are associated Endpoint";
+        
+        leaf encap-type {
+             description "The encapsulation type of the port that's assigned to the service endpoint";
+             type svc:endpoint-encap-type;
+        }
+        
+        leaf port-mode {
+             description "The mode of the port that's assigned to the service endpoint";
+             type svc:endpoint-port-mode;
+        }
+        
+        leaf inner-tag {
+             description "The inner tag. Applicable to QinQ ports.";
+             type int32;
+             default "-1";
+        }
+        
+        leaf outer-tag {
+             description "The outer tag. Applicable to Dot1Q or QinQ ports.";
+             type int32;
+             default "-1";
+        }
+        
+        leaf mtu {
+             description "The maximum size of frame including all Layer 2 headers (IP + Ethernet). FCS is not calculated. The value may be adjusted on the different vendor nodes";
+             type int32;
+        }
+        
+        leaf oper-mtu {
+              config false;
+             description "The operational MTU. The value may be adjusted on the different vendor nodes";
+             type int32;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    augment /svc:services/svc:service-layer/svc:eline/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:elan/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:l3vpn/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:ies/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:apipe/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:ipipe/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:cline/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:hpipe/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:mvpls/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:fpipe/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    augment /svc:services/svc:service-layer/svc:mpr-backhaul/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        container ipservice-endpoint-detail {
+          uses ipservice-endpoint-detail;
+        }
+    }
+    //
+    // Augmentation: network-element-binding
+    //
+    grouping network-element-binding {
+        description "A resource binding FROM a site TO some resource";
+        
+        leaf class-name {
+             description "The common model class name, if any, of the bound resource. The common model class name should be specified
+                     in the cases where the resource FDN is a model FDN or not. The non-model FDNs with a common model class are
+                     resolved into the common model FDN. The class name MUST be omitted if this resource has no common model
+                     representation.";
+             type string;
+        }
+        
+        leaf resource {
+             description "The FDN of the resource being used";
+             type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf name {
+             description "The user friendly visible name";
+             type string;
+        }
+        
+        leaf description {
+             description "The user friendly text describing the service";
+             type string;
+        }
+        
+        leaf source-type {
+             description "Indicates the type of the source system.
+                    Example: SourceType.mdm";
+             type common:source-type;
+        }
+        
+        list object-details {
+            description "A map of properties that are not modelled
+                     Service: linkType, linkScope, linkDiscoveredFrom, isLagMember, hasLLDPAdjacency
+                     Endpoint: hasUnderlyingEndpoint, containedLinks, isSource, isTarget";
+            key key;
+            
+            leaf key {
+                type string;
+            }
+            
+            leaf value {
+                type string;
+            }
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf admin-state {
+             description "The administrative state.
+                     For equipment objects, only those with adminState Unlocked will be included in KPI calculation.";
+             type common:admin-state;
+        }
+        
+        leaf oper-state {
+             description "The operational state.
+                     For equipment objects that do not have an operational state,
+                     their operational state can be mapped to:
+                     present = operationally up,
+                     absent = operationally down.";
+             type common:oper-state;
+        }
+        
+        leaf site {
+            description "The site that is using this resource binding";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    augment /svc:services/svc:service-layer/svc:eline/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:elan/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:l3vpn/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:ies/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:apipe/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:ipipe/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:cline/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:hpipe/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:mvpls/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:fpipe/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:mpr-backhaul/svc:site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:physical-layer/svc:cable/svc:link-site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    augment /svc:services/svc:physical-layer/svc:radio-link/svc:link-site {
+        list network-element-binding {
+           uses network-element-binding;
+         }
+    }
+    //
+    // Augmentation: port-bindings
+    //
+    grouping port-bindings {
+        description "A resource binding FROM an endpoint TO some resource";
+        
+        leaf class-name {
+             description "The common model class name, if any, of the bound resource. The common model class name should be specified
+                     in the cases where the resource FDN is a model FDN or not. The non-model FDNs with a common model class are
+                     resolved into the common model FDN. The class name MUST be omitted if this resource has no common model
+                     representation.";
+             type string;
+        }
+        
+        leaf resource {
+             description "The FDN of the resource being used";
+             type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+        leaf name {
+             description "The user friendly visible name";
+             type string;
+        }
+        
+        leaf description {
+             description "The user friendly text describing the service";
+             type string;
+        }
+        
+        leaf source-type {
+             description "Indicates the type of the source system.
+                    Example: SourceType.mdm";
+             type common:source-type;
+        }
+        
+        list object-details {
+            description "A map of properties that are not modelled
+                     Service: linkType, linkScope, linkDiscoveredFrom, isLagMember, hasLLDPAdjacency
+                     Endpoint: hasUnderlyingEndpoint, containedLinks, isSource, isTarget";
+            key key;
+            
+            leaf key {
+                type string;
+            }
+            
+            leaf value {
+                type string;
+            }
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf admin-state {
+             description "The administrative state.
+                     For equipment objects, only those with adminState Unlocked will be included in KPI calculation.";
+             type common:admin-state;
+        }
+        
+        leaf oper-state {
+             description "The operational state.
+                     For equipment objects that do not have an operational state,
+                     their operational state can be mapped to:
+                     present = operationally up,
+                     absent = operationally down.";
+             type common:oper-state;
+        }
+        
+        leaf endpoint {
+            description "The endpoint that is using this resource binding";
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    augment /svc:services/svc:service-layer/svc:eline/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:elan/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:l3vpn/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:ies/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:apipe/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:ipipe/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:cline/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:hpipe/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:mvpls/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:fpipe/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:mpr-backhaul/svc:endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:physical-layer/svc:cable/svc:link-endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    augment /svc:services/svc:physical-layer/svc:radio-link/svc:link-endpoint {
+        list port-bindings {
+           uses port-bindings;
+         }
+    }
+    //
+    // Augmentation: endpoint-address
+    //
+    grouping endpoint-address {
+        description "The endpoint may be associated with 0 or more endpoint addresses";
+        
+        leaf type {
+             description "The type of endpoint address, such as ipV4, ipV6, etc";
+             type common:address-family;
+        }
+        
+        leaf address {
+             description "The address represented as a string. For IP addresses, the address may optionally contain a subnet
+                    mask, such as 1.1.1.1/24";
+             type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    augment /svc:services/svc:service-layer/svc:eline/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:elan/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:l3vpn/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:ies/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:apipe/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:ipipe/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:cline/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:hpipe/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:mvpls/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:fpipe/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:mpr-backhaul/svc:endpoint {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list endpoint-address {
+           key "address";
+           uses endpoint-address;
+         }
+    }
+    //
+    // Augmentation: tunnel-binding-details
+    //
+    grouping tunnel-binding-details {
+        description "Specific details associate to a service binding to tunnel";
+        
+        leaf tunnel-binding-type {
+             description "The type of tunnel binding spoke/mesh";
+             type svc:tunnel-binding-type;
+        }
+        
+        leaf vc-type {
+             description "Type of virtual circuit (VC) associated with the SDP binding";
+             type svc:tunnel-binding-vc-type;
+        }
+        
+        leaf vc-id {
+             description "Virtual circuit identifier";
+             type int64;
+        }
+        
+        leaf source-ne-id {
+             description "The source network element id of the path";
+             type string;
+        }
+        
+        leaf source-ne-name {
+             description "The source network element name of the path";
+             type string;
+        }
+        
+        leaf destination-ne-id {
+             description "The destination network element id of the path";
+             type string;
+        }
+        
+        leaf destination-ne-name {
+             description "The destination network element name of the path";
+             type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    augment /svc:services/svc:service-layer/svc:eline/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:elan/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:l3vpn/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:ies/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:apipe/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:ipipe/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:cline/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:hpipe/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:mvpls/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:fpipe/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    augment /svc:services/svc:service-layer/svc:mpr-backhaul/svc:tunnel-binding {
+        when 'derived-from-or-self(layer, "svc:service-layer")';
+        list tunnel-binding-details {
+           key "source-ne-id vc-id";
+           uses tunnel-binding-details;
+         }
+    }
+    //
+    // Augmentation: subnet
+    //
+    grouping subnet {
+        description "";
+        
+        leaf protocol {
+             type svc:ip-protocol-type;
+        }
+        
+        leaf dr-ip-address {
+             type string;
+        }
+        
+        leaf dr-interface-id {
+             type string;
+        }
+        
+        leaf last-time-updated {
+             type int64;
+        }
+        
+        leaf id {
+             type string;
+        }
+        
+        leaf node-type {
+             type svc:ip-node-type;
+        }
+        
+        leaf name {
+             type string;
+        }
+        
+        leaf admin-state {
+             description "The administrative state.
+                     For equipment objects, only those with adminState Unlocked will be included in KPI calculation.";
+             type common:admin-state;
+        }
+        
+        leaf oper-state {
+             description "The operational state.
+                     For equipment objects that do not have an operational state,
+                     their operational state can be mapped to:
+                     present = operationally up,
+                     absent = operationally down.";
+             type common:oper-state;
+        }
+        
+        leaf standby-state {
+             description "The standby state.";
+             type common:standby-state;
+        }
+        
+        leaf-list availability-state {
+            description "The availability states.";
+            type common:availability-state;
+        }
+        
+        leaf-list state-reason {
+            description "Detailed reasons why the object is in this state.";
+            type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    augment /svc:services/svc:igp-layer/svc:admin-domain {
+        list subnet {
+           key "id";
+           uses subnet;
+         }
+    }
+    //
+    // Augmentation: prefix
+    //
+    grouping prefix {
+        description "IP Prefix for logical interfaces. A routing instance can have more than one prefix";
+        
+        leaf ip-address {
+             type string;
+        }
+        
+        leaf metric {
+             type int32;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf node {
+            type instance-identifier {
+                require-instance false;
+            }
+        }
+        
+    }
+    
+    augment /svc:services/svc:igp-layer/svc:admin-domain/svc:routing-instance {
+        list prefix {
+           key "ip-address";
+           uses prefix;
+         }
+    }
+    //
+    // Augmentation: service-shared-risk
+    //
+    grouping service-shared-risk {
+        description "Shared risk details for a service";
+        
+        leaf-list srg-labels {
+            description "A list of shared risk group labels / names associated with this service object";
+            type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    //
+    // Augmentation: service-connector-shared-risk
+    //
+    grouping service-connector-shared-risk {
+        description "Shared risk details for a service connector";
+        
+        leaf-list srg-labels {
+            description "A list of shared risk group labels / names associated with this service object";
+            type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    //
+    // Augmentation: site-shared-risk
+    //
+    grouping site-shared-risk {
+        description "Shared risk details for a site";
+        
+        leaf-list srg-labels {
+            description "A list of shared risk group labels / names associated with this service object";
+            type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+    //
+    // Augmentation: endpoint-shared-risk
+    //
+    grouping endpoint-shared-risk {
+        description "Shared risk details for an endpoint";
+        
+        leaf-list srg-labels {
+            description "A list of shared risk group labels / names associated with this service object";
+            type string;
+        }
+        
+        leaf creation-time {
+             description "The time of creation of the object.";
+             type yang:date-and-time;
+        }
+        
+        leaf last-modified-time {
+             description "The time of last modification of the object.";
+             type yang:date-and-time;
+        }
+        
+    }
+    
+}

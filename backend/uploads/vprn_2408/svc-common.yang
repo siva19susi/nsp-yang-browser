@@ -1,0 +1,197 @@
+module svc-common {
+    namespace "http://www.nokia.com/management-solutions/svc-common";
+    yang-version 1.1;
+    prefix "svc-common";
+    revision "2024-08-13" {
+        description
+            "24.8 changes - add proxy-nd";
+    }
+    revision "2023-08-08" {
+        description
+            "23.11 changes - type revert-time";
+    }
+    revision "2022-06-14" {
+        description
+                "22.6 changes - Site MTU override";
+    }
+    revision "2021-10-24" {
+        description
+                "21.11 changes";
+    }
+    revision "2021-03-15" {
+        description
+                "Initial revision.";
+    }
+
+    typedef revert-time {
+        type union {
+            type int32 {
+                range "1..600";
+            }
+            type enumeration {
+                enum never                          { value -1; }
+                enum immediate                      { value 0; }
+            }
+        }
+        units "seconds";
+        description
+            "Specify time to wait before reverting back to the primary
+             spoke-sdp defined on the service endpoint, after having
+             failed over to a backup spoke-sdp.";
+    }
+
+    grouping svc-details {
+        leaf customer-id {
+            type uint32;
+            description "Specify Customer Id";
+        }		
+                    
+        leaf description {
+            type string;
+            description "Specify Service Description";
+        }
+
+        leaf admin-state {
+            type enumeration {
+                 enum unlocked;
+                 enum locked;
+            }
+            description "Service Administrative State";
+            default unlocked;
+        }
+
+        leaf job-id {
+            type string;
+            description "Job Identifier";
+        }
+    }
+
+    grouping site-details {
+
+        leaf device-id {
+            type string;
+            description "Network Element identifier";
+        }
+
+        leaf site-name {
+            type string {
+                pattern '(\d+|[a-zA-Z]+.*)';
+            }
+            description "Specify Site Name.";
+        }
+
+        leaf description {
+            type string;
+            description "Specify Site Description";
+        }
+
+        leaf mtu {
+            type uint16;
+            description "Site MTU, Overrides service MTU if present";
+        }
+    }
+
+    grouping auto-bind-tunnel-details {
+        leaf resolution {
+            type enumeration {
+                enum "none"                         { value 0; }
+                enum "filter"                       { value 1; }
+                enum "any"                          { value 2; }
+            }
+            default "none";
+            description "Resolution method for tunnel selection";
+        }
+
+        leaf enforce-strict-tunnel-tagging {
+            type boolean;
+            default "false";
+            description "Consider only LSPs marked with an admin-tag for next-hop resolution";
+        }
+
+        container resolution-filter {
+
+            description "Enter the resolution-filter context";
+
+            leaf bgp {
+                type boolean;
+                description "Set BGP type for auto bind tunnel";
+            }
+
+            leaf gre {
+                type boolean;
+                description "Enable/disable setting GRE type for auto-bind-tunnel";
+            }
+
+            leaf ldp {
+                type boolean;
+                description "Enable/disable setting LDP type for auto-bind-tunnel";
+            }
+
+            leaf rsvp {
+                type boolean;
+                description "Enable/disable setting RSVP-TE type for auto-bind-tunnel";
+            }
+
+            leaf sr-isis {
+                type boolean;
+                description "Enable/disable setting SR-ISIS type for auto-bind-tunnel";
+            }
+
+            leaf sr-ospf {
+                type boolean;
+                description "Enable/disable setting SR-OSPF type for auto-bind-tunnel";
+            }
+
+            leaf sr-te {
+                type boolean;
+                description "Enable/disable setting SR-TE type for auto-bind-tunnel";
+            }
+
+            leaf udp {
+                type boolean;
+                description "Set UDP type for auto-bind-tunnel";
+            }
+
+            leaf rib-api {
+                type boolean;
+                description "Enable/disable setting RIB API type for auto-bind-tunnel";
+            }
+
+            leaf mpls-fwd-policy {
+                type boolean;
+                description "Enable/disable setting MPLS Forwarding Policy type for auto-bind-tunnel";
+            }
+
+            leaf sr-policy {
+                type boolean;
+                description "Enable/disable setting SR Policy type for auto-bind-tunnel";
+            }
+
+            leaf sr-ospf3 {
+                type boolean;
+                description "Use segment routing ospf3 for next hop resolution.";
+            }
+
+        } // container resolution-filter
+    }
+
+    grouping proxy-nd {
+        leaf admin-state {
+            type enumeration {
+                enum unlocked;
+                enum locked;
+            }
+            description "Administrative state of the proxy";
+        }
+        container evpn {
+            description "Enter the evpn context";
+            leaf advertise-neighbor-type {
+                type enumeration {
+                    enum "router" { value 1; }
+                    enum "host" { value 2; }
+                }
+                description "Advertisement type of static or dynamic entries in the EVPN";
+            }
+        } // container evpn
+    }
+}

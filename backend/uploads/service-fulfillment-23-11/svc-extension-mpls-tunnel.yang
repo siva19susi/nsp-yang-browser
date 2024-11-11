@@ -1,0 +1,36 @@
+module svc-extension-mpls-tunnel {
+    yang-version 1.1;
+    namespace "urn:nokia:nsp:model:nsp-service:services:service-layer:svc-extension:mpls-tunnel";
+    prefix "svc-extension-mpls-tunnel";
+    import nsp-model-extensions { prefix model-ext; }
+    import service-extension-common { prefix "svc-common"; }
+
+    organization "Nokia";
+    contact
+        "Nokia NSP Support
+         Web: <http://www.nokia.com>";
+    description "Adds tunnel Augmentation";
+    revision "2023-06-27" { description "Move to extension common"; }
+    revision "2021-11-11" { description "extension of the tunnel"; }
+
+    grouping mpls-tunnel-ext {
+        container mpls-tunnel-ext {
+            model-ext:table-name "service-extension-mpls-tunnel-ext";
+
+            uses svc-common:tunnel-extension-common;
+
+            list lsps {
+                key lsp-name;
+                leaf lsp-name {
+                    type string;
+                    description "The lsp name attached to the tunnel.";
+                }
+            }
+            leaf on-mdm-node {
+                type boolean;
+                description "Specifies if the tunnel is on mdm node.";
+                default false;
+            }
+        }
+    }
+}

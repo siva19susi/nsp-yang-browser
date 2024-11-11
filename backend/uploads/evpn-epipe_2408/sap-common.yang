@@ -1,0 +1,98 @@
+module sap-common {
+    namespace "http://www.nokia.com/management-solutions/sap-common";
+    prefix "sap-common";
+    yang-version 1;
+
+    revision "2023-06-01" {
+        description "Add defaults for encapTypes.";
+    }
+
+    revision "2023-01-23" {
+        description "Add accounting.";
+    }
+
+    revision "2022-12-08" {
+        description "Add encap-type.";
+    }
+
+    revision "2021-03-15" {
+        description "Initial revision.";
+    }
+    
+    grouping sap-details {    
+    
+        leaf port-id {
+            type string;
+            description "Port Identifier";
+        }
+
+        // readonly attribute to support vlan-tag ui show/hide
+        leaf encap-type {
+            type string;
+            description "Port encapsulation type";
+        }
+
+        leaf inner-vlan-tag {
+            type int16 {
+                range "-1 .. 4095";
+            }
+		    default "-1";
+            description "Inner Vlan Tag";
+        }
+        
+        leaf outer-vlan-tag {
+            type int16 {
+                range "-1 .. 4095";
+            }
+		    default "-1";
+            description "Outer Vlan Tag";
+        }
+
+        leaf connection-profile-id {
+            type int32 {
+                range "1..8000";
+            }
+            description "The unique identifier for the Connection Profile. Connection profile ID can be set instead of a outter OR inner vlan tag. Set correspondng VLAN tag to -1, if using connection profile ID.";
+        }
+        
+        leaf admin-state {
+            type enumeration {
+                enum locked;
+                enum unlocked;
+            }
+            description "Service SAP Administrative State.";
+            default unlocked;
+        }
+
+        leaf description {
+            type string;
+            description "Specify Sap Description.";
+        }
+
+        leaf collect-stats {
+            type boolean;
+            description "Collect accounting statistics";
+        }
+
+        leaf accounting-policy-id {
+            type int32 {
+                range "1..99";
+            }
+            description "The unique identifier for the Accounting policy.";
+        }
+
+        leaf multi-service-site {
+            type string;
+            description "Multi service site name";
+        }
+
+        container cpu-protection {
+            description "Enter the cpu-protection context";
+
+            leaf policy-id {
+                type string;
+                description "CPM protection policy";
+            }
+        }
+    }
+}
