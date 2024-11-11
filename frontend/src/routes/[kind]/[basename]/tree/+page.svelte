@@ -105,7 +105,7 @@
     <div class="min-w-[280px] overflow-x-auto font-nunito dark:bg-gray-800 pt-[75px] lg:pt-[85px]">
       <div class="px-6 py-7 container mx-auto">
         <div class="flex items-center justify-between">
-          <p class="text-gray-800 dark:text-gray-300 font-nokia-headline">Tree Browser</p>
+          <p class="text-gray-800 dark:text-gray-300">Tree Browser</p>
           <CrossBrowser {kind} {basename} isTree={true} />
         </div>
         <SearchInput bind:searchInput />

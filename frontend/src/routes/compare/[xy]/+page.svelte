@@ -91,7 +91,7 @@
                 <col span="1" class="w-[75%]">
                 <col span="1" class="w-[20%]">
               </colgroup>
-              <thead class="text-sm font-nokia-headline text-gray-800 dark:text-gray-300 bg-gray-300 dark:bg-gray-700">
+              <thead class="text-sm text-gray-800 dark:text-gray-300 bg-gray-300 dark:bg-gray-700">
                 <tr>
                   <th scope="col" class="px-3 py-2"></th>
                   <th scope="col" class="px-3 py-2"></th>

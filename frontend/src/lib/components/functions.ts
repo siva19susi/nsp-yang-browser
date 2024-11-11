@@ -45,7 +45,7 @@ export function markFilter(target: string, term: string, from: string = "table")
   if(term != "") {
     const keys = term.split(/\s+/)
     const pattern = (new RegExp(escapeText(keys.join('|')), 'g'))
-    let markClass = "text-nokia-blue dark:text-yellow-400 bg-white dark:bg-gray-800 font-bold"
+    let markClass = "text-blue-600 dark:text-yellow-400 bg-white dark:bg-gray-800 font-bold"
     if(from === "tree") markClass = "bg-green-300 dark:bg-green-400"
     const markTerm = (str: string) => str.replace(pattern, (match: any) => `<mark class="${markClass}">${match}</mark>`)
     return markTerm(target)

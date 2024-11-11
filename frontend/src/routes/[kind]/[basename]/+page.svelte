@@ -62,7 +62,7 @@
 </script>
 
 <svelte:head>
-	<title>Nokia Yang Path Browser {basename}</title>
+	<title>Yang Path Browser {basename}</title>
 </svelte:head>
 
 {#if !workerComplete}
@@ -73,7 +73,7 @@
     <div class="min-w-[280px] overflow-x-auto font-nunito dark:bg-gray-800 pt-[75px] lg:pt-[85px]">
       <div class="px-6 pt-6 container mx-auto">
         <div class="flex items-center justify-between">
-          <p class="text-gray-800 dark:text-gray-300 font-nokia-headline">Path Browser</p>
+          <p class="text-gray-800 dark:text-gray-300">Path Browser</p>
           <CrossBrowser {kind} {basename} isTree={false} />
         </div>
         <SearchInput bind:searchInput />
@@ -92,7 +92,7 @@
               <col span="1" class="w-[80%]">
               <col span="1" class="w-[18%]">
             </colgroup>
-            <thead class="text-sm font-nokia-headline text-gray-800 dark:text-gray-300 bg-gray-300 dark:bg-gray-700">
+            <thead class="text-sm text-gray-800 dark:text-gray-300 bg-gray-300 dark:bg-gray-700">
               <tr>
                 <th scope="col" class="px-3 py-2"></th>
                 <th scope="col" class="px-3 py-2">Path</th>

@@ -20,11 +20,11 @@
       {#if basename.includes(";")}
         {@const [xKind, yKind] = kind.split(";")}
         {@const [xBasename, yBasename] = basename.split(";")}
-        <p class="text-nokia-old-blue dark:text-white font-light text-lg lg:text-2xl">Yang Compare</p>
+        <p class="text-blue-800 dark:text-white text-lg lg:text-2xl">Yang Compare</p>
         <div class="text-gray-800 text-xs lg:text-sm dark:text-white">
           <div class="flex flex-wrap items-center justify-center space-x-1">
             <span class="dropdown">
-              <button class="dropdown-button font-nokia-headline underline">{yBasename} ({kindView(yKind)})</button>
+              <button class="dropdown-button underline">{yBasename} ({kindView(yKind)})</button>
               <div class="dropdown-content absolute z-10 hidden bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg shadow">
                 <p class="my-2 max-w-[200px] px-1 text-xs">
                   Changes and filters shown are with respect to this release
@@ -32,11 +32,11 @@
               </div>
             </span>
             <span>with</span>
-            <span class="font-nokia-headline">{xBasename} ({kindView(xKind)})</span>
+            <span>{xBasename} ({kindView(xKind)})</span>
           </div>
         </div>
       {:else}
-      <p class="text-nokia-old-blue dark:text-white font-light text-lg lg:text-2xl">Yang Browser</p>
+      <p class="text-blue-800 dark:text-white text-lg lg:text-2xl">Yang Browser</p>
       <p class="text-gray-800 text-xs lg:text-sm dark:text-white">{basename} ({kindView(kind)})</p>
       {/if}
     </div>

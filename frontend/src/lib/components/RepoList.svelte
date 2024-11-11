@@ -12,6 +12,7 @@
     if (window.confirm(`Are you sure you want to delete: ${repo}`)) {
       const removeOperation = await fetch(`/api/delete/${repo}`, {method: "DELETE"})
       if (removeOperation.ok) {
+        window.alert(`[Success] ${repo} has been deleted. Page will reload to take effect.`)
         window.location.reload()
       } else {
         window.alert(`[Error] Unable to delete (${repo}) at the moment. Try again later.`)
@@ -23,6 +24,7 @@
     if (window.confirm(`Are you sure you want to delete: ${yangEntry}`)) {
       const removeOperation = await fetch(`/api/delete/${repo}/file/${yangEntry}`, {method: "DELETE"})
       if (removeOperation.ok) {
+        window.alert(`[Success] ${yangEntry} has been deleted from ${repo}. Page will reload to take effect.`)
         window.location.reload()
       } else {
         window.alert(`[Error] Unable to delete (${repo}/${yangEntry}) at the moment. Try again later.`)
@@ -48,6 +50,7 @@
         window.alert(`[Error] Failed to upload ${filename}: ${errorText}`)
       }
 
+      window.alert(`[Success] ${filename} was uploaded to ${repoDetail.name}. Page will reload to take effect.`)
       window.location.reload()
     }
   }
@@ -77,11 +80,11 @@
       </div>
       <div id="repoListPopupBody">
         <div class="p-4 border-b dark:border-gray-600">
-          <input id="dropzone" type="file" class="peer hidden" bind:files on:change={handleUploadFile} />
-          <label for="dropzone" class="flex space-y-2 px-4 py-3 h-full w-full items-center justify-center cursor-pointer rounded-lg text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800">
+          <input id="yangDropzone" type="file" accept=".yang" class="peer hidden" bind:files on:change={handleUploadFile} />
+          <label for="yangDropzone" class="flex flex-col space-y-2 px-4 py-3 h-full w-full items-center justify-center cursor-pointer rounded-lg text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800">
             <p class="text-sm">Click to upload .yang file</p>
             {#if files}
-              <p class="text-black text-xs"><span class="font-nokia-headline">Selected:</span> {`${files[0].name} (${files[0].size} bytes)`}</p>
+              <p class="text-black dark:text-white text-xs"><span>Selected:</span> {`${files[0].name} (${files[0].size} bytes)`}</p>
               <div class="rounded-md h-4 w-4 border-2 border-blue-300 animate-spin"></div>
             {/if}
           </label>
