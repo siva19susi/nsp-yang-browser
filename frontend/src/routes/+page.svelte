@@ -222,7 +222,7 @@
             </div>
           {/if}
           {#if $localSearchFilter.length > 0}
-            <ul class="mb-1 overflow-y-auto scroll-light dark:scroll-dark">
+            <ul class="mb-2 overflow-y-auto scroll-light dark:scroll-dark">
               {#each $localSearchFilter as {name, files}, i}
                 {@const compareValue = "local@" + name}
                 {@const isDisabled = compare.length === 2 && !compare.includes(compareValue)}
@@ -258,16 +258,16 @@
               <div class="flex items-center justify-center h-full">
                 <form class="p-6 w-full" method="POST" action="?/nspConnect" on:submit|preventDefault={nspConnect}>
                   <div class="w-full mb-6">
-                    <label for="nsp-ip" class="block uppercase text-gray-800 dark:text-gray-200 text-xs font-bold mb-2">IP / FQDN</label>
+                    <label for="nsp-ip" class="block uppercase text-gray-800 dark:text-gray-200 text-xs mb-2">IP / FQDN</label>
                     <input id="nsp-ip" name="ip" type="text" class="px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 {isSubmitting ? 'bg-gray-300' : 'bg-gray-100'}" disabled={isSubmitting}>
                   </div>
                   <div class="flex mb-10">
                     <div class="w-full md:w-1/2 pr-2 mb-6 md:mb-0">
-                      <label for="nsp-user" class="block uppercase text-gray-800 dark:text-gray-200 text-xs font-bold mb-2">Username</label>
+                      <label for="nsp-user" class="block uppercase text-gray-800 dark:text-gray-200 text-xs mb-2">Username</label>
                       <input id="nsp-user" name="user" type="text" class="px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 {isSubmitting ? 'bg-gray-300' : 'bg-gray-100'}" disabled={isSubmitting}>
                     </div>
                     <div class="w-full md:w-1/2 pl-2">
-                      <label for="nsp-pass" class="block uppercase text-gray-800 dark:text-gray-200 text-xs font-bold mb-2">Password</label>
+                      <label for="nsp-pass" class="block uppercase text-gray-800 dark:text-gray-200 text-xs mb-2">Password</label>
                       <input id="nsp-pass" name="pass" type="password" class="px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 {isSubmitting ? 'bg-gray-300' : 'bg-gray-100'}" disabled={isSubmitting}>
                     </div>
                   </div>
@@ -279,15 +279,15 @@
             </div>
           {:else}
             <div class="p-4">
-              <form class="p-4 rounded-lg bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-200 dark:border-gray-700" method="POST" action="?/nspDisconnect" on:submit|preventDefault={nspDisconnect}>
+              <form class="p-4 rounded-lg bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-700" method="POST" action="?/nspDisconnect" on:submit|preventDefault={nspDisconnect}>
                 <div class="flex mb-4">
                   <div class="w-full md:w-1/2 pr-2 mb-6 md:mb-0">
-                    <label for="nsp-connect-ip" class="block uppercase text-gray-700 dark:text-gray-300 text-xs font-bold mb-2">IP / FQDN</label>
-                    <input id="nsp-connect-ip" bind:value={nspConnectedIp} type="text" class="px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 select-none pointer-events-none" readonly>
+                    <label for="nsp-connect-ip" class="block uppercase text-gray-700 dark:text-gray-300 text-xs mb-2">IP / FQDN</label>
+                    <input id="nsp-connect-ip" bind:value={nspConnectedIp} type="text" class="px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 select-none pointer-events-none" readonly>
                   </div>
                   <div class="w-full md:w-1/2 pl-2">
-                    <label for="nsp-connect-user" class="block uppercase text-gray-700 dark:text-gray-300 text-xs font-bold mb-2">Username</label>
-                    <input id="nsp-connect-user" bind:value={nspConnectedUser} type="text" class="px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 select-none pointer-events-none" readonly>
+                    <label for="nsp-connect-user" class="block uppercase text-gray-700 dark:text-gray-300 text-xs mb-2">Username</label>
+                    <input id="nsp-connect-user" bind:value={nspConnectedUser} type="text" class="px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 select-none pointer-events-none" readonly>
                   </div>
                 </div>
                 <div class="flex items-center justify-end">
@@ -304,7 +304,7 @@
             </div>
           {/if}
           {#if $nspSearchFilter.length > 0}
-            <ul class="mb-1 overflow-y-auto scroll-light">
+            <ul class="mb-2 overflow-y-auto scroll-light">
               {#each $nspSearchFilter as {name}, i}
                 {@const compareValue = "nsp@" + name}
                 {@const isDisabled = compare.length === 2 && !compare.includes(compareValue)}
@@ -359,10 +359,13 @@
                   'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-500 pointer-events-none'}">
               Click to Compare
             </a>
-            <div class="px-4 pt-6 text-[10px] text-gray-800 dark:text-gray-200 italic text-left">
-              <p>1) Order or compare selection determines the value of X (first selected) and Y (second selected).</p>
-              <p>2) The compare provides added paths, removed paths and paths with modified type definition. 
-                For more detailed info regarding each repo, contact the repo source Admin.</p>
+            <div class="pt-6 text-[12px] text-left text-gray-800 dark:text-gray-200">
+              <p>Note:</p>
+              <ul class="px-4 list-disc list-outside">
+                <li>Order or compare selection determines the value of X (first selected) and Y (second selected).</li>
+                <li>The compare provides added paths, removed paths and paths with modified type definition.</li>
+                <li>For more detailed info regarding each repo, contact the repo source Admin.</li>
+              </ul>
             </div>
           </div>
         </div>
