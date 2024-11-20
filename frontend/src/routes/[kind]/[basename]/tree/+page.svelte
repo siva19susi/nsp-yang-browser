@@ -7,6 +7,7 @@
   import Footer from '$lib/components/Footer.svelte'
   import SearchInput from "$lib/components/SearchInput.svelte"
   import StateButton from '$lib/components/StateButton.svelte'
+  import ShowPrefixCheck from '$lib/components/ShowPrefixCheck.svelte'
   import WithDefaultCheck from '$lib/components/WithDefaultCheck.svelte'
   import CrossBrowser from '$lib/components/crossBrowser.svelte'
   import ErrorNotification from "$lib/components/ErrorNotification.svelte"
@@ -18,7 +19,7 @@
   import { decideExpand } from "./expand"
   import { toLower } from "$lib/components/functions"
   import { pathFocus } from '$lib/components/sharedStore'
-  import { defaultStore, searchStore, stateStore, yangTarget, yangTreeArgs } from "./store"
+  import { defaultStore, prefixStore, searchStore, stateStore, yangTarget, yangTreeArgs } from "./store"
 
   import type { TreePayLoad } from '$lib/structure'
   import type { YangTreeResponseMessage, YangTreePaths } from "$lib/workers/structure"
@@ -34,10 +35,10 @@
 
   // YANGTREE WORKER
   let yangTreeWorker: Worker | undefined = undefined
-  async function loadYangTreeWorker (kind: string, basename: string, searchInput: string, defaultInput: boolean, stateInput: string) {
+  async function loadYangTreeWorker (kind: string, basename: string, searchInput: string, prefixInput: boolean, stateInput: string, defaultInput: boolean) {
     const YangTreeWorker = await import('$lib/workers/yangTree.worker?worker')
     yangTreeWorker = new YangTreeWorker.default()
-    yangTreeWorker.postMessage({ kind, basename, searchInput, defaultInput, stateInput })
+    yangTreeWorker.postMessage({ kind, basename, searchInput, prefixInput, stateInput, defaultInput })
     yangTreeWorker.onmessage = onYangTreeWorkerMessage
   }
   function onYangTreeWorkerMessage(event: MessageEvent<YangTreeResponseMessage>) {
@@ -57,11 +58,12 @@
   // OTHER BINDING VARIABLES
   let searchInput: string = isCrossLaunched() ? "" : getUrlPath()
   let stateInput = ""
+  let showPathPrefix = false
   let pathWithDefault = false
 
-  let pastYangTreeArgs = `${searchInput};;${pathWithDefault};;`
+  let pastYangTreeArgs = `${searchInput};;${showPathPrefix};;;;${pathWithDefault}`
 
-  onMount(() => loadYangTreeWorker(kind, basename, searchInput, pathWithDefault, ""))
+  onMount(() => loadYangTreeWorker(kind, basename, searchInput, showPathPrefix, "", pathWithDefault))
 
   pathFocus.set({})
 	pathFocus.subscribe((value) => {
@@ -71,6 +73,7 @@
   $: {
     searchStore.set(toLower(searchInput))
     stateStore.set(stateInput)
+    prefixStore.set(showPathPrefix)
     defaultStore.set(pathWithDefault)
   }
   $: yangTarget.set(treePaths)
@@ -86,7 +89,7 @@
         $page.url.searchParams.delete("path")
       }
       goto(`?${$page.url.searchParams.toString()}`, {invalidateAll: true})
-      loadYangTreeWorker(kind, basename, $searchStore, $defaultStore, $stateStore)
+      loadYangTreeWorker(kind, basename, $searchStore, $prefixStore, $stateStore, $defaultStore)
     }
 	}
 </script>
@@ -111,6 +114,7 @@
         <SearchInput bind:searchInput />
         <div class="flex py-1 items-center space-x-2">
           <StateButton bind:stateInput />
+          <ShowPrefixCheck bind:showPathPrefix />
           <WithDefaultCheck bind:pathWithDefault />
         </div>
         <div class="text-right mt-6">
@@ -124,7 +128,7 @@
         <div class="px-5 py-4 container mx-auto border-t dark:border-gray-600">
           <div class="font-fira text-xs tracking-tight">
             {#each $yangTarget.children as folder}
-              <YangTree {folder} expanded={decideExpand(folder, isCrossLaunched(), getUrlPath())} />
+              <YangTree {folder} withPrefix={showPathPrefix} expanded={decideExpand(folder, isCrossLaunched(), getUrlPath())} />
             {/each}
           </div>
           <Popup {kind} {basename} {popupDetail} />

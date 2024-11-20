@@ -135,6 +135,10 @@
                   <td class="py-1 px-2 dark:text-gray-300 font-fira text-[13px] tracking-tight">{popupDetail.path}</td>
                 </tr>
                 <tr class="border-t border-gray-200 dark:border-gray-600">
+                  <th scope="row" class="py-1 whitespace-nowrap text-sm dark:text-gray-400">Path with Prefix:</th>
+                  <td class="py-1 px-2 dark:text-gray-300 font-fira text-[13px] tracking-tight">{popupDetail["path-with-prefix"]}</td>
+                </tr>
+                <tr class="border-t border-gray-200 dark:border-gray-600">
                   <th scope="row" class="py-1 whitespace-nowrap text-sm dark:text-gray-400">Description:</th>
                   <td class="py-1 px-2 dark:text-gray-300 font-fira text-[13px] tracking-tight">
                     <div class="overflow-y-auto max-h-40 scroll-light dark:scroll-dark" use:markRender={"description" in popupDetail ? popupDetail.description.replaceAll("\n", "<br>") : ''}></div>

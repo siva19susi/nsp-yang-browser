@@ -5,7 +5,7 @@ import type { YangTreeContainer, YangTreePostMessage, YangTreePaths } from "./st
 import { removeKeyDefault, searchBasedFilter } from "$lib/components/functions"
 
 onmessage = async (event: MessageEvent<YangTreePostMessage>) => {
-  const {kind, basename, searchInput, defaultInput, stateInput} = event.data
+  const {kind, basename, searchInput, prefixInput, stateInput, defaultInput} = event.data
 
   try {
     let paths: PathDef[] = []
@@ -52,7 +52,7 @@ onmessage = async (event: MessageEvent<YangTreePostMessage>) => {
     for (const entry of defaultFilter) {
       let currentNode = node
 
-      const xpath = entry["path"]
+      const xpath = prefixInput ? entry["path-with-prefix"] : entry["path"]
       const clean = removeKeyDefault(xpath)
       const segments = clean.split("/").slice(1)
       const segLen = segments.length

@@ -53,6 +53,7 @@ export interface YangTreePostMessage {
   basename: string
   searchInput: string
   stateInput: string
+  prefixInput: boolean
   defaultInput: boolean
 }
 

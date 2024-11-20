@@ -8,6 +8,7 @@
 
 	export let folder
 	export let expanded: boolean
+	export let withPrefix: boolean
 
 	const toggle = () => expanded = !expanded
 	const isCrossLaunched = () => $page.data.crossLaunched
@@ -47,7 +48,7 @@
 				{@const crossLaunched = isCrossLaunched()}
 				<li class="pt-1">
 					{#if entry.children.length > 0}
-						<svelte:self folder={entry} expanded={decideExpand(entry, crossLaunched, urlPath)} />
+						<svelte:self folder={entry} {withPrefix} expanded={decideExpand(entry, crossLaunched, urlPath)} />
 					{:else}
 						<button class="ml-2.5 px-2 py-0.5 rounded hover:underline 
 							hover:bg-gray-200 hover:text-black hover:dark:bg-gray-600 hover:dark:text-gray-200 
@@ -56,7 +57,7 @@
 							{#if urlPath === entry.details.path}
                 <div title="{entry.details.path}">{entry.name}</div>
               {:else}
-                <div title="{entry.details.path}" use:markRender={markFilter(entry.name, urlPath, "tree")}></div>
+                <div title="{withPrefix ? entry.details["path-with-prefix"] : entry.details.path}" use:markRender={markFilter(entry.name, urlPath, "tree")}></div>
               {/if}
 						</button>
 					{/if}
