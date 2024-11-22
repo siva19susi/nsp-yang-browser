@@ -52,7 +52,7 @@
   }
 
   // ON PAGELOAD
-	export let data: TreePayLoad
+	export let data
   let {kind, basename} = data  
 
   // OTHER BINDING VARIABLES
