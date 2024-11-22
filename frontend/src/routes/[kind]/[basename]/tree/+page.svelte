@@ -17,7 +17,7 @@
   import YangTree from './YangTree.svelte'
 
   import { decideExpand } from "./expand"
-  import { toLower } from "$lib/components/functions"
+  import { toLower, kindView } from "$lib/components/functions"
   import { pathFocus } from '$lib/components/sharedStore'
   import { defaultStore, prefixStore, searchStore, stateStore, yangTarget, yangTreeArgs } from "./store"
 
@@ -95,7 +95,7 @@
 </script>
 
 <svelte:head>
-	<title>Yang Tree Browser {basename}</title>
+	<title>Yang Tree Browser {basename} ({kindView(kind)})</title>
 </svelte:head>
 
 <svelte:window on:keyup={({key}) => key === "Enter" ? triggerApply() : ""} />
@@ -116,6 +116,19 @@
           <StateButton bind:stateInput />
           <ShowPrefixCheck bind:showPathPrefix />
           <WithDefaultCheck bind:pathWithDefault />
+          <div class="dropdown">
+            <a href="/{kind}/{basename}/tree/payload" target="_blank" class="dropdown-button px-2 py-1 rounded-lg text-xs text-nowrap bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white inline-flex items-center align-bottom">
+              <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"/>
+              </svg>
+              <span class="ml-1">Generate Payload</span>
+            </a>
+            <div class="dropdown-content absolute z-10 hidden bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg shadow">
+              <p class="my-2 max-w-[300px] px-3 text-xs">
+                The payload generated is purely a sample based on default values and type definition of the yang model. Contact repo source Admin for more details.
+              </p>
+            </div>
+          </div>
         </div>
         <div class="text-right mt-6">
           <button class="px-4 py-2 rounded-lg text-xs 

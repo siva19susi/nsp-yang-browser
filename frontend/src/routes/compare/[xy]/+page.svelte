@@ -18,7 +18,7 @@
   import type { ComparePayLoad } from '$lib/structure'
   import type { CompareResponseMessage, DiffResponseMessage } from '$lib/workers/structure'
   import { compareStore, defaultStore, paginated, searchStore, stateStore, total, yangPaths } from './store'
-  import { markFilter, markRender, toLower } from '$lib/components/functions'
+  import { kindView, markFilter, markRender, toLower } from '$lib/components/functions'
 	
   // DEFAULTS
   let popupDetail = {}
@@ -63,7 +63,7 @@
 </script>
 
 <svelte:head>
-	<title>Yang Browser {x} to {y} Yang Model</title>
+	<title>Yang Browser {x} ({kindView(xKind)}) to {y} ({kindView(yKind)}) Yang Model</title>
 </svelte:head>
 
 {#if !workerComplete}

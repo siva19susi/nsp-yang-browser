@@ -15,7 +15,7 @@
   import Pagination from './Pagination.svelte'
 
   import type { PathDef } from '$lib/structure'
-  import { markFilter, markRender, toLower } from '$lib/components/functions'
+  import { markFilter, markRender, toLower, kindView } from '$lib/components/functions'
 	import { defaultStore, paginated, prefixStore, searchStore, stateStore, total, yangPaths } from './store'
 	import type { FetchResponseMessage } from '$lib/workers/structure';
 
@@ -62,7 +62,7 @@
 </script>
 
 <svelte:head>
-	<title>Yang Path Browser {basename}</title>
+	<title>Yang Path Browser {basename} ({kindView(kind)})</title>
 </svelte:head>
 
 {#if !workerComplete}

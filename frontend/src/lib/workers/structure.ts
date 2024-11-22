@@ -69,3 +69,13 @@ export interface YangTreePaths {
   children: YangTreePaths[]
   details: YangTreeContainer | PathDef
 }
+
+export interface YangTreePayloadResponseMessage {
+  success: boolean
+  message: string
+  tree: SamplePayload
+}
+
+export interface SamplePayload {
+  [key: string]: unknown
+}
