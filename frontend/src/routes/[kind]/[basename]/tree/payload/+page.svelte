@@ -14,10 +14,10 @@
 
   // YANGTREE WORKER
   let yangTreePayloadWorker: Worker | undefined = undefined
-  async function loadYangTreePayloadWorker (kind: string, basename: string) {
+  async function loadYangTreePayloadWorker (kind: string, basename: string, urlPath: string, withPrefix: boolean) {
     const YangTreePayloadWorker = await import('$lib/workers/yangTreePayload.worker?worker')
     yangTreePayloadWorker = new YangTreePayloadWorker.default()
-    yangTreePayloadWorker.postMessage({ kind, basename })
+    yangTreePayloadWorker.postMessage({ kind, basename, urlPath, withPrefix })
     yangTreePayloadWorker.onmessage = onYangTreePayloadWorkerMessage
   }
   function onYangTreePayloadWorkerMessage(event: MessageEvent<YangTreePayloadResponseMessage>) {
@@ -32,10 +32,10 @@
 
   // ON PAGELOAD
 	export let data
-  let {kind, basename} = data
+  let {kind, basename, urlPath, withPrefix} = data
 
   // OTHER BINDING VARIABLES
-  onMount(() => loadYangTreePayloadWorker(kind, basename))
+  onMount(() => loadYangTreePayloadWorker(kind, basename, urlPath, withPrefix))
 </script>
 
 <svelte:head>

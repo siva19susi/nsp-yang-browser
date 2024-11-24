@@ -1,13 +1,13 @@
 import { error, type HttpError } from "@sveltejs/kit"
 
 import type { PathDef } from "$lib/structure"
-import type { FetchPostMessage, SamplePayload } from "./structure"
+import type { YangTreePayloadPostMessage, SamplePayload } from "./structure"
+import { searchBasedFilter } from "$lib/components/functions"
 
-onmessage = async (event: MessageEvent<FetchPostMessage>) => {
-  const {kind, basename} = event.data
+onmessage = async (event: MessageEvent<YangTreePayloadPostMessage>) => {
+  const {kind, basename, urlPath, withPrefix} = event.data
 
   try {
-    let paths: PathDef[] = []
     const pathResponse = await fetch(`/api/generate/${kind}/${basename}`)
 
     if(!pathResponse.ok) {
@@ -16,7 +16,8 @@ onmessage = async (event: MessageEvent<FetchPostMessage>) => {
     }
 
     const pathJson = await pathResponse.json()
-    paths = pathJson.map((k: PathDef) => ({...k, "is-state": ("is-state" in k ? "R" : "RW")}))
+    const paths: PathDef[] = pathJson.map((k: PathDef) => ({...k, "is-state": ("is-state" in k ? "R" : "RW")}))
+    const urlPathFilter = urlPath !== "" ? paths.filter((x: PathDef) => searchBasedFilter(x, urlPath.replaceAll("]", "=*]"), withPrefix)) : paths
 
     function getSampleValue(item: PathDef) {
       if (item.default !== undefined) return item.default;
@@ -45,8 +46,8 @@ onmessage = async (event: MessageEvent<FetchPostMessage>) => {
     }
 
     const tree: SamplePayload = {}
-    for(const item of paths) {
-      const parts = item.path.split("/").filter(Boolean)
+    for(const item of urlPathFilter) {
+      const parts = (withPrefix ? item["path-with-prefix"] : item.path).split("/").filter(Boolean)
       let current = tree
 
       parts.forEach((part, index) => {

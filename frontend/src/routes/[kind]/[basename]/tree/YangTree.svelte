@@ -22,23 +22,29 @@
 	}
 </script>
 
-<button class="flex items-center text-left py-0.5 
-		{expanded ? 'text-gray-400 dark:text-gray-500': 'dark:text-gray-300'} 
-		hover:text-green-600 hover:dark:text-green-600" on:click={toggle}>
-  <span class="flex pr-1">
-    <!--minus-circle-->
-    <svg class="w-5 h-5 {expanded ? 'minus-circle-active': 'hidden'}" fill="none" 
-      stroke-width="1.5" stroke="currentColor" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-    </svg>
-    <!--plus-circle-->
-    <svg class="w-5 h-5 {expanded ? 'plus-circle-inactive hidden': ''}" fill="none" 
-      stroke-width="1.5" stroke="currentColor" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-    </svg>
-  </span>
-  <div class="flex" title="{folder.details.path}" use:markRender={markFilter(folder.name, getUrlPath(), "tree")}>{folder.name}</div>
-</button>
+<div class="flex items-center space-x-2">
+	<button class="flex items-center text-left py-0.5 
+			{expanded ? 'text-gray-400 dark:text-gray-500': 'dark:text-gray-300'} 
+			hover:text-green-600 hover:dark:text-green-600" on:click={toggle}>
+		<span class="flex pr-1">
+			<!--minus-circle-->
+			<svg class="w-5 h-5 {expanded ? 'minus-circle-active': 'hidden'}" fill="none" 
+				stroke-width="1.5" stroke="currentColor" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
+				<path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+			</svg>
+			<!--plus-circle-->
+			<svg class="w-5 h-5 {expanded ? 'plus-circle-inactive hidden': ''}" fill="none" 
+				stroke-width="1.5" stroke="currentColor" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
+				<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+			</svg>
+		</span>
+		<div title="{folder.details.path}" use:markRender={markFilter(folder.name, getUrlPath(), "tree")}></div>
+	</button>
+	<a href="/{$page.data.kind}/{$page.data.basename}/tree/payload?path={folder.details.path}{withPrefix ? '&prefix=true' : ''}" target="_blank" 
+		class="dropdown-button px-2 py-0.5 rounded-lg text-[10px] text-nowrap bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-black dark:text-white inline-flex items-center align-bottom">
+		Payload
+	</a>
+</div>
 
 {#if expanded}
 	{#if folder.children && folder.children?.length}

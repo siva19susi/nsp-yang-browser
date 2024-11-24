@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit'
 
-export async function load({ params }) {
+export async function load({ params, url }) {
   const kind = params.kind
   const basename = params.basename
 
@@ -8,5 +8,8 @@ export async function load({ params }) {
     throw error(404, "Unsupported kind")
   }
 
-  return { kind, basename }
+  const urlPath = url.searchParams.get("path")?.trim() ?? "" 
+  const withPrefix = url.searchParams.get("prefix")?.trim() === "true" ? true : false
+
+  return { kind, basename, urlPath, withPrefix }
 }

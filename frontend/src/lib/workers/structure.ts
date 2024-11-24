@@ -70,6 +70,13 @@ export interface YangTreePaths {
   details: YangTreeContainer | PathDef
 }
 
+export interface YangTreePayloadPostMessage {
+  kind: string
+  basename: string
+  urlPath: string
+  withPrefix: boolean
+}
+
 export interface YangTreePayloadResponseMessage {
   success: boolean
   message: string
