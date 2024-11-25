@@ -15,7 +15,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const yangFolder = "./uploads/"
+const yangFolder = "../uploads/"
 
 func (s *srv) logMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

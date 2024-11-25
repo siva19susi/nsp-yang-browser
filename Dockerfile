@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine AS be-builder
+FROM golang:1.21 AS be-builder
 
 WORKDIR /build
 
@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 \
     -o server \
     .
 
-FROM node:21-alpine AS fe-builder
+FROM node:21 AS fe-builder
 
 WORKDIR /build
 
@@ -28,6 +28,7 @@ WORKDIR /app
 COPY --from=fe-builder /build .
 COPY --from=be-builder /build/server /app/server
 COPY entrypoint.sh /app/entrypoint.sh
+COPY uploads /uploads
 
 ENV HOST=0.0.0.0
 EXPOSE 4173

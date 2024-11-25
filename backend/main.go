@@ -60,6 +60,13 @@ func main() {
 		},
 	}
 
+	if _, err := os.Stat(yangFolder); os.IsNotExist(err) {
+		err := os.MkdirAll(yangFolder, os.ModePerm)
+		if err != nil {
+			fmt.Printf("[Error] creating repo folder: %v", err)
+		}
+	}
+
 	s.be.Use(s.logMiddleware)
 	s.be.HandleFunc("/", connectionOk).Methods("GET")
 	s.be.HandleFunc("/upload", s.upload).Methods("POST")
