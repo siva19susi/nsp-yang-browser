@@ -75,6 +75,7 @@ export interface YangTreePayloadPostMessage {
   basename: string
   urlPath: string
   withPrefix: boolean
+  expandFull: boolean
 }
 
 export interface YangTreePayloadResponseMessage {

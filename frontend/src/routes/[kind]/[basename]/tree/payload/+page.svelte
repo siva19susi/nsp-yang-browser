@@ -5,7 +5,7 @@
   import Loading from "$lib/components/Loading.svelte"
 	import ErrorNotification from "$lib/components/ErrorNotification.svelte"
 
-  import type { YangTreePayloadResponseMessage } from "$lib/workers/structure"
+  import type { YangTreePayloadPostMessage, YangTreePayloadResponseMessage } from "$lib/workers/structure"
 
   // DEFAULTS
   let treePayload: any
@@ -14,10 +14,10 @@
 
   // YANGTREE WORKER
   let yangTreePayloadWorker: Worker | undefined = undefined
-  async function loadYangTreePayloadWorker (kind: string, basename: string, urlPath: string, withPrefix: boolean) {
+  async function loadYangTreePayloadWorker (data: YangTreePayloadPostMessage) {
     const YangTreePayloadWorker = await import('$lib/workers/yangTreePayload.worker?worker')
     yangTreePayloadWorker = new YangTreePayloadWorker.default()
-    yangTreePayloadWorker.postMessage({ kind, basename, urlPath, withPrefix })
+    yangTreePayloadWorker.postMessage(data)
     yangTreePayloadWorker.onmessage = onYangTreePayloadWorkerMessage
   }
   function onYangTreePayloadWorkerMessage(event: MessageEvent<YangTreePayloadResponseMessage>) {
@@ -32,10 +32,10 @@
 
   // ON PAGELOAD
 	export let data
-  let {kind, basename, urlPath, withPrefix} = data
+  let {kind, basename} = data
 
   // OTHER BINDING VARIABLES
-  onMount(() => loadYangTreePayloadWorker(kind, basename, urlPath, withPrefix))
+  onMount(() => loadYangTreePayloadWorker(data))
 </script>
 
 <svelte:head>

@@ -10,6 +10,7 @@ export async function load({ params, url }) {
 
   const urlPath = url.searchParams.get("path")?.trim() ?? "" 
   const withPrefix = url.searchParams.get("prefix")?.trim() === "true" ? true : false
+  const expandFull = url.searchParams.get("expand")?.trim() === "false" ? (urlPath !== "" ? false : true) : true
 
-  return { kind, basename, urlPath, withPrefix }
+  return { kind, basename, urlPath, withPrefix, expandFull }
 }

@@ -2,10 +2,10 @@ import { error, type HttpError } from "@sveltejs/kit"
 
 import type { PathDef } from "$lib/structure"
 import type { YangTreePayloadPostMessage, SamplePayload } from "./structure"
-import { searchBasedFilter } from "$lib/components/functions"
 
 onmessage = async (event: MessageEvent<YangTreePayloadPostMessage>) => {
-  const {kind, basename, urlPath, withPrefix} = event.data
+  const {kind, basename, urlPath, withPrefix, expandFull} = event.data
+  const urlPathTranform = urlPath.replaceAll("]", "=*]")
 
   try {
     const pathResponse = await fetch(`/api/generate/${kind}/${basename}`)
@@ -15,9 +15,16 @@ onmessage = async (event: MessageEvent<YangTreePayloadPostMessage>) => {
       throw error(404, errorText);
     }
 
+    function urlPathFilter(x: PathDef, searchTerm: string, showPrefix: boolean) {
+      const keys = searchTerm.split(/\s+/)
+      const searchStr = `${showPrefix ? x["path-with-prefix"] : x.path}`
+      return keys.every(x => searchStr.includes(x))
+    }
+
     const pathJson = await pathResponse.json()
     const paths: PathDef[] = pathJson.map((k: PathDef) => ({...k, "is-state": ("is-state" in k ? "R" : "RW")}))
-    const urlPathFilter = urlPath !== "" ? paths.filter((x: PathDef) => searchBasedFilter(x, urlPath.replaceAll("]", "=*]"), withPrefix)) : paths
+    const pathFilter = urlPath !== "" ? paths.filter((x: PathDef) => urlPathFilter(x, urlPathTranform, withPrefix)) : paths
+
 
     function getSampleValue(item: PathDef) {
       if (item.default !== undefined) return item.default;
@@ -46,11 +53,13 @@ onmessage = async (event: MessageEvent<YangTreePayloadPostMessage>) => {
     }
 
     const tree: SamplePayload = {}
-    for(const item of urlPathFilter) {
-      const parts = (withPrefix ? item["path-with-prefix"] : item.path).split("/").filter(Boolean)
+    for(const item of pathFilter) {
+      const loopPath = (withPrefix ? item["path-with-prefix"] : item.path)
+      const tranformPath = urlPath !== "" && !expandFull ? loopPath.replace(urlPathTranform, "") : loopPath
+      const parts = tranformPath.split("/").filter(Boolean)
       let current = tree
-
-      parts.forEach((part, index) => {
+      
+      for (const [index, part] of parts.entries()) {
         if(part.includes("[") && part.includes("=*]")) {
           const listContainer = part.split("[")[0]
           const listKeys = part.match(/\[.*?=\*\]/g).map(p => p.split("=")[0].slice(1))
@@ -72,7 +81,9 @@ onmessage = async (event: MessageEvent<YangTreePayloadPostMessage>) => {
           }
           current = current[part];
         }
-      })
+        
+        if(urlPath !== "" && !expandFull) break
+      }
     }
 
     postMessage({ success: true, message: "", tree })
