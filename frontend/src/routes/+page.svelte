@@ -125,6 +125,12 @@
       return basename
     }
   }
+
+  $: {
+    if(compare.length == 2) {
+      currentPanel = "compare"
+    }
+  }
 </script>
   
 <svelte:head>
