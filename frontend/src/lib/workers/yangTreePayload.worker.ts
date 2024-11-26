@@ -69,7 +69,7 @@ onmessage = async (event: MessageEvent<YangTreePayloadPostMessage>) => {
           }
           
           for (const k of listKeys) {
-            current[listContainer][0][k] = ""
+            current[listContainer][0][k] = "{{ mandatory_key }}"
           }
 
           current = current[listContainer][0]
