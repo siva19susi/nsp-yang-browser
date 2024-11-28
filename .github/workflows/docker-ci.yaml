@@ -11,6 +11,9 @@ jobs:
     permissions:
       packages: write
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -23,9 +26,11 @@ jobs:
           username: ${{ vars.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
       
-      - name: Extract Git Tag
+      - name: Extract Git Tag Without `v`
         id: git_tag
-        run: echo "tag=${GITHUB_REF##*/}" >> $GITHUB_ENV
+        run: |
+          tag=${GITHUB_REF##*/}
+          echo "tag=${tag#v}" >> $GITHUB_ENV
 
       - name: Build and push
         uses: docker/build-push-action@v6
