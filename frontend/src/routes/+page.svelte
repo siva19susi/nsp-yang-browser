@@ -202,7 +202,7 @@
       </div>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-b-lg shadow-xl">
-      <div class="h-[480px]">
+      <div class="h-[500px]">
         <!--UPLOADS-->
         <div class="flex flex-col h-full {currentPanel === "local" ? 'block' : 'hidden'}">
           <div class="{$localRepoStore.length === 0 ? 'flex-grow' : ''} p-4">
@@ -230,29 +230,45 @@
           {#if $localSearchFilter.length > 0}
             <ul class="mb-2 overflow-y-auto scroll-light dark:scroll-dark">
               {#each $localSearchFilter as {name, files}, i}
-                {@const compareValue = "local@" + name}
-                {@const isDisabled = compare.length === 2 && !compare.includes(compareValue)}
-                <li class="text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 {i > 0 ? 'border-t dark:border-gray-700' : ''}">
-                  <div class="flex items-center justify-between">
-                    <a data-sveltekit-reload href="/local/{name}" class="px-4 py-3 w-full overflow-x-auto">{name}</a>
-                    <div class="flex items-center mx-4 space-x-5">
-                      <button class="text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800 rounded-lg p-1" on:click={() => repoDetail = {name, files}}>
-                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                          <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5"/>
-                        </svg>
-                      </button>
-                      <div title="Add to compare" class="flex">
-                        <input type="checkbox" id="local-{name}-check" bind:group={compare} value="{compareValue}" disabled={isDisabled} class="peer hidden" />
-                        <label for="local-{name}-check" class="select-none p-1 rounded-lg peer-checked:bg-blue-600 peer-checked:hover:bg-blue-700 peer-checked:text-white {isDisabled ? 'cursor-not-allowed text-gray-200 dark:text-gray-600' : 'cursor-pointer hover:bg-blue-600 hover:text-white'}">
-                          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" stroke="currentColor" stroke-width="10" aria-hidden="true">
-                            <path d="M420.266667 832c-17.066667 0-34.133333-6.4-44.8-19.2L104.533333 541.866667c-12.8-12.8-19.2-27.733333-19.2-44.8s6.4-34.133333 19.2-44.8L345.6 211.2c23.466667-23.466667 66.133333-23.466667 89.6 0l270.933333 270.933333c12.8 12.8 19.2 27.733333 19.2 44.8s-6.4 34.133333-19.2 44.8L465.066667 812.8c-10.666667 12.8-27.733333 19.2-44.8 19.2z m-29.866667-597.333333c-6.4 0-10.666667 2.133333-14.933333 6.4L134.4 482.133333c-4.266667 4.266667-6.4 8.533333-6.4 14.933334s2.133333 10.666667 6.4 14.933333L405.333333 782.933333c8.533333 8.533333 21.333333 8.533333 29.866667 0l241.066667-241.066666c4.266667-4.266667 6.4-8.533333 6.4-14.933334s-2.133333-10.666667-6.4-14.933333L405.333333 241.066667c-4.266667-4.266667-8.533333-6.4-14.933333-6.4z" />
-                            <path d="M618.666667 832c-17.066667 0-34.133333-6.4-46.933334-19.2L317.866667 558.933333c-12.8-12.8-19.2-29.866667-19.2-46.933333s6.4-34.133333 19.2-46.933333L571.733333 211.2c25.6-25.6 68.266667-25.6 93.866667 0l253.866667 253.866667c25.6 25.6 25.6 68.266667 0 93.866666L665.6 812.8c-12.8 12.8-29.866667 19.2-46.933333 19.2z m0-597.333333c-6.4 0-12.8 2.133333-17.066667 6.4L347.733333 494.933333c-4.266667 4.266667-6.4 10.666667-6.4 17.066667s2.133333 12.8 6.4 17.066667l253.866667 253.866666c8.533333 8.533333 23.466667 8.533333 34.133333 0l253.866667-253.866666c8.533333-8.533333 8.533333-23.466667 0-34.133334L635.733333 241.066667c-4.266667-4.266667-10.666667-6.4-17.066666-6.4zM332.8 480z" />
+                {#if name === ""}
+                  {@const sharedName = "common .yang files"}
+                  <li class="text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 {i > 0 ? 'border-t dark:border-gray-700' : ''}">
+                    <div class="flex items-center justify-between">
+                      <p class="px-4 py-3 w-full overflow-x-auto">{sharedName}</p>
+                      <div class="flex items-center mx-4 space-x-5">
+                        <button class="text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg p-1" on:click={() => repoDetail = {name: sharedName, files: files ?? []}}>
+                          <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5"/>
                           </svg>
-                        </label>
+                        </button>
                       </div>
                     </div>
-                  </div>
-                </li>
+                  </li>
+                {:else}
+                  {@const compareValue = "local@" + name}
+                  {@const isDisabled = compare.length === 2 && !compare.includes(compareValue)}
+                  <li class="text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 {i > 0 ? 'border-t dark:border-gray-700' : ''}">
+                    <div class="flex items-center justify-between">
+                      <a data-sveltekit-reload href="/local/{name}" class="px-4 py-3 w-full overflow-x-auto">{name}</a>
+                      <div class="flex items-center mx-4 space-x-5">
+                        <div title="Add to compare" class="flex">
+                          <input type="checkbox" id="local-{name}-check" bind:group={compare} value="{compareValue}" disabled={isDisabled} class="peer hidden" />
+                          <label for="local-{name}-check" class="select-none p-1 rounded-lg peer-checked:bg-blue-600 peer-checked:hover:bg-blue-700 peer-checked:text-white {isDisabled ? 'cursor-not-allowed text-gray-200 dark:text-gray-600' : 'cursor-pointer hover:bg-blue-600 hover:text-white'}">
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" stroke="currentColor" stroke-width="10" aria-hidden="true">
+                              <path d="M420.266667 832c-17.066667 0-34.133333-6.4-44.8-19.2L104.533333 541.866667c-12.8-12.8-19.2-27.733333-19.2-44.8s6.4-34.133333 19.2-44.8L345.6 211.2c23.466667-23.466667 66.133333-23.466667 89.6 0l270.933333 270.933333c12.8 12.8 19.2 27.733333 19.2 44.8s-6.4 34.133333-19.2 44.8L465.066667 812.8c-10.666667 12.8-27.733333 19.2-44.8 19.2z m-29.866667-597.333333c-6.4 0-10.666667 2.133333-14.933333 6.4L134.4 482.133333c-4.266667 4.266667-6.4 8.533333-6.4 14.933334s2.133333 10.666667 6.4 14.933333L405.333333 782.933333c8.533333 8.533333 21.333333 8.533333 29.866667 0l241.066667-241.066666c4.266667-4.266667 6.4-8.533333 6.4-14.933334s-2.133333-10.666667-6.4-14.933333L405.333333 241.066667c-4.266667-4.266667-8.533333-6.4-14.933333-6.4z" />
+                              <path d="M618.666667 832c-17.066667 0-34.133333-6.4-46.933334-19.2L317.866667 558.933333c-12.8-12.8-19.2-29.866667-19.2-46.933333s6.4-34.133333 19.2-46.933333L571.733333 211.2c25.6-25.6 68.266667-25.6 93.866667 0l253.866667 253.866667c25.6 25.6 25.6 68.266667 0 93.866666L665.6 812.8c-12.8 12.8-29.866667 19.2-46.933333 19.2z m0-597.333333c-6.4 0-12.8 2.133333-17.066667 6.4L347.733333 494.933333c-4.266667 4.266667-6.4 10.666667-6.4 17.066667s2.133333 12.8 6.4 17.066667l253.866667 253.866666c8.533333 8.533333 23.466667 8.533333 34.133333 0l253.866667-253.866666c8.533333-8.533333 8.533333-23.466667 0-34.133334L635.733333 241.066667c-4.266667-4.266667-10.666667-6.4-17.066666-6.4zM332.8 480z" />
+                            </svg>
+                          </label>
+                        </div>
+                        <button class="text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800 rounded-lg p-1" on:click={() => repoDetail = {name, files}}>
+                          <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M9 8h10M9 12h10M9 16h10M4.99 8H5m-.02 4h.01m0 4H5"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                {/if}
               {/each}
             </ul>
           {/if}

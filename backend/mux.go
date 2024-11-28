@@ -130,20 +130,24 @@ func extractYangFolder(filename string) error {
 }
 
 func (s *srv) uploadFile(w http.ResponseWriter, r *http.Request) {
-	basename := mux.Vars(r)["basename"]
+	basename, ok := mux.Vars(r)["basename"]
 
 	// Limit upload size (10 MB in this case)
 	r.ParseMultipartForm(10 << 20)
 
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		s.raiseError("[Error] retrieving zip file", err, w)
+		s.raiseError("[Error] retrieving .yang file", err, w)
 		return
 	}
 
 	defer file.Close()
 
-	folderPath := yangFolder + basename + "/"
+	folderPath := yangFolder
+	if ok {
+		folderPath = yangFolder + basename + "/"
+	}
+
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 		s.raiseError(fmt.Sprintf("[Error] repo (%s) does not exist", basename), err, w)
 		return
@@ -205,6 +209,19 @@ func (s *srv) list(w http.ResponseWriter, r *http.Request) {
 				f = append(f, fEntry)
 			}
 		}
+
+		var fEntry ListResponse
+		fEntry.Name = ""
+		for _, entry := range dirEntires {
+			if !entry.IsDir() {
+				yangFile := entry.Name()
+				if strings.ToLower(filepath.Ext(yangFile)) == ".yang" {
+					fEntry.Files = append(fEntry.Files, yangFile)
+				}
+			}
+		}
+		f = append(f, fEntry)
+
 	} else if kind == "nsp" {
 		intentTypeList, err := s.intentTypeSearch(0, 100)
 		if err != nil {
@@ -255,10 +272,13 @@ func (s *srv) delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) deleteFile(w http.ResponseWriter, r *http.Request) {
-	basename := mux.Vars(r)["basename"]
+	basename, ok := mux.Vars(r)["basename"]
 	yangFile := mux.Vars(r)["yang"]
 
-	filePath := yangFolder + basename + "/" + yangFile
+	filePath := yangFolder + yangFile
+	if ok {
+		filePath = yangFolder + basename + "/" + yangFile
+	}
 
 	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
 		s.raiseError(fmt.Sprintf("[Error] %s repo does not exist", basename), err, w)

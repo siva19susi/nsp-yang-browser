@@ -22,7 +22,13 @@
 
   async function removeYangEntry(repo: string, yangEntry: string) {
     if (window.confirm(`Are you sure you want to delete: ${yangEntry}`)) {
-      const removeOperation = await fetch(`/api/delete/${repo}/file/${yangEntry}`, {method: "DELETE"})
+      let url = "/api/delete"
+      if(repoDetail.name.includes(".yang")) {
+        url += `/file/${yangEntry}`
+      } else {
+        url += `/${repo}/file/${yangEntry}`
+      }
+      const removeOperation = await fetch(url, {method: "DELETE"})
       if (removeOperation.ok) {
         window.alert(`[Success] ${yangEntry} has been deleted from ${repo}. Page will reload to take effect.`)
         window.location.reload()
@@ -41,7 +47,11 @@
       const formData = new FormData()
       formData.append("file", files[0])
 
-      const uploadOperation = await fetch(`/api/upload/${repoDetail.name}`, {
+      let url = "/api/upload/file"
+      if(!repoDetail.name.includes(".yang")) {
+        url += `/${repoDetail.name}`
+      }
+      const uploadOperation = await fetch(url, {
         method: "POST", body: formData
       })
 
@@ -65,11 +75,13 @@
       <div id="popupHeader" class="flex items-center justify-between space-x-2 px-4 py-2 rounded-t bg-gray-200 dark:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
         <div class="flex items-center space-x-4">
           <span class="text-lg text-gray-900 dark:text-gray-300">{repoDetail.name}</span>
-          <button class="hover:bg-red-500 hover:text-white text-red-400 rounded-lg px-2 py-1 text-xs" on:click={() => removeRepo(repoDetail.name)}>
-            <svg class="w-4 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
-            </svg>
-          </button>
+          {#if !repoDetail.name.includes(".yang")}
+            <button class="hover:bg-red-500 hover:text-white text-red-400 rounded-lg px-2 py-1 text-xs" on:click={() => removeRepo(repoDetail.name)}>
+              <svg class="w-4 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
+              </svg>
+            </button>
+          {/if}
         </div>
         <button type="button" class="text-gray-500 hover:bg-gray-300 hover:text-gray-900 rounded-lg text-sm inline-flex justify-center items-center dark:hover:bg-gray-700 dark:hover:text-white" on:click={closeRepoList}>
           <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -78,6 +90,12 @@
           <span class="sr-only">Close modal</span>
         </button>
       </div>
+      {#if repoDetail.name.includes(".yang")}
+      <div class="px-4 pt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
+        <p>Below files will be automatically resolved as dependencies</p>
+        <p>during Uploaded or NSP YANG repo browsing.</p>
+      </div>
+      {/if}
       <div id="repoListPopupBody">
         <div class="p-4 border-b dark:border-gray-600">
           <input id="yangDropzone" type="file" accept=".yang" class="peer hidden" bind:files on:change={handleUploadFile} />
@@ -96,7 +114,7 @@
               <li class="text-sm text-gray-700 dark:text-gray-300 darl:text-gray-200 {i > 0 ? 'border-t dark:border-gray-600' : ''}">
                 <div class="flex items-center justify-between">
                   <p class="px-4 py-3">{filename}</p>
-                  {#if repoDetail["files"].length > 1}
+                  {#if repoDetail.name.includes(".yang") || repoDetail["files"].length > 1}
                     <div class="flex items-center mx-4 space-x-5">
                       <button class="hover:bg-red-500 hover:text-white text-red-400 rounded-lg p-1"  on:click={() => removeYangEntry(repoDetail.name, filename)}>
                         <svg class="w-4 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
