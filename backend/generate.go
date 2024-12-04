@@ -30,9 +30,9 @@ func (a *App) readYangModules(files []string) error {
 	return a.generateYangSchema()
 }
 
-func (a *App) readNspYangModules(modules []IntentTypeYangModule) error {
+func (a *App) definitionToSchema(modules []YangDefinition) error {
 	for _, entry := range modules {
-		if err := a.modules.Parse(entry.YangContent, entry.Name); err != nil {
+		if err := a.modules.Parse(entry.Definition, entry.Name); err != nil {
 			return err
 		}
 	}
@@ -42,7 +42,7 @@ func (a *App) readNspYangModules(modules []IntentTypeYangModule) error {
 		for i, e := range errors {
 			errorStrings[i] = e.Error()
 		}
-		return fmt.Errorf("yang processing failed: %s", strings.Join(errorStrings, ", "))
+		return fmt.Errorf("[Error] yang processing failed: %s", strings.Join(errorStrings, ", "))
 	}
 
 	return a.generateYangSchema()

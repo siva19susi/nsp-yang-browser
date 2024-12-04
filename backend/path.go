@@ -4,13 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/openconfig/goyang/pkg/yang"
 
 	"github.com/openconfig/gnmic/pkg/api/path"
@@ -36,96 +32,7 @@ type generatedPath struct {
 	IsAction       bool     `json:"is-action,omitempty"`
 }
 
-func commonYangAdd(files []string, yangFileName string) []string {
-	for _, file := range files {
-		if strings.Contains(file, yangFileName) {
-			return files
-		}
-	}
-	return append(files, filepath.Join(yangFolder, yangFileName))
-}
-
-func nspCommonYangAdd(yangFileName string) (IntentTypeYangModule, error) {
-	b, err := os.ReadFile(filepath.Join(yangFolder, yangFileName))
-	if err != nil {
-		return IntentTypeYangModule{}, fmt.Errorf("[Error] reading %s file: %s", yangFileName, err)
-	}
-	return IntentTypeYangModule{
-		Name:        yangFileName,
-		YangContent: string(b),
-	}, nil
-}
-
-func (s *srv) pathCmdRun(w http.ResponseWriter, r *http.Request) {
-	kind := mux.Vars(r)["kind"]
-	basename := mux.Vars(r)["basename"]
-
-	a := &App{
-		SchemaTree: &yang.Entry{
-			Dir: make(map[string]*yang.Entry),
-		},
-		modules: yang.NewModules(),
-	}
-
-	var commonYangs []string
-	files, err := os.ReadDir(yangFolder)
-	if err != nil {
-		s.raiseError("[Error] reading yang repo", err, w)
-		return
-	}
-	for _, file := range files {
-		if !file.IsDir() && filepath.Ext(file.Name()) == ".yang" {
-			commonYangs = append(commonYangs, file.Name())
-		}
-	}
-
-	if kind == "local" {
-		dirPath := yangFolder + basename
-
-		dirEntires, err := os.ReadDir(dirPath)
-		if err != nil {
-			s.raiseError("[Error] reading yang repo", err, w)
-			return
-		}
-
-		var f []string
-		for _, entry := range dirEntires {
-			entryPath := filepath.Join(dirPath, entry.Name())
-			f = append(f, entryPath)
-		}
-
-		for _, entry := range commonYangs {
-			f = commonYangAdd(f, entry)
-		}
-
-		err = a.readYangModules(f)
-		if err != nil {
-			s.raiseError("[Error] generating Yang Schema", err, w)
-			return
-		}
-	} else if kind == "nsp" {
-		yangModules, err := s.intentTypeYangModules(basename)
-		if err != nil {
-			s.raiseError("[Error] getting Yang definition", err, w)
-			return
-		}
-
-		for _, entry := range commonYangs {
-			module, err := nspCommonYangAdd(entry)
-			if err != nil {
-				s.raiseError("[Error] generating Yang module", err, w)
-				return
-			}
-			yangModules = append(yangModules, module)
-		}
-
-		err = a.readNspYangModules(yangModules)
-		if err != nil {
-			s.raiseError("[Error] generating Yang Schema", err, w)
-			return
-		}
-	}
-
+func (a *App) pathCmdRun() ([]byte, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -172,18 +79,15 @@ func (s *srv) pathCmdRun(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(gpaths) == 0 {
-		s.logger.Println("No results found")
-		w.Write([]byte{})
+		return []byte("No results found"), nil
 	}
 
 	b, err := json.MarshalIndent(gpaths, "", "  ")
 	if err != nil {
-		s.raiseError("Error creating JSON", err, w)
-		return
+		return []byte{}, fmt.Errorf("[Error] generating paths: %s", err)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(b)
+	return b, nil
 }
 
 func collectSchemaNodes(e *yang.Entry, leafOnly bool) []*yang.Entry {
