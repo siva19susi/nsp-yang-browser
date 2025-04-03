@@ -18,19 +18,17 @@ import (
 const yangFolder = "../uploads/"
 
 func (s *srv) logMiddleware(next http.Handler) http.Handler {
-	const corHeader = "Access-Control-Allow-Origin"
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
 		s.logger.Printf("REQUEST: %s %s %s", r.RemoteAddr, r.Method, r.URL)
-
 		defer func() {
 			s.logger.Printf("RESPONSE: %s %s %s completed in %v", r.RemoteAddr, r.Method, r.URL, time.Since(start))
 		}()
 
-		// Set CORS header
-		w.Header().Set(corHeader, "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		next.ServeHTTP(w, r)
 	})
@@ -50,7 +48,7 @@ func writeResponse(w http.ResponseWriter, status string, msg string) {
 
 // WRITE RESPONSE JSON
 func writeJsonResponse(w http.ResponseWriter, b []byte) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write(b)
 }
 
