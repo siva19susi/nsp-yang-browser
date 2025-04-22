@@ -3,7 +3,7 @@ import { derived, writable } from 'svelte/store'
 import { count } from '$lib/components/sharedStore'
 
 import type { PathDef } from '$lib/structure'
-import type { DiffResponseMessage } from '$lib/workers/structure'
+import type { DiffResponseMessage } from './structure'
 import { searchBasedFilter } from '$lib/components/functions'
 
 // WRITABLE STORES

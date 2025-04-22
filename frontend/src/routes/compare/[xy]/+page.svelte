@@ -2,11 +2,11 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-	import Header from '$lib/components/Header.svelte'
+	import Navbar from '$lib/components/Navbar.svelte'
   import Footer from '$lib/components/Footer.svelte'
 	import Popup from '$lib/components/Popup.svelte'
   import Loading from '$lib/components/Loading.svelte'
-	import ComparePopup from '$lib/components/ComparePopup.svelte'
+	import NothingToCompare from '$lib/components/NothingToCompare.svelte'
   import ErrorNotification from '$lib/components/ErrorNotification.svelte'
 
   import SearchInput from '$lib/components/SearchInput.svelte'
@@ -16,9 +16,9 @@
   import Pagination from './Pagination.svelte'
 	
   import type { ComparePayLoad } from '$lib/structure'
-  import type { CompareResponseMessage, DiffResponseMessage } from '$lib/workers/structure'
+  import type { CompareResponseMessage, DiffResponseMessage } from './structure'
   import { compareStore, defaultStore, paginated, searchStore, stateStore, total, yangPaths } from './store'
-  import { kindView, markFilter, markRender, toLower } from '$lib/components/functions'
+  import { markFilter, markRender, toLower } from '$lib/components/functions'
 	
   // DEFAULTS
   let popupDetail = {}
@@ -29,7 +29,7 @@
   // COMPARE WORKER
   let compareWorker: Worker | undefined = undefined
   async function loadWorker(data: ComparePayLoad) {
-    const CompareWorker = await import('$lib/workers/compare.worker?worker')
+    const CompareWorker = await import('./compare.worker?worker')
     compareWorker = new CompareWorker.default()
     compareWorker.postMessage(data)
     compareWorker.onmessage = onWorkerMessage
@@ -63,7 +63,7 @@
 </script>
 
 <svelte:head>
-	<title>Yang Browser {x} ({kindView(xKind)}) to {y} ({kindView(yKind)}) Yang Model</title>
+	<title>NSP YANG Browser | Compare - {y} ({yKind}) with {x} ({xKind})</title>
 </svelte:head>
 
 {#if !workerComplete}
@@ -71,9 +71,10 @@
 {:else}
   {#if workerStatus.status === 200}
     {#if $yangPaths.length > 0}
-      <Header kind={xKind + ";" + yKind} basename={xBasename + ";" + yBasename} />
-      <div class="min-w-[280px] overflow-x-auto font-nunito dark:bg-gray-800 pt-[75px] lg:pt-[80px]">
+      <Navbar kind={xKind + ";" + yKind} basename={xBasename + ";" + yBasename} nspIp="" />
+      <div class="min-w-[280px] overflow-x-auto font-nunito dark:bg-gray-800 pt-[75px]">
         <div class="px-6 pt-6 container mx-auto">
+          <p class="text-gray-800 dark:text-gray-300">Compare</p>
           <SearchInput bind:searchInput />
           <div class="overflow-x-auto scroll-light dark:scroll-dark">
             <div class="py-2 space-x-2 flex items-center text-sm">
@@ -133,7 +134,7 @@
         <Footer home={false}/>
       </div>
     {:else}
-      <ComparePopup {x} {y}/>
+      <NothingToCompare {x} {y}/>
     {/if}
   {:else}
     <ErrorNotification pageError={workerStatus} />

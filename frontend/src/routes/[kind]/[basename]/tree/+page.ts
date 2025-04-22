@@ -1,15 +1,23 @@
 import { error } from '@sveltejs/kit'
 
-export async function load({ url, params }) {
+export async function load({ url, params, fetch }) {
   const kind = params.kind
   const basename = params.basename
-
-  if(kind !== "local" && kind !== "nsp") {
-    throw error(404, "Unsupported kind")
-  }
-  
   const urlPath = url.searchParams.get("path")?.trim() ?? "" 
   const crossLaunched = url.searchParams.get("from")?.trim() === "pb" ? true : false
+  let nspInfo = {"ip": ""}
 
-  return { kind, basename, urlPath, crossLaunched }
+  if(kind !== "uploaded" && kind !== "nsp-module" && kind !== "nsp-intent-type") {
+    throw error(404, "Unsupported kind")
+  }
+
+  if(kind.includes("nsp")) {
+    const resp = await fetch("/api/nsp/isConnected")
+    nspInfo = await resp.json()
+    if(!resp.ok) {
+      throw error(404, "Check NSP connection")
+    }
+  }
+
+  return { kind, basename, urlPath, crossLaunched, nspIp: nspInfo.ip }
 }

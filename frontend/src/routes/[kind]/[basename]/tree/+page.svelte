@@ -3,13 +3,13 @@
   import { page } from "$app/stores"
   import { goto } from "$app/navigation"
 
-  import Header from '$lib/components/Header.svelte'
+  import Navbar from "$lib/components/Navbar.svelte"
   import Footer from '$lib/components/Footer.svelte'
   import SearchInput from "$lib/components/SearchInput.svelte"
   import StateButton from '$lib/components/StateButton.svelte'
   import ShowPrefixCheck from '$lib/components/ShowPrefixCheck.svelte'
   import WithDefaultCheck from '$lib/components/WithDefaultCheck.svelte'
-  import CrossBrowser from '$lib/components/crossBrowser.svelte'
+  import CrossBrowser from '$lib/components/CrossBrowser.svelte'
   import ErrorNotification from "$lib/components/ErrorNotification.svelte"
   
   import Popup from '$lib/components/Popup.svelte'
@@ -17,12 +17,11 @@
   import YangTree from './YangTree.svelte'
 
   import { decideExpand } from "./expand"
-  import { toLower, kindView } from "$lib/components/functions"
+  import { toLower } from "$lib/components/functions"
   import { pathFocus } from '$lib/components/sharedStore'
   import { defaultStore, prefixStore, searchStore, stateStore, yangTarget, yangTreeArgs } from "./store"
 
-  import type { TreePayLoad } from '$lib/structure'
-  import type { YangTreeResponseMessage, YangTreePaths } from "$lib/workers/structure"
+  import type { YangTreeResponseMessage, YangTreePaths } from "./structure"
 
   const getUrlPath = () => $page.data.urlPath
   const isCrossLaunched = () => $page.data.crossLaunched
@@ -36,7 +35,7 @@
   // YANGTREE WORKER
   let yangTreeWorker: Worker | undefined = undefined
   async function loadYangTreeWorker (kind: string, basename: string, searchInput: string, prefixInput: boolean, stateInput: string, defaultInput: boolean) {
-    const YangTreeWorker = await import('$lib/workers/yangTree.worker?worker')
+    const YangTreeWorker = await import('./yangTree.worker?worker')
     yangTreeWorker = new YangTreeWorker.default()
     yangTreeWorker.postMessage({ kind, basename, searchInput, prefixInput, stateInput, defaultInput })
     yangTreeWorker.onmessage = onYangTreeWorkerMessage
@@ -53,7 +52,7 @@
 
   // ON PAGELOAD
 	export let data
-  let {kind, basename} = data  
+  let {kind, basename, nspIp} = data  
 
   // OTHER BINDING VARIABLES
   let searchInput: string = isCrossLaunched() ? "" : getUrlPath()
@@ -95,7 +94,7 @@
 </script>
 
 <svelte:head>
-	<title>Yang Tree Browser {basename} ({kindView(kind)})</title>
+	<title>NSP YANG Tree Browser | {basename} ({kind})</title>
 </svelte:head>
 
 <svelte:window on:keyup={({key}) => key === "Enter" ? triggerApply() : ""} />
@@ -104,8 +103,8 @@
   <Loading/>
 {:else}
   {#if workerStatus.status === 200}
-    <Header {kind} {basename} />
-    <div class="min-w-[280px] overflow-x-auto font-nunito dark:bg-gray-800 pt-[75px] lg:pt-[85px]">
+    <Navbar {kind} {basename} {nspIp} />
+    <div class="min-w-[280px] overflow-x-auto font-nunito dark:bg-gray-800 pt-[75px]">
       <div class="px-6 py-7 container mx-auto">
         <div class="flex items-center justify-between">
           <p class="text-gray-800 dark:text-gray-300">Tree Browser</p>

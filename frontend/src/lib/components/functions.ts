@@ -1,10 +1,5 @@
 import type { PathDef } from '$lib/structure'
 
-export function kindView(kind: string) {
-  if(kind === "local") return "uploaded"
-  else if(kind === "nsp") return "from NSP"
-}
-
 export function toLower(str: string) {
   return str.trim().toLowerCase()
 }

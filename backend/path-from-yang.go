@@ -50,6 +50,23 @@ func getCommonYangFiles() ([]string, error) {
 	return commonYangs, nil
 }
 
+// Get NSP repo specific uploaded YANG files in the folder
+func getNspRepoDependencyYang(name string) ([]string, error) {
+	dirPath := filepath.Join(yangFolder, "from-nsp-"+name)
+	files, err := os.ReadDir(dirPath)
+	if err != nil {
+		return nil, nil
+	}
+
+	var dependencyYangs []string
+	for _, file := range files {
+		if !file.IsDir() && filepath.Ext(file.Name()) == ".yang" {
+			dependencyYangs = append(dependencyYangs, file.Name())
+		}
+	}
+	return dependencyYangs, nil
+}
+
 // Read and parse YANG files in the specified directory
 func readYangFilesFromDir(dirPath string, commonYangs []string) ([]string, error) {
 	dirEntries, err := os.ReadDir(dirPath)
@@ -71,8 +88,10 @@ func readYangFilesFromDir(dirPath string, commonYangs []string) ([]string, error
 
 // Handler for generating schema from YANG files
 func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
-	kind := mux.Vars(r)["kind"]
-	basename := mux.Vars(r)["basename"]
+	name := mux.Vars(r)["name"]
+
+	pathSegments := strings.Split(r.URL.Path, "/")
+	kind := pathSegments[1]
 
 	app := &App{
 		SchemaTree: &yang.Entry{
@@ -88,8 +107,8 @@ func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch kind {
-	case "local":
-		dirPath := filepath.Join(yangFolder, basename)
+	case "uploaded":
+		dirPath := filepath.Join(yangFolder, name)
 		files, err := readYangFilesFromDir(dirPath, commonYangs)
 		if err != nil {
 			s.raiseError("[Error] preparing YANG files", err, w)
@@ -102,7 +121,13 @@ func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "nsp":
-		yangModules, err := s.intentTypeYangModules(basename)
+		dependencyYangs, err := getNspRepoDependencyYang(name)
+		if err != nil {
+			s.raiseError("[Error] reading repo specific dependency YANG files", err, w)
+			return
+		}
+
+		yangModules, err := s.intentTypeYangModules(name)
 		if err != nil {
 			s.raiseError("[Error] fetching YANG modules", err, w)
 			return
@@ -112,6 +137,15 @@ func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 			module, err := loadYangModule(commonYang)
 			if err != nil {
 				s.raiseError("[Error] loading common YANG module", err, w)
+				return
+			}
+			yangModules = append(yangModules, module)
+		}
+
+		for _, dependencyYang := range dependencyYangs {
+			module, err := loadYangModule(filepath.Join("from-nsp-"+name, dependencyYang))
+			if err != nil {
+				s.raiseError("[Error] loading repo specific dependency YANG module", err, w)
 				return
 			}
 			yangModules = append(yangModules, module)

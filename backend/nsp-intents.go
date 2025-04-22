@@ -8,13 +8,18 @@ import (
 	"strings"
 )
 
-type IbnInput struct {
-	PageNumber int `json:"page-number"`
-	PageSize   int `json:"page-size"`
+type IbnSearchFilter struct {
+	Name string `json:"name"`
 }
 
-type IntentTypeSearchPayload struct {
-	Input IbnInput `json:"ibn-administration:input"`
+type IbnSearch struct {
+	PageNumber int             `json:"page-number"`
+	PageSize   int             `json:"page-size"`
+	Filter     IbnSearchFilter `json:"filter,omitempty"`
+}
+
+type IbnSearchPayload struct {
+	Input IbnSearch `json:"ibn-administration:input"`
 }
 
 type IntentType struct {
@@ -22,7 +27,7 @@ type IntentType struct {
 	Version int    `json:"version"`
 }
 
-type IntentTypeList struct {
+type IbnSearchResponse struct {
 	Output struct {
 		PageSize   int          `json:"page-size"`
 		TotalCount int          `json:"total-count"`
@@ -42,50 +47,54 @@ type IntentTypeDefinition struct {
 }
 
 // Get available NSP intent types with pagination
-func (s *srv) intentTypeSearch(pageNumber, pageSize int) ([]string, error) {
-	payload := IntentTypeSearchPayload{
-		Input: IbnInput{
+func (s *srv) intentTypeSearch(pageNumber, pageSize int, nameFilter string) ([]string, int, error) {
+	payload := IbnSearchPayload{
+		Input: IbnSearch{
 			PageNumber: pageNumber,
 			PageSize:   pageSize,
 		},
 	}
 
+	if nameFilter != "" {
+		payload.Input.Filter.Name = nameFilter
+	}
+
 	reqBody, err := json.Marshal(payload)
 	if err != nil {
-		return nil, fmt.Errorf("[Error] generating intent type search payload: %s", err)
+		return nil, 0, fmt.Errorf("[Error] generating intent type search payload: %s", err)
 	}
 
 	url := fmt.Sprintf("https://%s/restconf/operations/ibn-administration:search-intent-types", s.nsp.Ip)
 	resp, err := s.makeHTTPRequest("POST", url, bytes.NewReader(reqBody), nil)
 	if err != nil {
-		return nil, fmt.Errorf("[Error] fetching intent types: %v", err)
+		return nil, 0, fmt.Errorf("[Error] fetching intent types: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("[Error] fetching intent types, status: %d", resp.StatusCode)
+		return nil, 0, fmt.Errorf("[Error] fetching intent types, status: %d", resp.StatusCode)
 	}
 
-	var intentTypeList IntentTypeList
-	if err := json.NewDecoder(resp.Body).Decode(&intentTypeList); err != nil {
-		return nil, fmt.Errorf("[Error] decoding intent type search response: %s", err)
+	var ibnSearchResponse IbnSearchResponse
+	if err := json.NewDecoder(resp.Body).Decode(&ibnSearchResponse); err != nil {
+		return nil, 0, fmt.Errorf("[Error] decoding intent type search response: %s", err)
 	}
 
 	var intentTypes []string
-	for _, intentType := range intentTypeList.Output.IntentType {
+	for _, intentType := range ibnSearchResponse.Output.IntentType {
 		intentTypes = append(intentTypes, fmt.Sprintf("%s_%d", intentType.Name, intentType.Version))
 	}
 
 	// Handle pagination
-	if intentTypeList.Output.PageSize == pageSize && intentTypeList.Output.TotalCount > pageSize {
+	/*if ibnSearchResponse.Output.PageSize == pageSize && ibnSearchResponse.Output.TotalCount > pageSize {
 		nextPage, err := s.intentTypeSearch(pageNumber+1, pageSize)
 		if err != nil {
-			return nil, fmt.Errorf("[Error] fetching paginated intent types: %s", err)
+			return nil, 0, fmt.Errorf("[Error] fetching paginated intent types: %s", err)
 		}
 		intentTypes = append(intentTypes, nextPage...)
-	}
+	}*/
 
-	return intentTypes, nil
+	return intentTypes, ibnSearchResponse.Output.TotalCount, nil
 }
 
 // Get YANG modules for a specific NSP intent type

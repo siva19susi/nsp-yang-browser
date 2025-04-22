@@ -1,6 +1,6 @@
 import { derived, writable } from "svelte/store"
 
-import type { YangTreePaths } from "$lib/workers/structure"
+import type { YangTreePaths } from "../../../compare/[xy]/structure"
 
 // WRITABLE STORES
 export const searchStore = writable("")

@@ -9,7 +9,7 @@ onmessage = async (event: MessageEvent<YangTreePostMessage>) => {
 
   try {
     let paths: PathDef[] = []
-    const pathResponse = await fetch(`/api/generate/${kind}/${basename}`)
+    const pathResponse = await fetch(`/api/${kind.replace("-", "/")}/${basename}/paths`)
 
     if(!pathResponse.ok) {
       const errorText = await pathResponse.text();

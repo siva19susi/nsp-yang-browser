@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -54,6 +55,16 @@ func writeJsonResponse(w http.ResponseWriter, b []byte) {
 	w.Write(b)
 }
 
+// RAISE ERRORS
+func (s *srv) raiseError(msg string, err error, w http.ResponseWriter) {
+	if err != nil {
+		s.logger.Printf(msg, err)
+		writeResponse(w, "error", fmt.Sprintf("%s / %v", msg, err))
+	} else {
+		writeResponse(w, "error", msg)
+	}
+}
+
 // Helper function to handle file creation and writing
 func saveFile(file io.Reader, filepath string) error {
 	out, err := os.Create(filepath)
@@ -68,16 +79,6 @@ func saveFile(file io.Reader, filepath string) error {
 	}
 
 	return nil
-}
-
-// RAISE ERRORS
-func (s *srv) raiseError(msg string, err error, w http.ResponseWriter) {
-	if err != nil {
-		s.logger.Printf(msg, err)
-		writeResponse(w, "error", fmt.Sprintf("%s / %v", msg, err))
-	} else {
-		writeResponse(w, "error", msg)
-	}
 }
 
 // BACKEND CONNECTION VERIFICATION
@@ -156,7 +157,7 @@ func extractYangFolder(filename string) error {
 
 // UPLOAD FILE
 func (s *srv) uploadFile(w http.ResponseWriter, r *http.Request) {
-	basename, ok := mux.Vars(r)["basename"]
+	basename, ok := mux.Vars(r)["name"]
 
 	r.ParseMultipartForm(10 << 20)
 	file, handler, err := r.FormFile("file")
@@ -172,8 +173,12 @@ func (s *srv) uploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
-		s.raiseError(fmt.Sprintf("repo (%s) does not exist", basename), err, w)
-		return
+		destFolder := filepath.Join(yangFolder + basename)
+
+		if err := os.MkdirAll(destFolder, os.ModePerm); err != nil {
+			s.raiseError(fmt.Sprintf("error creating repo (%s)", basename), err, w)
+			return
+		}
 	}
 
 	filePath := folderPath + handler.Filename
@@ -186,9 +191,7 @@ func (s *srv) uploadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 // LIST KIND
-func (s *srv) list(w http.ResponseWriter, r *http.Request) {
-	kind := mux.Vars(r)["kind"]
-
+func (s *srv) uploadedAll(w http.ResponseWriter, r *http.Request) {
 	type ListResponse struct {
 		Name  string   `json:"name"`
 		Files []string `json:"files,omitempty"`
@@ -196,60 +199,67 @@ func (s *srv) list(w http.ResponseWriter, r *http.Request) {
 
 	var f []ListResponse
 
-	if kind == "local" {
-		dirEntries, err := os.ReadDir(yangFolder)
-		if err != nil {
-			s.raiseError("failed to read local uploads directory", err, w)
-			return
-		}
+	dirEntries, err := os.ReadDir(yangFolder)
+	if err != nil {
+		s.raiseError("failed to read local uploads directory", err, w)
+		return
+	}
 
-		for _, entry := range dirEntries {
-			if entry.IsDir() {
-				folderName := entry.Name()
-				repoEntries, err := os.ReadDir(yangFolder + folderName + "/")
-				if err != nil {
-					s.raiseError("reading local yang repos failed", err, w)
-					return
-				}
-
-				var fEntry ListResponse
-				fEntry.Name = folderName
-				for _, entry := range repoEntries {
-					if !entry.IsDir() {
-						fEntry.Files = append(fEntry.Files, entry.Name())
-					}
-				}
-				f = append(f, fEntry)
+	for _, entry := range dirEntries {
+		if entry.IsDir() {
+			folderName := entry.Name()
+			repoEntries, err := os.ReadDir(yangFolder + folderName + "/")
+			if err != nil {
+				s.raiseError("reading local yang repos failed", err, w)
+				return
 			}
-		}
 
-		var fEntry ListResponse
-		fEntry.Name = ""
-		for _, entry := range dirEntries {
-			if !entry.IsDir() {
-				yangFile := entry.Name()
-				if strings.ToLower(filepath.Ext(yangFile)) == ".yang" {
-					fEntry.Files = append(fEntry.Files, yangFile)
-				}
-			}
-		}
-		f = append(f, fEntry)
-
-	} else if kind == "nsp" {
-		intentTypeList, err := s.intentTypeSearch(0, 300)
-		if err != nil {
-			s.raiseError("fetching NSP intent types failed", err, w)
-			return
-		}
-
-		for _, entry := range intentTypeList {
 			var fEntry ListResponse
-			fEntry.Name = entry
+			fEntry.Name = folderName
+			for _, entry := range repoEntries {
+				if !entry.IsDir() {
+					fEntry.Files = append(fEntry.Files, entry.Name())
+				}
+			}
 			f = append(f, fEntry)
 		}
-	} else {
-		s.raiseError("unsupported kind", nil, w)
+	}
+
+	var fEntry ListResponse
+	fEntry.Name = ""
+	for _, entry := range dirEntries {
+		if !entry.IsDir() {
+			yangFile := entry.Name()
+			if strings.ToLower(filepath.Ext(yangFile)) == ".yang" {
+				fEntry.Files = append(fEntry.Files, yangFile)
+			}
+		}
+	}
+	f = append(f, fEntry)
+
+	b, err := json.MarshalIndent(f, "", "  ")
+	if err != nil {
+		s.raiseError("JSON creation failed", err, w)
 		return
+	}
+
+	writeJsonResponse(w, b)
+}
+
+func (s *srv) uploadedSpecific(w http.ResponseWriter, r *http.Request) {
+	folderName := mux.Vars(r)["name"]
+
+	repoEntries, err := os.ReadDir(yangFolder + folderName + "/")
+	if err != nil {
+		s.raiseError("reading local yang repos failed", err, w)
+		return
+	}
+
+	var f []string
+	for _, entry := range repoEntries {
+		if !entry.IsDir() {
+			f = append(f, entry.Name())
+		}
 	}
 
 	b, err := json.MarshalIndent(f, "", "  ")
@@ -263,7 +273,7 @@ func (s *srv) list(w http.ResponseWriter, r *http.Request) {
 
 // DELETE FOLDER OR REPO
 func (s *srv) delete(w http.ResponseWriter, r *http.Request) {
-	basename := mux.Vars(r)["basename"]
+	basename := mux.Vars(r)["name"]
 	folderPath := yangFolder + basename
 
 	if _, err := os.Stat(folderPath); errors.Is(err, os.ErrNotExist) {
@@ -281,7 +291,7 @@ func (s *srv) delete(w http.ResponseWriter, r *http.Request) {
 
 // DELETE FILE
 func (s *srv) deleteFile(w http.ResponseWriter, r *http.Request) {
-	basename, ok := mux.Vars(r)["basename"]
+	basename, ok := mux.Vars(r)["name"]
 	yangFile := mux.Vars(r)["yang"]
 
 	filePath := yangFolder + yangFile
@@ -327,30 +337,22 @@ func (s *srv) nspConnect(w http.ResponseWriter, r *http.Request) {
 // Token refresh routine
 func (s *srv) tokenRefreshRoutine() {
 	for {
-		s.Lock()
 		tokenExpiresIn := s.nsp.token.ExpiresIn
-		s.Unlock()
 
 		if tokenExpiresIn == 0 {
 			return
 		}
 
-		time.Sleep(time.Second * time.Duration(tokenExpiresIn-10))
+		waitTime := max(time.Duration(s.nsp.token.ExpiresIn-30)*time.Second, 0)
+		time.Sleep(waitTime)
 
 		s.logger.Println("[Info] NSP Access renewal initiated")
-		s.Lock()
-		if err := s.revokeToken(); err != nil {
-			s.logger.Printf("disconnecting from NSP (%s) failed: %v", s.nsp.Ip, err)
-			s.Unlock()
-			return
-		}
+
 		if err := s.getToken(); err != nil {
 			s.logger.Printf("reconnecting to NSP (%s) failed: %v", s.nsp.Ip, err)
-			s.Unlock()
 			return
 		}
 		s.logger.Println("[Info] NSP Access renewed")
-		s.Unlock()
 	}
 }
 
@@ -395,30 +397,77 @@ func (s *srv) nspIsConnected(w http.ResponseWriter, r *http.Request) {
 	writeJsonResponse(w, response)
 }
 
-// NSP MODULES
+// GET NSP MODULES
 func (s *srv) getNspModules(w http.ResponseWriter, r *http.Request) {
-	module, moduleProvided := mux.Vars(r)["module"]
-
-	if moduleProvided {
-		response, err := s.fetchYangDefinition(module)
-		if err != nil {
-			s.raiseError("error fetching YANG module definition", err, w)
-			return
-		}
-
-		writeJsonResponse(w, response)
-	} else {
-		modules, err := s.fetchModules()
-		if err != nil {
-			s.raiseError("error fetching YANG modules", err, w)
-			return
-		}
-
-		response, err := json.MarshalIndent(modules, "", "  ")
-		if err != nil {
-			s.raiseError("error creating JSON", err, w)
-			return
-		}
-		writeJsonResponse(w, response)
+	modules, err := s.fetchModules()
+	if err != nil {
+		s.raiseError("error fetching YANG modules", err, w)
+		return
 	}
+
+	response, err := json.MarshalIndent(modules, "", "  ")
+	if err != nil {
+		s.raiseError("error creating JSON", err, w)
+		return
+	}
+	writeJsonResponse(w, response)
+}
+
+// GET NSP MODULE PATHS
+func (s *srv) getNspModulePaths(w http.ResponseWriter, r *http.Request) {
+	name := mux.Vars(r)["name"]
+
+	response, err := s.fetchYangDefinition(name)
+	if err != nil {
+		s.raiseError("error fetching YANG module definition", err, w)
+		return
+	}
+
+	writeJsonResponse(w, response)
+}
+
+// GET NSP INTENT TYPES
+func (s *srv) getIntentTypes(w http.ResponseWriter, r *http.Request) {
+	type SearchResponse struct {
+		Total       int      `json:"total"`
+		PageCount   int      `json:"pageCount"`
+		IntentTypes []string `json:"intentTypes,omitempty"`
+	}
+
+	var getUrlQuery = func(r *http.Request, key string, defaultVal int) int {
+		valStr := r.URL.Query().Get(key)
+		if valStr == "" {
+			return defaultVal
+		}
+		val, err := strconv.Atoi(valStr)
+		if err != nil {
+			return defaultVal
+		}
+		return val
+	}
+
+	limit := getUrlQuery(r, "limit", 30)
+	page := getUrlQuery(r, "page", 1)
+
+	filter := r.URL.Query().Get("filter")
+
+	intentTypes, total, err := s.intentTypeSearch(page-1, limit, filter)
+	if err != nil {
+		s.raiseError("fetching NSP intent types failed", err, w)
+		return
+	}
+
+	searched := SearchResponse{
+		Total:       total,
+		PageCount:   len(intentTypes),
+		IntentTypes: intentTypes,
+	}
+
+	b, err := json.MarshalIndent(searched, "", "  ")
+	if err != nil {
+		s.raiseError("JSON creation failed", err, w)
+		return
+	}
+
+	writeJsonResponse(w, b)
 }

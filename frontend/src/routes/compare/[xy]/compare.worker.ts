@@ -1,8 +1,7 @@
 import { error, type HttpError } from "@sveltejs/kit"
 
 import type { PathDef } from "$lib/structure"
-import { kindView } from "$lib/components/functions"
-import type { ComparePostMessage, DiffResponseMessage } from "$lib/workers/structure"
+import type { ComparePostMessage, DiffResponseMessage } from "./structure"
 
 onmessage = async (event: MessageEvent<ComparePostMessage>) => {
   const { xKind, yKind, xBasename, yBasename } = event.data
@@ -11,7 +10,7 @@ onmessage = async (event: MessageEvent<ComparePostMessage>) => {
   let ypaths: PathDef[] = []
 
   async function fetchPaths(kind: string, basename: string) {
-    const pathResponse = await fetch(`/api/generate/${kind}/${basename}`)
+    const pathResponse = await fetch(`/api/${kind.replace("-", "/")}/${basename}/paths`)
 
     if(!pathResponse.ok) {
       const errorText = await pathResponse.text();
@@ -20,7 +19,7 @@ onmessage = async (event: MessageEvent<ComparePostMessage>) => {
 
     const pathJson = await pathResponse.json()
     return pathJson.map((k: PathDef) => ({...k, 
-      kind, basename, compareTo: `${basename} (${kindView(kind)})`, 
+      kind, basename, compareTo: `${basename} (${kind})`, 
       "is-state": ("is-state" in k ? "R" : "RW")}))
   }
 
@@ -46,7 +45,7 @@ onmessage = async (event: MessageEvent<ComparePostMessage>) => {
         const xObj = getPathObj(xpaths, item)[0]
         const yObj = getPathObj(ypaths, item)[0]
         if(xObj.type !== yObj.type) {
-          typeChange.push({...yObj, fromType: xObj.type, fromRel: `${xBasename}(${kindView(xKind)})`, compare: "~"})
+          typeChange.push({...yObj, fromType: xObj.type, fromRel: `${xBasename}(${xKind})`, compare: "~"})
         }
       } else {
         const xObj = getPathObj(xpaths, item)[0]

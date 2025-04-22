@@ -61,25 +61,24 @@ func main() {
 	// UPLOAD HANDLERS
 	s.be.HandleFunc("/upload", s.upload).Methods("POST")
 	s.be.HandleFunc("/upload/file", s.uploadFile).Methods("POST")
-	s.be.HandleFunc("/upload/file/{basename}", s.uploadFile).Methods("POST")
-
-	// LIST HANDLERS
-	s.be.HandleFunc("/list/{kind}", s.list).Methods("GET")
+	s.be.HandleFunc("/upload/file/{name}", s.uploadFile).Methods("POST")
+	s.be.HandleFunc("/uploaded/all", s.uploadedAll).Methods("GET")
+	s.be.HandleFunc("/uploaded/{name}", s.uploadedSpecific).Methods("GET")
+	s.be.HandleFunc("/uploaded/{name}/paths", s.pathFromYang).Methods("GET")
 
 	// DELETE HANDLERS
-	s.be.HandleFunc("/delete/{basename}", s.delete).Methods("DELETE")
-	s.be.HandleFunc("/delete/{basename}/file/{yang}", s.deleteFile).Methods("DELETE")
+	s.be.HandleFunc("/delete/{name}", s.delete).Methods("DELETE")
+	s.be.HandleFunc("/delete/{name}/file/{yang}", s.deleteFile).Methods("DELETE")
 	s.be.HandleFunc("/delete/file/{yang}", s.deleteFile).Methods("DELETE")
-
-	// GENERATE PATH HANDLER
-	s.be.HandleFunc("/generate/{kind}/{basename}", s.pathFromYang).Methods("GET")
 
 	// NSP HANDLERS
 	s.be.HandleFunc("/nsp/connect", s.nspConnect).Methods("POST")
 	s.be.HandleFunc("/nsp/disconnect", s.nspDisconnect).Methods("POST")
 	s.be.HandleFunc("/nsp/isConnected", s.nspIsConnected).Methods("GET")
 	s.be.HandleFunc("/nsp/modules", s.getNspModules).Methods("GET")
-	s.be.HandleFunc("/nsp/module/{module}", s.getNspModules).Methods("GET")
+	s.be.HandleFunc("/nsp/module/{name}/paths", s.getNspModulePaths).Methods("GET")
+	s.be.HandleFunc("/nsp/intent-types", s.getIntentTypes).Methods("GET")
+	s.be.HandleFunc("/nsp/intent-type/{name}/paths", s.pathFromYang).Methods("GET")
 
 	// START HTTP SERVER
 	s.logger.Printf("Access API with baseURL - http://localhost:8080")

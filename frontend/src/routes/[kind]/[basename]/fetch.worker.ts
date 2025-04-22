@@ -8,8 +8,8 @@ onmessage = async (event: MessageEvent<FetchPostMessage>) => {
   
   try {
     let paths: PathDef[] = []
-    const response = await fetch(`/api/generate/${kind}/${basename}`)
 
+    const response = await fetch(`/api/${kind.replace("-", "/")}/${basename}/paths`)
     if(!response.ok) {
       const errorText = await response.text();
       throw error(404, errorText);

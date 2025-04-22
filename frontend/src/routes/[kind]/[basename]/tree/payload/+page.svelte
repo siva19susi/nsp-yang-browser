@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte"
 
-  import { kindView } from "$lib/components/functions"
+  import Navbar from "$lib/components/Navbar.svelte"
   import Loading from "$lib/components/Loading.svelte"
 	import ErrorNotification from "$lib/components/ErrorNotification.svelte"
 
-  import type { YangTreePayloadPostMessage, YangTreePayloadResponseMessage } from "$lib/workers/structure"
+  import type { YangTreePayloadPostMessage, YangTreePayloadResponseMessage } from "./structure"
+	import Footer from "$lib/components/Footer.svelte";
 
   // DEFAULTS
   let treePayload: any
@@ -15,7 +16,7 @@
   // YANGTREE WORKER
   let yangTreePayloadWorker: Worker | undefined = undefined
   async function loadYangTreePayloadWorker (data: YangTreePayloadPostMessage) {
-    const YangTreePayloadWorker = await import('$lib/workers/yangTreePayload.worker?worker')
+    const YangTreePayloadWorker = await import('./yangTreePayload.worker?worker')
     yangTreePayloadWorker = new YangTreePayloadWorker.default()
     yangTreePayloadWorker.postMessage(data)
     yangTreePayloadWorker.onmessage = onYangTreePayloadWorkerMessage
@@ -32,21 +33,30 @@
 
   // ON PAGELOAD
 	export let data
-  let {kind, basename} = data
+  let {kind, basename, urlPath, nspIp} = data
 
   // OTHER BINDING VARIABLES
   onMount(() => loadYangTreePayloadWorker(data))
 </script>
 
 <svelte:head>
-	<title>Yang Tree Browser {basename} ({kindView(kind)}) Payload</title>
+	<title>NSP YANG Browser | Payload - {basename} ({kind})</title>
 </svelte:head>
 
 {#if !workerComplete}
   <Loading/>
 {:else}
   {#if workerStatus.status === 200}
-    <pre class="text-sm dark:text-white">{JSON.stringify(treePayload, null, 2)}</pre>
+    <Navbar {kind} {basename} {nspIp}/>
+    <div class="font-nunito">
+      <div class="px-6 py-4 text-sm dark:text-white pt-[85px]">
+        <p class="pb-1 font-semibold text-black dark:text-white">Target Path:</p>
+        <pre>{urlPath}</pre>
+        <p class="pt-4 pb-1 font-semibold text-black dark:text-white">Sample Payload:</p>
+        <pre>{JSON.stringify(treePayload, null, 2)}</pre>
+      </div>
+      <Footer home={false}/>
+    </div>
   {:else}
     <ErrorNotification pageError={workerStatus} />
   {/if}

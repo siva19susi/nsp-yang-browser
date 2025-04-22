@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  import Header from '$lib/components/Header.svelte'
+  import Navbar from '$lib/components/Navbar.svelte'
   import Footer from '$lib/components/Footer.svelte'
   import Popup from '$lib/components/Popup.svelte'
   import Loading from '$lib/components/Loading.svelte'
@@ -11,24 +11,29 @@
   import SearchInput from '$lib/components/SearchInput.svelte'
   import ShowPrefixCheck from '$lib/components/ShowPrefixCheck.svelte'
   import WithDefaultCheck from '$lib/components/WithDefaultCheck.svelte'
-  import CrossBrowser from '$lib/components/crossBrowser.svelte'
+  import CrossBrowser from '$lib/components/CrossBrowser.svelte'
   import Pagination from './Pagination.svelte'
 
   import type { PathDef } from '$lib/structure'
-  import { markFilter, markRender, toLower, kindView } from '$lib/components/functions'
+  import { markFilter, markRender, toLower } from '$lib/components/functions'
 	import { defaultStore, paginated, prefixStore, searchStore, stateStore, total, yangPaths } from './store'
-	import type { FetchResponseMessage } from '$lib/workers/structure';
+	import type { FetchResponseMessage } from './structure'
 
   // DEFAULTS
   let popupDetail = {}
   let paths: PathDef[] = []
-  let workerComplete = false
-  let workerStatus = {status: 404, error: {message: "Unknown Error"}}
+  let workerStatus = {
+    success: false,
+    complete: false,
+    error: {
+      message: "Unknown Error"
+    }
+  }
 
   // BASENAME WORKER
   let basenameWorker: Worker | undefined = undefined
   async function loadWorker(kind: string, basename: string) {
-    const BasenameWorker = await import('$lib/workers/fetch.worker?worker')
+    const BasenameWorker = await import('./fetch.worker?worker')
     basenameWorker = new BasenameWorker.default()
     basenameWorker.postMessage({kind, basename})
     basenameWorker.onmessage = onWorkerMessage
@@ -36,16 +41,16 @@
   function onWorkerMessage(event: MessageEvent<FetchResponseMessage>) {
     const response = event.data
     workerStatus.error.message = response.message
-    if(event.data.success) {
+    workerStatus.success = response.success
+    if(response.success) {
       paths = response.paths
-      workerStatus.status = 200
     }
-    workerComplete = true
+    workerStatus.complete = true
   }
   
   // ON PAGELOAD
   export let data
-  let {kind, basename, urlPath} = data
+  let {kind, basename, urlPath, nspIp} = data
   onMount(() => loadWorker(kind, basename))
 
   // OTHER BINDING VARIABLES
@@ -62,15 +67,15 @@
 </script>
 
 <svelte:head>
-	<title>Yang Path Browser {basename} ({kindView(kind)})</title>
+	<title>NSP YANG Path Browser | {basename} ({kind})</title>
 </svelte:head>
 
-{#if !workerComplete}
+{#if !workerStatus.complete}
   <Loading/>
 {:else}
-  {#if workerStatus.status === 200}
-    <Header {kind} {basename} />
-    <div class="min-w-[280px] overflow-x-auto font-nunito dark:bg-gray-800 pt-[75px] lg:pt-[85px]">
+  {#if workerStatus.success}    
+    <Navbar {kind} {basename} {nspIp}/>
+    <div class="min-w-[280px] overflow-x-auto font-nunito dark:bg-gray-800 pt-[75px]">
       <div class="px-6 pt-6 container mx-auto">
         <div class="flex items-center justify-between">
           <p class="text-gray-800 dark:text-gray-300">Path Browser</p>

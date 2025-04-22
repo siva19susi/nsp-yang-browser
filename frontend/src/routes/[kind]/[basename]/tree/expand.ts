@@ -1,6 +1,6 @@
 import { removeKeyDefault } from "$lib/components/functions"
 
-import type { YangTreePaths } from "$lib/workers/structure"
+import type { YangTreePaths } from "../../../compare/[xy]/structure"
 
 export function nameMatchesTerm(urlPath: string, targetName: string) {
   const searchKeys = urlPath.split(/(\s+)/).map(x => x.toLowerCase())
