@@ -222,7 +222,11 @@ func generatePath(entry *yang.Entry) *generatedPath {
 		elementName := e.Name
 		prefixedElementName := e.Name
 		if e.Prefix != nil {
-			prefixedElementName = fmt.Sprintf("%s:%s", e.Prefix.Name, prefixedElementName)
+			if e.Prefix.Parent != nil {
+				prefixedElementName = fmt.Sprintf("%s:%s", e.Prefix.Parent.NName(), prefixedElementName)
+			} else {
+				prefixedElementName = fmt.Sprintf("%s:%s", e.Prefix.NName(), prefixedElementName)
+			}
 		}
 		if e.Key != "" {
 			for _, k := range strings.Fields(e.Key) {

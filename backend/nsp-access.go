@@ -129,3 +129,67 @@ func (s *srv) makeHTTPRequest(method, url string, body io.Reader, headers map[st
 
 	return client.Do(req)
 }
+
+// NSP INVENTORY FIND
+func (s *srv) nspFind(w http.ResponseWriter, r *http.Request) {
+	type RequestPayload struct {
+		Xpath      string `json:"xpath"`
+		FromModule string `json:"from-module"`
+	}
+
+	type NspFindInput struct {
+		XpathFilter string `json:"xpath-filter"`
+		Fields      string `json:"fields,omitempty"`
+		IncludeMeta bool   `json:"include-meta"`
+	}
+
+	type NspFindOutput struct {
+		Output interface{} `json:"nsp-inventory:output"`
+	}
+
+	type NspFindPayload struct {
+		Input NspFindInput `json:"input"`
+	}
+
+	var requestPayload RequestPayload
+	if err := json.NewDecoder(r.Body).Decode(&requestPayload); err != nil {
+		s.raiseError("decoding NSP find request failed", err, w)
+		return
+	}
+
+	payload := NspFindPayload{
+		Input: NspFindInput{
+			XpathFilter: requestPayload.Xpath,
+			IncludeMeta: false,
+		},
+	}
+	reqBody, err := json.Marshal(payload)
+	if err != nil {
+		s.raiseError("error parsing NSP find payload", err, w)
+		return
+	}
+
+	url := fmt.Sprintf("https://%s/restconf/operations/nsp-inventory:find", s.nsp.Ip)
+	resp, err := s.makeHTTPRequest("POST", url, bytes.NewReader(reqBody), nil)
+	if err != nil {
+		s.raiseError("error fetching NSP find request", err, w)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		s.raiseError(fmt.Sprintf("error NSP find failed: %d", resp.StatusCode), nil, w)
+	}
+
+	var jsonResponse NspFindOutput
+	if err := json.NewDecoder(resp.Body).Decode(&jsonResponse); err != nil {
+		s.raiseError("error decoding NSP find response", err, w)
+	}
+
+	response, err := json.MarshalIndent(jsonResponse, "", "  ")
+	if err != nil {
+		s.raiseError("error creating JSON", err, w)
+		return
+	}
+
+	writeJsonResponse(w, response)
+}

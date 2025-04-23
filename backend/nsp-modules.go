@@ -45,7 +45,15 @@ func (s *srv) fetchModules() ([]string, error) {
 		return nil, fmt.Errorf("[Error] decoding modules response: %v", err)
 	}
 
-	return modules.Output.Modules, nil
+	// IETF module has augment field which go-yang does not support
+	targetModules := []string{}
+	for _, m := range modules.Output.Modules {
+		if m != "ietf" {
+			targetModules = append(targetModules, m)
+		}
+	}
+
+	return targetModules, nil
 }
 
 // fetchYangDefinition retrieves YANG definitions for a specified module
