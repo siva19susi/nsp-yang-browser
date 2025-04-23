@@ -75,7 +75,7 @@
         <ul class="mt-2 mb-2 border-y dark:border-gray-700 overflow-y-auto scroll-light dark:scroll-dark max-h-[495px]">
           {#each $localSearchFilter as {name, files}, i}
             {#if name === "" || name.includes("from-nsp")}
-              {@const sharedName = "common .yang files"}
+              {@const sharedName = name === "" ? "common .yang files" : name }
               <li class="text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 {i > 0 ? 'border-t dark:border-gray-700' : ''}">
                 <div class="flex items-center justify-between">
                   <p class="px-4 py-3 w-full overflow-x-auto">{sharedName}</p>

@@ -18,6 +18,8 @@ export default {
       fira: ['Fira Code', 'monospace'],
       "nokia-headline": ['NokiaPureHeadline', 'sans-serif'],
       "nokia-headline-light": ['NokiaPureHeadlineLight', 'sans-serif'],
+      "nokia-pure": ['NokiaPureText', 'sans-serif'],
+      "nokia-pure-light": ['NokiaPureTextLight', 'sans-serif'],
     }
   },
   plugins: [],

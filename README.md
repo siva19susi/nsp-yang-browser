@@ -1,4 +1,4 @@
-# YANG Browser
+# NSP YANG Browser
 
 Browser to simplify YANG model visualization, eliminating the hassle of juggling multiple tools to access this information.
 

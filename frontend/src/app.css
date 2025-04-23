@@ -17,6 +17,20 @@
     src: url("/fonts/NokiaPureHeadline_Lt.ttf");
   }
 
+  @font-face {
+    font-style: normal;
+    font-weight: normal;
+    font-family: "NokiaPureText";
+    src: url("/fonts/NokiaPureText_Rg.ttf");
+  }
+  
+  @font-face {
+    font-style: normal;
+    font-weight: normal;
+    font-family: "NokiaPureTextLight";
+    src: url("/fonts/NokiaPureText_Lt.ttf");
+  }
+
   .has-header-img {
     background: url(/images/background.jpg)center center;
     background-size: cover;

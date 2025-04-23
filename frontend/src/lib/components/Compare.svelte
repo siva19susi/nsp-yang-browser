@@ -78,6 +78,7 @@
                   <li>Order or compare selection determines the value of X (first selected) and Y (second selected).</li>
                   <li>The compare provides added paths, removed paths and paths with modified type definition.</li>
                   <li>For more detailed info regarding each repo, contact the repo source Admin.</li>
+                  <li>Disconnecting NSP or deleting the selected repo (uploaded) clears the compare selection.</li>
                 </ul>
               </div>
             </div>

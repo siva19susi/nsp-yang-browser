@@ -15,9 +15,9 @@
     if (window.confirm("Are you sure you want to disconnect from NSP?")) {
       const nspDisconnected = await fetch("/api/nsp/disconnect", {method: "POST"})
       if(nspDisconnected.ok) {
-        compare.nspDisconnected()
-        window.alert(`[Success] NSP disconnected. Page will reload to take effect.`)
-        window.location.reload()
+        compare.clear()
+        window.alert(`[Success] NSP disconnected. Redirecting to home page.`)
+        window.location.href = "/"
       } else {
         window.alert(`[Error] Failed to disconnect NSP. Page will reload to take effect.`)
       }
@@ -37,7 +37,7 @@
             {#if kind.includes(";")}
               <span>Compare</span>
             {:else}
-              <button class="hover:underline" on:click={nspDisconnect}>{nspIp}</button>
+              <button class="text-blue-700 hover:underline" on:click={nspDisconnect}>{nspIp}</button>
             {/if}
           {/if}
         </div>

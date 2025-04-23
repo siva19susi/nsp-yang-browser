@@ -13,7 +13,7 @@
     if (window.confirm(`Are you sure you want to delete: ${repo}`)) {
       const removeOperation = await fetch(`/api/delete/${repo}`, {method: "DELETE"})
       if (removeOperation.ok) {
-        compare.remove(repo)
+        compare.clear()
         window.alert(`[Success] ${repo} has been deleted. Page will reload to take effect.`)
         window.location.reload()
       } else {
