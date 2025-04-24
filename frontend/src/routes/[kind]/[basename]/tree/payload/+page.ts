@@ -14,10 +14,10 @@ export async function load({ params, url, fetch }) {
 
   if(kind.includes("nsp")) {
     const resp = await fetch("/api/nsp/isConnected")
-    nspInfo = await resp.json()
     if(!resp.ok) {
       throw error(404, "Check NSP connection")
     }
+    nspInfo = await resp.json()
   }
 
   return { kind, basename, urlPath, withPrefix, expandFull, nspIp: nspInfo.ip }

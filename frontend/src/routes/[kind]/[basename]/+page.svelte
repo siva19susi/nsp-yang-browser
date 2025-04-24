@@ -50,8 +50,15 @@
   
   // ON PAGELOAD
   export let data
-  let {kind, basename, urlPath, nspIp} = data
+  let {kind, basename, urlPath, nspIp, isUrlTree} = data
   onMount(() => loadWorker(kind, basename))
+
+  function setPopupDetail(item: PathDef) {
+    popupDetail = {
+      ...item, isUrlTree, 
+      nspConnected: (nspIp != "" ? true : false)
+    }
+  }
 
   // OTHER BINDING VARIABLES
   let searchInput = urlPath
@@ -109,7 +116,7 @@
                 {#each $paginated as item}
                   {@const path = markFilter((showPathPrefix ? item["path-with-prefix"] : item.path), $searchStore)}
                   {@const type = markFilter(item.type, $searchStore)}
-                  <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" on:click={() => popupDetail = item}>
+                  <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" on:click={() => setPopupDetail(item)}>
                     <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight">{item["is-state"]}</td>
                     <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight group"><div use:markRender={path}></div></td>
                     <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight"><div use:markRender={type}></td>

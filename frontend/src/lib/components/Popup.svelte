@@ -7,8 +7,8 @@
   export let kind: string = ""
   export let basename: string = ""
   export let popupDetail: any = {}
-
-  const treePopup = () => $page.url.pathname.includes("tree") ? true : false
+  
+  const enableQueryNsp = () => popupDetail.nspConnected && !popupDetail["is-rpc"] && !popupDetail["is-notification"] && !popupDetail["is-action"]
 
   function closePopup() {
     if(Object.keys(popupDetail).length !== 0) {
@@ -29,8 +29,8 @@
   }
 
   function crossLaunch(path: any) {
-    const toTree = (treePopup() ? "" : `/tree`)
-    const fromParam = (treePopup() ? "" : "&from=pb")
+    const toTree = (popupDetail.isUrlTree ? "" : `/tree`)
+    const fromParam = (popupDetail.isUrlTree ? "" : "&from=pb")
     if(kind === "") kind = path.kind
     if(basename === "") basename = path.basename
     return `/${kind}/${basename}${toTree}?path=${encodeURIComponent(path.path)}${fromParam}`
@@ -43,6 +43,15 @@
     }
     setTimeout(toggle, 1000)
     toggle()
+  }
+
+  function queryNsp(path: any) {
+    const cleanPath = (path: string) => {
+      return path
+        .replace(/\[[^\]]*=[^\]]*\]/g, '') // remove [anything=*]
+        .replace(/\/[^/]+$/, '')           // remove last /segment
+    }
+    return `/${kind}/${basename}/query?path=${encodeURIComponent(cleanPath(path["path-with-prefix"]))}`
   }
 </script>
 
@@ -148,9 +157,14 @@
             </table>
           </div>
         </div>
-        <div id="popupFooter" class="text-right p-4 border-t border-gray-200 rounded-b dark:border-gray-600">
+        <div id="popupFooter" class="flex items-center {enableQueryNsp() ? 'justify-between' : 'justify-end'} p-4 border-t border-gray-200 rounded-b dark:border-gray-600">
+          {#if enableQueryNsp()}
+            <a href="{queryNsp(popupDetail)}" target="_blank" class="text-sm px-3 py-1 rounded text-white bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-800">
+              Query NSP
+            </a>
+          {/if}
           <a href="{crossLaunch(popupDetail)}" target="_blank" class="text-sm px-3 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
-            Show in {treePopup() ? 'Path' : 'Tree'} Browser
+            Show in {popupDetail.isUrlTree ? 'Path' : 'Tree'} Browser
           </a>
         </div>
       </div>

@@ -343,7 +343,7 @@ func (s *srv) tokenRefreshRoutine() {
 			return
 		}
 
-		waitTime := max(time.Duration(s.nsp.token.ExpiresIn-30)*time.Second, 0)
+		waitTime := max(time.Duration(s.nsp.token.ExpiresIn-15)*time.Second, 0)
 		time.Sleep(waitTime)
 
 		s.logger.Println("[Info] NSP Access renewal initiated")

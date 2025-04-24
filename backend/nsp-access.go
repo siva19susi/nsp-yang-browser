@@ -132,19 +132,30 @@ func (s *srv) makeHTTPRequest(method, url string, body io.Reader, headers map[st
 
 // NSP INVENTORY FIND
 func (s *srv) nspFind(w http.ResponseWriter, r *http.Request) {
-	type RequestPayload struct {
-		Xpath      string `json:"xpath"`
-		FromModule string `json:"from-module"`
-	}
-
 	type NspFindInput struct {
 		XpathFilter string `json:"xpath-filter"`
-		Fields      string `json:"fields,omitempty"`
 		IncludeMeta bool   `json:"include-meta"`
+		Fields      string `json:"fields,omitempty"`
+		Depth       int    `json:"depth"`
+		Limit       int    `json:"limit"`
+		Offset      int    `json:"offset"`
+	}
+
+	type RequestPayload struct {
+		Kind string       `json:"kind"`
+		Nsp  NspFindInput `json:"nsp"`
 	}
 
 	type NspFindOutput struct {
-		Output interface{} `json:"nsp-inventory:output"`
+		Output any `json:"nsp-inventory:output,omitempty"`
+	}
+
+	type NspError struct {
+		Error any `json:"error"`
+	}
+
+	type NspFindError struct {
+		RestconfError NspError `json:"ietf-restconf:errors"`
 	}
 
 	type NspFindPayload struct {
@@ -158,10 +169,7 @@ func (s *srv) nspFind(w http.ResponseWriter, r *http.Request) {
 	}
 
 	payload := NspFindPayload{
-		Input: NspFindInput{
-			XpathFilter: requestPayload.Xpath,
-			IncludeMeta: false,
-		},
+		Input: requestPayload.Nsp,
 	}
 	reqBody, err := json.Marshal(payload)
 	if err != nil {
@@ -176,16 +184,22 @@ func (s *srv) nspFind(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		s.raiseError(fmt.Sprintf("error NSP find failed: %d", resp.StatusCode), nil, w)
+	var output any
+	if resp.StatusCode == 200 {
+		var successResponse NspFindOutput
+		if err := json.NewDecoder(resp.Body).Decode(&successResponse); err != nil {
+			s.raiseError("error decoding NSP find success response", err, w)
+		}
+		output = successResponse.Output
+	} else {
+		var errorResponse NspFindError
+		if err := json.NewDecoder(resp.Body).Decode(&errorResponse); err != nil {
+			s.raiseError("error decoding NSP find error response", err, w)
+		}
+		output = errorResponse.RestconfError
 	}
 
-	var jsonResponse NspFindOutput
-	if err := json.NewDecoder(resp.Body).Decode(&jsonResponse); err != nil {
-		s.raiseError("error decoding NSP find response", err, w)
-	}
-
-	response, err := json.MarshalIndent(jsonResponse, "", "  ")
+	response, err := json.MarshalIndent(output, "", "  ")
 	if err != nil {
 		s.raiseError("error creating JSON", err, w)
 		return
