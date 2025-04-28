@@ -80,6 +80,7 @@ func main() {
 	s.be.HandleFunc("/nsp/intent-types", s.getIntentTypes).Methods("GET")
 	s.be.HandleFunc("/nsp/intent-type/{name}/paths", s.pathFromYang).Methods("GET")
 	s.be.HandleFunc("/nsp/find", s.nspFind).Methods("POST")
+	s.be.HandleFunc("/nsp/intent-explorer", s.intentExplorer).Methods("POST")
 
 	// START HTTP SERVER
 	s.logger.Printf("Access API with baseURL - http://localhost:8080")

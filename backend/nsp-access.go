@@ -130,6 +130,23 @@ func (s *srv) makeHTTPRequest(method, url string, body io.Reader, headers map[st
 	return client.Do(req)
 }
 
+// GET NSP STATUS
+func (s *srv) getNspStatus() error {
+	url := fmt.Sprintf("https://%s/nsp-role-manager/rest/api/v1/server/status", s.nsp.Ip)
+
+	resp, err := s.makeHTTPRequest("GET", url, nil, nil)
+	if err != nil {
+		return fmt.Errorf("[Error] triggering NSP status: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("[Error] fetching NSP health: %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
 // NSP INVENTORY FIND
 func (s *srv) nspFind(w http.ResponseWriter, r *http.Request) {
 	type NspFindInput struct {
@@ -146,8 +163,15 @@ func (s *srv) nspFind(w http.ResponseWriter, r *http.Request) {
 		Nsp  NspFindInput `json:"nsp"`
 	}
 
+	type NspFindOutputData struct {
+		StartIndex int `json:"start-index"`
+		EndIndex   int `json:"end-index"`
+		TotalCount int `json:"total-count"`
+		Data       any `json:"data"`
+	}
+
 	type NspFindOutput struct {
-		Output any `json:"nsp-inventory:output,omitempty"`
+		Output NspFindOutputData `json:"nsp-inventory:output,omitempty"`
 	}
 
 	type NspError struct {

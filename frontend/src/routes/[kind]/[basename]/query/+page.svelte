@@ -61,7 +61,7 @@
     isSubmitting = false
     workerStatus.complete = false
     const formData = new FormData(event.currentTarget as HTMLFormElement)
-		var findPayload: any = {}
+		let findPayload: any = {}
     formData.forEach(function(value, key) {
       if(key === "include-meta") {
         findPayload[key] = (value == "true" ? true : false)
@@ -82,16 +82,16 @@
 
 <Navbar {kind} {basename} {nspIp}/>
 <div class="px-6 py-4 font-nunito container mx-auto pt-[85px]">
-  <p class="text-gray-800 dark:text-gray-300 pb-1">Connected NSP Inventory find:</p>
+  <p class="text-gray-800 dark:text-gray-300 pb-1">Connected NSP inventory find:</p>
   <form class="pt-4" method="POST" action="?/inventoryFind" on:submit|preventDefault={inventoryFind}>
     <div class="space-y-4">
       <div>
         <label for="xpath-filter" class="block uppercase text-gray-800 dark:text-gray-200 text-xs mb-2">Target Path*</label>
-        <input id="xpath-filter" name="xpath-filter" type="text" required value="{urlPath}" class="px-3 py-2 rounded-lg w-full text-sm border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 {isSubmitting ? 'bg-gray-300' : 'bg-gray-100'}" disabled={isSubmitting}>
+        <input id="xpath-filter" name="xpath-filter" type="text" required value="{urlPath}" class="font-fira px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 {isSubmitting ? 'bg-gray-300' : 'bg-gray-100'}" disabled={isSubmitting}>
       </div>
       <div>
         <label for="fields" class="block uppercase text-gray-800 dark:text-gray-200 text-xs mb-2">Field Filter</label>
-        <input id="fields" name="fields" type="text" value="" class="px-3 py-2 rounded-lg w-full text-sm border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 {isSubmitting ? 'bg-gray-300' : 'bg-gray-100'}" disabled={isSubmitting}>
+        <input id="fields" name="fields" type="text" value="" class="font-fira px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 {isSubmitting ? 'bg-gray-300' : 'bg-gray-100'}" disabled={isSubmitting}>
       </div>
     </div>
     <div class="grid md:grid-cols-4 grid-cols-2 gap-4 pt-4">

@@ -6,7 +6,7 @@ export async function load({ params, url, fetch }) {
   const urlPath = url.searchParams.get("path")?.trim() ?? ""
   let nspInfo = {"ip": ""}
 
-  if(kind !== "uploaded" && kind !== "nsp-module" && kind !== "nsp-intent-type") {
+  if(kind !== "uploaded" && kind !== "nsp-intent-type") {
     throw error(404, "Unsupported kind")
   }
 

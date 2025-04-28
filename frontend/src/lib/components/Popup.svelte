@@ -46,12 +46,27 @@
   }
 
   function queryNsp(path: any) {
-    const cleanPath = (path: string) => {
-      return path
-        .replace(/\[[^\]]*=[^\]]*\]/g, '') // remove [anything=*]
-        .replace(/\/[^/]+$/, '')           // remove last /segment
+    const urlPath = path["path-with-prefix"]
+
+    const removeListKey = (path: string) => {
+      // Remove all [key=value] style segments
+      return path.replace(/\[[^\]]*=[^\]]*\]/g, '')
     }
-    return `/${kind}/${basename}/query?path=${encodeURIComponent(cleanPath(path["path-with-prefix"]))}`
+    const removeLastSegment = (path: string) => {
+      // Only remove the last /segment if there's more than one /
+      if ((path.match(/\//g) || []).length > 1) {
+        return path.replace(/\/[^/]+$/, '')
+      }
+      return path
+    }
+    const cleanPath = (path: string) => {
+      return removeLastSegment(removeListKey(path))
+    }
+
+    if(kind === "nsp-intent-type") {
+      return `/${kind}/${basename}/intent-query?path=${encodeURIComponent(removeLastSegment(urlPath))}`
+    }
+    return `/${kind}/${basename}/query?path=${encodeURIComponent(cleanPath(urlPath))}`
   }
 </script>
 
@@ -85,7 +100,7 @@
         </div>
         <div id="popupBody" class="p-4 text-left">
           <div class="overflow-x-auto max-w-full">
-            <table>
+            <table class="w-full">
               <tbody>
                 {#if "compare" in popupDetail}
                   <tr>
@@ -157,14 +172,14 @@
             </table>
           </div>
         </div>
-        <div id="popupFooter" class="flex items-center {enableQueryNsp() ? 'justify-between' : 'justify-end'} p-4 border-t border-gray-200 rounded-b dark:border-gray-600">
+        <div id="popupFooter" class="flex items-center {enableQueryNsp() ? 'justify-between space-x-2' : 'justify-end'} p-4 border-t border-gray-200 rounded-b dark:border-gray-600">
           {#if enableQueryNsp()}
             <a href="{queryNsp(popupDetail)}" target="_blank" class="text-sm px-3 py-1 rounded text-white bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-800">
               Query NSP
             </a>
           {/if}
-          <a href="{crossLaunch(popupDetail)}" target="_blank" class="text-sm px-3 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
-            Show in {popupDetail.isUrlTree ? 'Path' : 'Tree'} Browser
+          <a href="{crossLaunch(popupDetail)}" target="_blank" class="text-sm px-2 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
+            {popupDetail.isUrlTree ? 'Path' : 'Tree'} Browser View
           </a>
         </div>
       </div>

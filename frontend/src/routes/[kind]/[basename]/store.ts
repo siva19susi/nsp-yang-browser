@@ -10,6 +10,9 @@ export const stateStore = writable("")
 export const prefixStore = writable(false)
 export const defaultStore = writable(false)
 
+const keysToOmmit = ["is-rpc", "is-action", "is-notification"];
+export const nspQueryStore = writable(false)
+
 export const yangPaths = writable<PathDef[]>([])
 export const start = writable(0)
 
@@ -20,8 +23,11 @@ export const stateFilter = derived([stateStore, yangPaths], ([$stateStore, $yang
 export const searchFilter = derived([searchStore, stateFilter, prefixStore], ([$searchStore, $stateFilter, $prefixStore]) => 
   $stateFilter.filter((x: PathDef) => searchBasedFilter(x, $searchStore, $prefixStore)))
 
-export const withDefaultFilter = derived([searchFilter, defaultStore], ([$searchFilter, $defaultStore]) => 
-  $searchFilter.filter((x: PathDef) => $defaultStore ? "default" in x : x))
+export const queryNspFilter = derived([searchFilter, nspQueryStore], ([$searchFilter, $nspQueryStore]) => 
+  $searchFilter.filter((x: PathDef) => $nspQueryStore ? keysToOmmit.every(key => !(key in x)) : x))
+
+export const withDefaultFilter = derived([queryNspFilter, defaultStore], ([$queryNspFilter, $defaultStore]) => 
+  $queryNspFilter.filter((x: PathDef) => $defaultStore ? "default" in x : x))
 
 export const total = derived(withDefaultFilter, ($withDefaultFilter) => { 
   start.set(0)

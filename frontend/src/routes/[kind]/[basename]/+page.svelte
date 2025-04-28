@@ -11,12 +11,13 @@
   import SearchInput from '$lib/components/SearchInput.svelte'
   import ShowPrefixCheck from '$lib/components/ShowPrefixCheck.svelte'
   import WithDefaultCheck from '$lib/components/WithDefaultCheck.svelte'
+  import SupportNspQuery from '$lib/components/SupportNspQuery.svelte';
   import CrossBrowser from '$lib/components/CrossBrowser.svelte'
   import Pagination from './Pagination.svelte'
 
   import type { PathDef } from '$lib/structure'
   import { markFilter, markRender, toLower } from '$lib/components/functions'
-	import { defaultStore, paginated, prefixStore, searchStore, stateStore, total, yangPaths } from './store'
+	import { defaultStore, paginated, prefixStore, searchStore, stateStore, nspQueryStore, total, yangPaths } from './store'
 	import type { FetchResponseMessage } from './structure'
 
   // DEFAULTS
@@ -51,13 +52,11 @@
   // ON PAGELOAD
   export let data
   let {kind, basename, urlPath, nspIp, isUrlTree} = data
+  const nspConnected = (nspIp != "" ? true : false)
   onMount(() => loadWorker(kind, basename))
 
   function setPopupDetail(item: PathDef) {
-    popupDetail = {
-      ...item, isUrlTree, 
-      nspConnected: (nspIp != "" ? true : false)
-    }
+    popupDetail = { ...item, isUrlTree, nspConnected }
   }
 
   // OTHER BINDING VARIABLES
@@ -65,11 +64,13 @@
   let stateInput = ""
   let showPathPrefix = false
   let pathWithDefault = false
+  let supportNspQuery = false
 
   $: searchStore.set(toLower(searchInput))
   $: stateStore.set(stateInput)
   $: prefixStore.set(showPathPrefix)
   $: defaultStore.set(pathWithDefault)
+  $: nspQueryStore.set(supportNspQuery)
   $: yangPaths.set(paths)
 </script>
 
@@ -94,6 +95,7 @@
             <StateButton bind:stateInput />
             <ShowPrefixCheck bind:showPathPrefix />
             <WithDefaultCheck bind:pathWithDefault />
+            <SupportNspQuery bind:supportNspQuery {nspConnected} />
           </div>
         </div>
         <Pagination />

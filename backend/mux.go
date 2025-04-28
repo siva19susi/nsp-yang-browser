@@ -373,8 +373,14 @@ func (s *srv) nspDisconnect(w http.ResponseWriter, r *http.Request) {
 
 // NSP IS CONNECTED
 func (s *srv) nspIsConnected(w http.ResponseWriter, r *http.Request) {
-	if s.nsp.token.AccessToken == "" {
+	if s.nsp.Ip == "" {
 		s.raiseError("NSP is not connected", nil, w)
+		return
+	}
+
+	if err := s.getNspStatus(); err != nil {
+		s.raiseError("error getting health info", err, w)
+		s.nspReset()
 		return
 	}
 

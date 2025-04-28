@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -82,7 +83,7 @@ func (s *srv) intentTypeSearch(pageNumber, pageSize int, nameFilter string) ([]s
 
 	var intentTypes []string
 	for _, intentType := range ibnSearchResponse.Output.IntentType {
-		intentTypes = append(intentTypes, fmt.Sprintf("%s_%d", intentType.Name, intentType.Version))
+		intentTypes = append(intentTypes, fmt.Sprintf("%s_v%d", intentType.Name, intentType.Version))
 	}
 
 	// Handle pagination
@@ -105,7 +106,7 @@ func (s *srv) intentTypeYangModules(intentType string) ([]IntentTypeYangModule, 
 	}
 
 	name := intentType[:lastInd]
-	version := intentType[lastInd+1:]
+	version := intentType[lastInd+2:]
 
 	url := fmt.Sprintf(
 		"https://%s/restconf/data/ibn-administration:ibn-administration/intent-type-catalog/intent-type=%s,%s",
@@ -128,4 +129,63 @@ func (s *srv) intentTypeYangModules(intentType string) ([]IntentTypeYangModule, 
 	}
 
 	return yangDef.IntentType.Module, nil
+}
+
+// NSP INTENT EXPLORER
+func (s *srv) intentExplorer(w http.ResponseWriter, r *http.Request) {
+	type PostData struct {
+		Url       string `json:"url"`
+		Target    string `json:"target"`
+		IntentKey string `json:"intent-key"`
+	}
+
+	type NspError struct {
+		Error any `json:"error"`
+	}
+
+	type NspFindErrorRepeat struct {
+		RestconfError NspError `json:"ietf-restconf:errors"`
+	}
+
+	type NspFindError struct {
+		RestconfError NspFindErrorRepeat `json:"ietf-restconf:errors"`
+	}
+
+	var pd PostData
+	if err := json.NewDecoder(r.Body).Decode(&pd); err != nil {
+		s.raiseError("decoding NSP find request failed", err, w)
+		return
+	}
+
+	url := fmt.Sprintf("https://%s/mdt/rest/restconf/data/ibn:ibn/intent=%s,%s/intent-specific-data%s", s.nsp.Ip, pd.Target, pd.IntentKey, pd.Url)
+	headers := map[string]string{
+		"Content-Type":  "application/yang-data+json",
+		"Accept":        "application/yang-data+json",
+		"Authorization": "Bearer " + s.nsp.token.AccessToken,
+	}
+	resp, err := s.makeHTTPRequest("GET", url, nil, headers)
+	if err != nil {
+		s.raiseError("error fetching NSP intent explorer request", err, w)
+	}
+
+	var output any
+	if resp.StatusCode == 200 {
+		if err := json.NewDecoder(resp.Body).Decode(&output); err != nil {
+			s.raiseError("error decoding NSP intent explorer success response", err, w)
+		}
+	} else {
+		var errorResponse NspFindError
+		if err := json.NewDecoder(resp.Body).Decode(&errorResponse); err != nil {
+			s.raiseError("error decoding NSP intent explorer error response", err, w)
+		}
+		output = errorResponse.RestconfError.RestconfError.Error
+	}
+
+	response, err := json.MarshalIndent(output, "", "  ")
+	if err != nil {
+		s.raiseError("error creating JSON", err, w)
+		return
+	}
+
+	writeJsonResponse(w, response)
 }
