@@ -111,6 +111,7 @@
       <div>
         <label for="target" class="block uppercase text-gray-800 dark:text-gray-200 text-xs mb-2">Intent Target</label>
         <input id="target" name="target" type="text" value="" class="font-fira px-3 py-2 rounded-lg w-full text-[12.5px] border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 {isSubmitting ? 'bg-gray-300' : 'bg-gray-100'}" disabled={isSubmitting}>
+        <p class="px-1 py-1.5 text-xs text-gray-900 dark:text-gray-300">Note: Intent target needs to be specified manually</p>
       </div>
     </div>
     <div class="flex items-center justify-end pt-4">
