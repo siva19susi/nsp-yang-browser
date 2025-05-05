@@ -16,7 +16,19 @@ onmessage = async (event: MessageEvent<FetchPostMessage>) => {
     }
 
     const jsonPaths = await response.json()
-    paths = jsonPaths.map((k: PathDef) => ({...k, "is-state": ("is-state" in k ? "R" : "RW")}))
+    paths = jsonPaths.map((k: PathDef) => {
+      let value = "RW"
+    
+      if ("is-state" in k) value = "R"
+      else if ("is-rpc" in k) value = "RPC"
+      else if ("is-action" in k) value = "A"
+      else if ("is-notification" in k) value = "N"
+    
+      return {
+        ...k,
+        "added-filter": value
+      }
+    })
 
     postMessage({ success: true, message: "", paths })
     

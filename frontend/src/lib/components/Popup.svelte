@@ -8,7 +8,12 @@
   export let basename: string = ""
   export let popupDetail: any = {}
   
-  const enableQueryNsp = () => popupDetail.nspConnected && !popupDetail["is-rpc"] && !popupDetail["is-notification"] && !popupDetail["is-action"]
+  const enableQueryNsp = () => {
+    if(kind !== "uploaded") {
+      return popupDetail.nspConnected && !popupDetail["is-rpc"] && !popupDetail["is-notification"] && !popupDetail["is-action"]
+    }
+    return false
+  }
 
   function closePopup() {
     if(Object.keys(popupDetail).length !== 0) {
@@ -172,7 +177,7 @@
             </table>
           </div>
         </div>
-        <div id="popupFooter" class="flex items-center {enableQueryNsp() ? 'justify-between space-x-2' : 'justify-end'} p-4 border-t border-gray-200 rounded-b dark:border-gray-600">
+        <div id="popupFooter" class="flex items-center {enableQueryNsp() ? 'justify-between space-x-2' : 'justify-end'} px-4 py-2 border-t border-gray-200 rounded-b dark:border-gray-600">
           {#if enableQueryNsp()}
             <a href="{queryNsp(popupDetail)}" target="_blank" class="text-sm px-3 py-1 rounded text-white bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-800">
               Query NSP

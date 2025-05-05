@@ -8,7 +8,7 @@
 </svelte:head>
 
 <div class="flex flex-col min-h-screen has-header-img font-nunito">
-  <div class="flex grow items-center justify-start px-8 py-10">
+  <div class="flex grow items-center justify-start px-8 md:px-14 py-10">
     <div>
       <p class="mb-4"><img src="/images/nwhite.png" width="95" alt="Logo" /></p>
       <h3 class="text-3xl text-yellow-300 font-light mt-6">NSP YANG Browser</h3>

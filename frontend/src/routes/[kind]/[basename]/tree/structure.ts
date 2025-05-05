@@ -8,7 +8,7 @@ export interface YangTreePostMessage {
   kind: string
   basename: string
   searchInput: string
-  stateInput: string
+  stateInput: string[]
   prefixInput: boolean
   defaultInput: boolean
 }

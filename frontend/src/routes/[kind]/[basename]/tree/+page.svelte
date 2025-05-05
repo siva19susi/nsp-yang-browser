@@ -34,7 +34,7 @@
 
   // YANGTREE WORKER
   let yangTreeWorker: Worker | undefined = undefined
-  async function loadYangTreeWorker (kind: string, basename: string, searchInput: string, prefixInput: boolean, stateInput: string, defaultInput: boolean) {
+  async function loadYangTreeWorker (kind: string, basename: string, searchInput: string, prefixInput: boolean, stateInput: string[], defaultInput: boolean) {
     const YangTreeWorker = await import('./yangTree.worker?worker')
     yangTreeWorker = new YangTreeWorker.default()
     yangTreeWorker.postMessage({ kind, basename, searchInput, prefixInput, stateInput, defaultInput })
@@ -56,13 +56,13 @@
 
   // OTHER BINDING VARIABLES
   let searchInput: string = isCrossLaunched() ? "" : getUrlPath()
-  let stateInput = ""
+  let stateInput: string[] = ["R", "RW"]
   let showPathPrefix = false
   let pathWithDefault = false
 
   let pastYangTreeArgs = `${searchInput};;${showPathPrefix};;;;${pathWithDefault}`
 
-  onMount(() => loadYangTreeWorker(kind, basename, searchInput, showPathPrefix, "", pathWithDefault))
+  onMount(() => loadYangTreeWorker(kind, basename, searchInput, showPathPrefix, stateInput, pathWithDefault))
 
   pathFocus.set({})
 	pathFocus.subscribe((value) => {

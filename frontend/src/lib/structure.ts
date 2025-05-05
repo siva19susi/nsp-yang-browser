@@ -37,4 +37,5 @@ export interface PathDef {
   "is-action"?: boolean
   "enum-values"?: string[]
   "if-features"?: string[]
+  "added-filter" : string
 }

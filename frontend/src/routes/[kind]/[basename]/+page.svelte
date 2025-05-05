@@ -11,7 +11,6 @@
   import SearchInput from '$lib/components/SearchInput.svelte'
   import ShowPrefixCheck from '$lib/components/ShowPrefixCheck.svelte'
   import WithDefaultCheck from '$lib/components/WithDefaultCheck.svelte'
-  import SupportNspQuery from '$lib/components/SupportNspQuery.svelte';
   import CrossBrowser from '$lib/components/CrossBrowser.svelte'
   import Pagination from './Pagination.svelte'
 
@@ -61,16 +60,14 @@
 
   // OTHER BINDING VARIABLES
   let searchInput = urlPath
-  let stateInput = ""
+  let stateInput: string[] = ["R", "RW"]
   let showPathPrefix = false
   let pathWithDefault = false
-  let supportNspQuery = false
 
   $: searchStore.set(toLower(searchInput))
   $: stateStore.set(stateInput)
   $: prefixStore.set(showPathPrefix)
   $: defaultStore.set(pathWithDefault)
-  $: nspQueryStore.set(supportNspQuery)
   $: yangPaths.set(paths)
 </script>
 
@@ -95,7 +92,6 @@
             <StateButton bind:stateInput />
             <ShowPrefixCheck bind:showPathPrefix />
             <WithDefaultCheck bind:pathWithDefault />
-            <SupportNspQuery bind:supportNspQuery {nspConnected} />
           </div>
         </div>
         <Pagination />
@@ -119,7 +115,7 @@
                   {@const path = markFilter((showPathPrefix ? item["path-with-prefix"] : item.path), $searchStore)}
                   {@const type = markFilter(item.type, $searchStore)}
                   <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" on:click={() => setPopupDetail(item)}>
-                    <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight">{item["is-state"]}</td>
+                    <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight">{item["added-filter"]}</td>
                     <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight group"><div use:markRender={path}></div></td>
                     <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight"><div use:markRender={type}></td>
                   </tr>

@@ -4,9 +4,11 @@ import { browser } from "$app/environment"
 export const count = 40
 
 export const stateValues = [
-  { label: "All", value: "" },
   { label: "State", value: "R" },
-  { label: "Config", value: "RW" }
+  { label: "Config", value: "RW" },
+  { label: "Action", value: "A" },
+  { label: "RPC", value: "RPC" },
+  { label: "Notification", value: "N" }
 ]
 
 export const compareValues = [
