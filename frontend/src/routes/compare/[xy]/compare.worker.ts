@@ -18,9 +18,19 @@ onmessage = async (event: MessageEvent<ComparePostMessage>) => {
     }
 
     const pathJson = await pathResponse.json()
-    return pathJson.map((k: PathDef) => ({...k, 
-      kind, basename, compareTo: `${basename} (${kind})`, 
-      "is-state": ("is-state" in k ? "R" : "RW")}))
+    return pathJson.map((k: PathDef) => {
+      let value = "RW"
+    
+      if ("is-state" in k) value = "R"
+      else if ("is-rpc" in k) value = "RPC"
+      else if ("is-action" in k) value = "A"
+      else if ("is-notification" in k) value = "N"
+    
+      return {
+        ...k,
+        "added-filter": value
+      }
+    })
   }
 
   try {

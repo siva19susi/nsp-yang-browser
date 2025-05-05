@@ -52,7 +52,7 @@
   // OTHER BINDING VARIABLES
   let searchInput = urlPath
   let compareInput = ""
-  let stateInput = ""
+  let stateInput: string[] = ["R", "RW"]
   let pathWithDefault = false
 
   $: searchStore.set(toLower(searchInput))
@@ -107,7 +107,7 @@
                     {@const type = markFilter(item.type, $searchStore)}
                     <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:cursor-pointer" on:click={() => popupDetail = item}>
                       <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight">{item.compare}</td>
-                      <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight">{item["is-state"]}</td>
+                      <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight">{item["added-filter"]}</td>
                       <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight"><div use:markRender={path}></div></td>
                       <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight">
                         {#if item.compare === "~"}
