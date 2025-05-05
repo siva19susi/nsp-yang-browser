@@ -79,6 +79,7 @@ func main() {
 	s.be.HandleFunc("/nsp/module/{name}/paths", s.getNspModulePaths).Methods("GET")
 	s.be.HandleFunc("/nsp/intent-types", s.getIntentTypes).Methods("GET")
 	s.be.HandleFunc("/nsp/intent-type/{name}/paths", s.pathFromYang).Methods("GET")
+	s.be.HandleFunc("/nsp/intent-type/{name}/intents", s.getIntents).Methods("GET")
 	s.be.HandleFunc("/nsp/find", s.nspFind).Methods("POST")
 	s.be.HandleFunc("/nsp/intent-explorer", s.intentExplorer).Methods("POST")
 

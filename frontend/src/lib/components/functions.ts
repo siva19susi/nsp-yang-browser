@@ -58,3 +58,12 @@ export function markRender (node: HTMLSpanElement, text:string) {
     },
   }
 }
+
+export function copyAnimation() {
+  const toggle = () => {
+    document.getElementById("clip")?.classList.toggle("hidden")
+    document.getElementById("copied")?.classList.toggle("hidden")
+  }
+  setTimeout(toggle, 1000)
+  toggle()
+}

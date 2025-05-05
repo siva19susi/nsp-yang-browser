@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { onMount } from "svelte"
+  import { copy } from "svelte-copy"
 
   import Navbar from "$lib/components/Navbar.svelte"
 
   import type { IntentQueryPostMessage, IntentQueryResponseMessage } from "./structure"
 	import Footer from "$lib/components/Footer.svelte";
+	import { copyAnimation } from "$lib/components/functions";
 
   // DEFAULTS
   let isSubmitting = false
@@ -70,8 +71,7 @@
     loadInventoryFindWorker(findPayload)
   }
 
-  
-  function trimBeforeFirstBracketSegment (path: string) {
+  function trimBeforeFirstBracketSegment(path: string) {
     // Split path into segments
     const segments = path.split("/")
 
@@ -127,7 +127,19 @@
           <p class="pt-2 text-black dark:text-white">Quering NSP...</p>
         </div>
       {:else}
-        <p class="pt-4 pb-1 font-semibold text-black dark:text-white">NSP Response:</p>
+        <div class="flex items-center pt-4 pb-1">
+          <p class="font-semibold text-black dark:text-white">NSP Response:</p>
+          {#if Object.keys(nspResponse).length !== 0}
+            <button class="ml-3 p-0.5 rounded-lg text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white hover:cursor-pointer" on:click={copyAnimation} use:copy={JSON.stringify(nspResponse, null, 2)}>
+              <svg id="clip" class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M9 8v3a1 1 0 0 1-1 1H5m11 4h2a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v1m4 3v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-7.13a1 1 0 0 1 .24-.65L7.7 8.35A1 1 0 0 1 8.46 8H13a1 1 0 0 1 1 1Z"/>
+              </svg>
+              <svg id="copied" class="w-5 h-5 hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/>
+              </svg>
+            </button>
+          {/if}
+        </div>
         {#if Object.keys(nspResponse).length === 0}
           <p class="py-2 text-red-600">{workerStatus.error.message}</p>
         {:else}

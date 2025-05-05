@@ -477,3 +477,31 @@ func (s *srv) getIntentTypes(w http.ResponseWriter, r *http.Request) {
 
 	writeJsonResponse(w, b)
 }
+
+// GET NSP INTENT TYPES
+func (s *srv) getIntents(w http.ResponseWriter, r *http.Request) {
+	intentType := mux.Vars(r)["name"]
+
+	lastInd := strings.LastIndex(intentType, "_")
+	if lastInd == -1 {
+		s.raiseError(fmt.Sprintf("Invalid intent type format: %s", intentType), nil, w)
+		return
+	}
+
+	name := intentType[:lastInd]
+	version := intentType[lastInd+2:]
+
+	targets, err := s.getIntentTargets(name, version, 0)
+	if err != nil {
+		s.raiseError("fetching NSP intent types failed", err, w)
+		return
+	}
+
+	b, err := json.MarshalIndent(targets, "", "  ")
+	if err != nil {
+		s.raiseError("JSON creation failed", err, w)
+		return
+	}
+
+	writeJsonResponse(w, b)
+}

@@ -27,27 +27,12 @@
     }
   }
 
-  function copyContent(path: string) {
-    const pageUrl = $page.url
-    const compareParam = (pageUrl.pathname === "/compare" ? `&${pageUrl.search.substring(1)}` : '')
-    return `${pageUrl.origin}${pageUrl.pathname}?path=${encodeURIComponent(path)}${compareParam}`
-  }
-
   function crossLaunch(path: any) {
     const toTree = (popupDetail.isUrlTree ? "" : `/tree`)
     const fromParam = (popupDetail.isUrlTree ? "" : "&from=pb")
     if(kind === "") kind = path.kind
     if(basename === "") basename = path.basename
     return `/${kind}/${basename}${toTree}?path=${encodeURIComponent(path.path)}${fromParam}`
-  }
-
-  function copyEffect() {
-    const toggle = () => {
-      document.getElementById("clip")?.classList.toggle("hidden")
-      document.getElementById("copied")?.classList.toggle("hidden")
-    }
-    setTimeout(toggle, 1000)
-    toggle()
   }
 
   function queryNsp(path: any) {
@@ -58,43 +43,39 @@
       return path.replace(/\[[^\]]*=[^\]]*\]/g, '')
     }
     const removeLastSegment = (path: string) => {
-      // Only remove the last /segment if there's more than one /
-      if ((path.match(/\//g) || []).length > 1) {
-        return path.replace(/\/[^/]+$/, '')
+      const segments = path.split('/')
+
+      if (segments.length > 2) { // more than one "/"
+        const removed = segments.pop() // remove last
+        const newPath = segments.join('/')
+        return { newPath, removedSegment: removed }
       }
-      return path
-    }
-    const cleanPath = (path: string) => {
-      return removeLastSegment(removeListKey(path))
+
+      return { newPath: path, removedSegment: null }
     }
 
+    const { newPath, removedSegment } = removeLastSegment(urlPath)
+
     if(kind === "nsp-intent-type") {
-      return `/${kind}/${basename}/intent-query?path=${encodeURIComponent(removeLastSegment(urlPath))}`
+      return `/${kind}/${basename}/intent-query?path=${encodeURIComponent(newPath)}`
     }
-    return `/${kind}/${basename}/query?path=${encodeURIComponent(cleanPath(urlPath))}`
+    return `/${kind}/${basename}/query?path=${encodeURIComponent(removeListKey(newPath))}`
+    //return `/${kind}/${basename}/query?path=${encodeURIComponent(removeListKey(newPath))}&field=${removedSegment}`
   }
 </script>
 
 <svelte:window on:keyup={({key}) => key === "Escape" ? closePopup() : ""}/>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
 {#if Object.keys(popupDetail).length !== 0}
-  <div id="popup" class="fixed p-4 inset-0 z-50 items-center { Object.keys(popupDetail).length !== 0  ? '' : 'hidden'}" on:click|stopPropagation={closeSidebarPopup}>
-    <div class="fixed inset-0 bg-gray-800 bg-opacity-75 transition-opacity"></div>
+  <div id="popup" class="fixed p-4 inset-0 z-50 items-center { Object.keys(popupDetail).length !== 0  ? '' : 'hidden'}">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div class="fixed inset-0 bg-gray-800 bg-opacity-75 transition-opacity" on:click|stopPropagation={closeSidebarPopup}></div>
     <div id="popupContent" class="flex min-h-full justify-center items-center">
       <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-700 text-left shadow-xl transition-all sm:my-8 max-w-4xl">
         <div id="popupHeader" class="flex items-center justify-between px-4 py-2 rounded-t bg-gray-200 dark:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
           <div class="flex items-center">
             <span class="text-lg text-gray-900 dark:text-gray-300">Path Details</span>
-            <button class="ml-3 p-0.5 rounded-lg text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white hover:cursor-pointer" use:copy={copyContent(popupDetail.path)} on:svelte-copy={copyEffect}>
-              <svg id="clip" class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M9 8v3a1 1 0 0 1-1 1H5m11 4h2a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v1m4 3v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-7.13a1 1 0 0 1 .24-.65L7.7 8.35A1 1 0 0 1 8.46 8H13a1 1 0 0 1 1 1Z"/>
-              </svg>
-              <svg id="copied" class="w-5 h-5 hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/>
-              </svg>
-            </button>
           </div>
           <button type="button" class="text-gray-500 hover:bg-gray-300 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-700 dark:hover:text-white" on:click={closePopup}>
             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">

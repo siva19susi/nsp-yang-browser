@@ -71,7 +71,9 @@
 <svelte:window on:keyup={({key}) => key === "Escape" ? closeRepoList() : ""}/>
 
 <div id="repoListPopup" class="fixed px-6 py-4 inset-0 z-50 items-center { repoDetail.name !== ""  ? '' : 'hidden'}">
-  <div class="fixed inset-0 bg-gray-800 bg-opacity-75 transition-opacity"></div>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <div class="fixed inset-0 bg-gray-800 bg-opacity-75 transition-opacity" on:click|stopPropagation={closeRepoList}></div>
   <div id="popupContent" class="flex min-h-full justify-center items-center">
     <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-700 text-left shadow-xl transition-all sm:my-8 max-w-4xl">
       <div id="popupHeader" class="flex items-center justify-between space-x-2 px-4 py-2 rounded-t bg-gray-200 dark:bg-gray-600 border-b border-gray-200 dark:border-gray-600">

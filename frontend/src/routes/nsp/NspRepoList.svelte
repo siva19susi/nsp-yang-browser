@@ -70,7 +70,9 @@
 <svelte:window on:keyup={({key}) => key === "Escape" ? closeRepoList() : ""}/>
 
 <div id="repoListPopup" class="fixed px-6 py-4 inset-0 z-50 items-center { repoDetail.name !== ""  ? '' : 'hidden'}">
-  <div class="fixed inset-0 bg-gray-800 bg-opacity-75 transition-opacity"></div>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <div class="fixed inset-0 bg-gray-800 bg-opacity-75 transition-opacity" on:click|stopPropagation={closeRepoList}></div>
   <div id="popupContent" class="flex min-h-full justify-center items-center">
     <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-700 text-left shadow-xl transition-all sm:my-8 max-w-4xl">
       <div id="popupHeader" class="flex items-center justify-between space-x-2 px-4 py-2 rounded-t bg-gray-200 dark:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
@@ -92,7 +94,7 @@
         </button>
       </div>
       <div id="repoListPopupBody">
-        <div class="p-4 border-b dark:border-gray-600">
+        <div class="p-4">
           <input id="yangDropzone" type="file" accept=".yang" class="peer hidden" bind:files on:change={handleUploadFile} />
           <label for="yangDropzone" class="flex flex-col space-y-2 px-4 py-3 h-full w-full items-center justify-center cursor-pointer rounded-lg text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-800">
             <p class="text-sm">Click to manually upload .yang files to resolve any dependencies</p>
@@ -107,26 +109,28 @@
           </div>
           <p class="pt-3 text-xs text-gray-700 dark:text-gray-300 text-right">Total items: {repoDetail.files.length}</p>
         </div>
-        <div class="md:w-[500px] max-h-[350px] overflow-auto scroll-light dark:scroll-dark">
-          <ul class="mb-1">
-            {#each repoDetail.files as filename, i}
-              <li class="text-sm text-gray-700 dark:text-gray-300 darl:text-gray-200 {i > 0 ? 'border-t dark:border-gray-600' : ''}">
-                <div class="flex items-center justify-between">
-                  <p class="px-4 py-3">{filename}</p>
-                  {#if repoDetail.name.includes(".yang") || repoDetail["files"].length > 1}
-                    <div class="flex items-center mx-4 space-x-5">
-                      <button class="hover:bg-red-500 hover:text-white text-red-400 rounded-lg p-1"  on:click={() => removeYangEntry("from-nsp-" + repoDetail.name, filename)}>
-                        <svg class="w-4 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
-                        </svg>
-                      </button>
-                    </div>
-                  {/if}
-                </div>
-              </li>
-            {/each}
-          </ul>
-        </div>
+        {#if repoDetail.files?.length}
+          <div class="md:w-[500px] max-h-[350px] border-t dark:border-gray-600 overflow-auto scroll-light dark:scroll-dark">
+            <ul class="mb-1">
+              {#each repoDetail.files as filename, i}
+                <li class="text-sm text-gray-700 dark:text-gray-300 darl:text-gray-200 {i > 0 ? 'border-t dark:border-gray-600' : ''}">
+                  <div class="flex items-center justify-between">
+                    <p class="px-4 py-3">{filename}</p>
+                    {#if repoDetail.name.includes(".yang") || repoDetail["files"].length > 1}
+                      <div class="flex items-center mx-4 space-x-5">
+                        <button class="hover:bg-red-500 hover:text-white text-red-400 rounded-lg p-1"  on:click={() => removeYangEntry("from-nsp-" + repoDetail.name, filename)}>
+                          <svg class="w-4 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    {/if}
+                  </div>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
       </div>
     </div>
   </div>
