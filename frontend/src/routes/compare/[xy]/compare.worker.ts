@@ -28,6 +28,7 @@ onmessage = async (event: MessageEvent<ComparePostMessage>) => {
     
       return {
         ...k,
+        compareTo: `${basename} (${kind})`,
         "added-filter": value
       }
     })

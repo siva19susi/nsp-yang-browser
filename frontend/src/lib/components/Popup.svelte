@@ -3,6 +3,7 @@
 	import { copy } from 'svelte-copy'
 
   import { markRender } from '$lib/components/functions'
+	import { stateValues } from './sharedStore'
 
   export let kind: string = ""
   export let basename: string = ""
@@ -101,7 +102,7 @@
                 {/if}
                 <tr>
                   <th scope="row" class="py-1 whitespace-nowrap text-sm dark:text-gray-400">Data:</th>
-                  <td class="py-1 px-2 dark:text-gray-300 font-fira text-[13px] tracking-tight">{popupDetail["is-state"] === "RW" ? "config" : "state"}</td>
+                  <td class="py-1 px-2 dark:text-gray-300 font-fira text-[13px] tracking-tight">{stateValues.filter(x => x.value == popupDetail["added-filter"])[0].label}</td>
                 </tr>
                 <tr class="border-t border-gray-200 dark:border-gray-600">
                   <th scope="row" class="py-1 whitespace-nowrap text-sm dark:text-gray-400">Type:</th>
@@ -122,22 +123,6 @@
                   <tr class="border-t border-gray-200 dark:border-gray-600">
                     <th scope="row" class="py-1 whitespace-nowrap text-sm dark:text-gray-400">Default:</th>
                     <td class="py-1 px-2 dark:text-gray-300 font-fira text-[13px] tracking-tight">{popupDetail["default"]}</td>
-                  </tr>
-                {/if}
-                {#if "is-rpc" in popupDetail}
-                  <tr class="border-t border-gray-200 dark:border-gray-600">
-                    <th scope="row" class="py-1 whitespace-nowrap text-sm dark:text-gray-400">Is RPC:</th>
-                    <td class="py-1 px-2 dark:text-gray-300 font-fira text-[13px] tracking-tight">{popupDetail["is-rpc"]}</td>
-                  </tr>
-                {:else if "is-action" in popupDetail}
-                  <tr class="border-t border-gray-200 dark:border-gray-600">
-                    <th scope="row" class="py-1 whitespace-nowrap text-sm dark:text-gray-400">Is Action:</th>
-                    <td class="py-1 px-2 dark:text-gray-300 font-fira text-[13px] tracking-tight">{popupDetail["is-action"]}</td>
-                  </tr>
-                {:else if "is-notification" in popupDetail}
-                  <tr class="border-t border-gray-200 dark:border-gray-600">
-                    <th scope="row" class="py-1 whitespace-nowrap text-sm dark:text-gray-400">Is Notification:</th>
-                    <td class="py-1 px-2 dark:text-gray-300 font-fira text-[13px] tracking-tight">{popupDetail["is-notification"]}</td>
                   </tr>
                 {/if}
                 <tr class="border-t border-gray-200 dark:border-gray-600">
