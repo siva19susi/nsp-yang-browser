@@ -34,7 +34,7 @@
 <nav class="fixed top-0 z-20 px-6 py-4 w-screen font-nunito text-black dark:text-white backdrop-filter backdrop-blur-lg bg-opacity-50 border-b dark:border-gray-700">
   <div class="flex justify-between">
     <div class="flex items-center space-x-4">
-      <a href="{setHomeUrl()}"><img src="/images/navbar-logo.png" alt="Logo" width="25"/></a>
+      <a href="/"><img src="/images/navbar-logo.png" alt="Logo" width="25"/></a>
       <div class="flex flex-col whitespace-nowrap overflow-x-auto scroll-light dark:scroll-dark w-44 sm:w-fit">
         <div class="flex items-center space-x-1 {kind != "" ? 'text-xs text-gray-500 dark:text-gray-400' : 'text-sm'}">
           <p class="">NSP YANG Browser</p>
