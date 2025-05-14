@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cp /common/*.yang /uploads/
+
 # Start /app/server and redirect its logs
 /app/server 2>&1 | tee /var/log/server.log &
 

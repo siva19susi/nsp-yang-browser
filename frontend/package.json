@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "vite dev --host 0.0.0.0",
+		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview --host 0.0.0.0",
 		"test": "npm run test:integration && npm run test:unit",

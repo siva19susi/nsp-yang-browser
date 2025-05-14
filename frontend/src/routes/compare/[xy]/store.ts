@@ -3,12 +3,12 @@ import { derived, writable } from 'svelte/store'
 import { count } from '$lib/components/sharedStore'
 
 import type { PathDef } from '$lib/structure'
-import type { DiffResponseMessage } from '$lib/workers/structure'
+import type { DiffResponseMessage } from './structure'
 import { searchBasedFilter } from '$lib/components/functions'
 
 // WRITABLE STORES
 export const searchStore = writable("")
-export const stateStore = writable("")
+export const stateStore = writable<string[]>([])
 export const compareStore = writable("")
 export const defaultStore = writable(false)
 
@@ -20,7 +20,7 @@ export const compareFilter = derived([compareStore, yangPaths], ([$compareStore,
   $yangPaths.filter((x: PathDef) => $compareStore === "" ? true : x.compare === $compareStore))
 
 export const stateFilter = derived([stateStore, compareFilter], ([$stateStore, $compareFilter]) => 
-  $compareFilter.filter((x: PathDef) => $stateStore == "" ? true : x["is-state"] == $stateStore))
+  $compareFilter.filter((x: PathDef) => $stateStore.includes(x["added-filter"]) ? true : false))
 
 export const searchFilter = derived([searchStore, stateFilter], ([$searchStore, $stateFilter]) => 
   $stateFilter.filter((x: PathDef) => searchBasedFilter(x, $searchStore)))

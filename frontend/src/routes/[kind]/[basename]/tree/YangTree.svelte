@@ -13,9 +13,14 @@
 	const toggle = () => expanded = !expanded
 	const isCrossLaunched = () => $page.data.crossLaunched
   const getUrlPath = () => $page.data.urlPath
+  const isNspConnected = () => $page.data.nspIp != "" ? true : false
+  const isUrlTree = () => $page.data.isUrlTree
 
 	function leafClick(details: any) {
-		pathFocus.set(details)
+		pathFocus.set({
+      ...details, isUrlTree: isUrlTree(), 
+      nspConnected: isNspConnected()
+    })
 		$page.url.searchParams.delete("from")
 		$page.url.searchParams.set("path", details.path)
 		goto(`?${$page.url.searchParams.toString()}`, {noScroll: true})

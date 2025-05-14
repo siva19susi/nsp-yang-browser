@@ -1,10 +1,5 @@
 import type { PathDef } from '$lib/structure'
 
-export function kindView(kind: string) {
-  if(kind === "local") return "uploaded"
-  else if(kind === "nsp") return "from NSP"
-}
-
 export function toLower(str: string) {
   return str.trim().toLowerCase()
 }
@@ -62,4 +57,13 @@ export function markRender (node: HTMLSpanElement, text:string) {
       action()
     },
   }
+}
+
+export function copyAnimation() {
+  const toggle = () => {
+    document.getElementById("clip")?.classList.toggle("hidden")
+    document.getElementById("copied")?.classList.toggle("hidden")
+  }
+  setTimeout(toggle, 1000)
+  toggle()
 }

@@ -1,6 +1,8 @@
-# YANG Browser
+# NSP YANG Browser
 
-Browser to simplify YANG model visualization, eliminating the hassle of juggling multiple tools to access this information.
+NSP allows you to create and execute intent-based automation model for implementing network-level changes that translates high-level designs into necessary network configuration. In order to faciliate this flow, YANG modeling is used to leverage the automation to its complete heights.
+
+This tool provides a means to explore these YANG models either from a connected NSP system or the YANG repository can be manually uploaded and explored.
 
 ## Key Features
 
@@ -9,15 +11,16 @@ Browser to simplify YANG model visualization, eliminating the hassle of juggling
 - **Sample Payloads:** View example payloads for each YANG model.
 - **Model Comparison:** Seamlessly compare YANG models, whether manually uploaded or connected to an NSP.
 - **Advanced Filtering:** Filter paths by prefix, defaults, and state attributes for more refined results.
+- **Query NSP:** Query the connected NSP directly for live results of the yang paths.
 
 ## How to try it out
 
 ```bash
 mkdir ~/Downloads/uploads
 
-docker pull sivasusi19/yang-browser:latest
+docker pull sivasusi19/nsp-yang-browser:latest
 
-docker run -d -p 4173:4173 -v ~/Downloads/uploads:/uploads --name yang-browser sivasusi19/yang-browser:latest
+docker run -d -p 4173:4173 -v ~/Downloads/uploads:/uploads --name nsp-yang-browser sivasusi19/nsp-yang-browser:latest
 ```
 
 You can access the Yang Browser from: `http://localhost:4173`

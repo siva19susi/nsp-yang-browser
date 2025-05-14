@@ -8,8 +8,7 @@ onmessage = async (event: MessageEvent<YangTreePayloadPostMessage>) => {
   const urlPathTranform = urlPath.replaceAll("]", "=*]")
 
   try {
-    const pathResponse = await fetch(`/api/generate/${kind}/${basename}`)
-
+    const pathResponse = await fetch(`/api/${kind.replace("-", "/")}/${basename}/paths`)
     if(!pathResponse.ok) {
       const errorText = await pathResponse.text();
       throw error(404, errorText);

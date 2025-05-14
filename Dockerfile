@@ -1,4 +1,4 @@
-FROM golang:1.21 AS be-builder
+FROM golang:1.24 AS be-builder
 
 WORKDIR /build
 
@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 \
     -o server \
     .
 
-FROM node:21 AS fe-builder
+FROM node:23-slim AS fe-builder
 
 WORKDIR /build
 
@@ -22,13 +22,17 @@ RUN npm install
 RUN npm run build
 
 # Resulting container image
-FROM node:21-alpine
+FROM node:23-slim
 
 WORKDIR /app
 COPY --from=fe-builder /build .
 COPY --from=be-builder /build/server /app/server
 COPY entrypoint.sh /app/entrypoint.sh
-COPY uploads /uploads
+
+RUN mkdir -p /common
+RUN mkdir -p /uploads
+COPY uploads/ietf-inet-types.yang uploads/ietf-yang-types.yang /common/
+COPY uploads/nsp-model-extensions.yang uploads/webfwk-ui-metadata.yang /common/
 
 ENV HOST=0.0.0.0
 EXPOSE 4173

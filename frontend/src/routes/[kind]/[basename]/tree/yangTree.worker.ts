@@ -9,7 +9,7 @@ onmessage = async (event: MessageEvent<YangTreePostMessage>) => {
 
   try {
     let paths: PathDef[] = []
-    const pathResponse = await fetch(`/api/generate/${kind}/${basename}`)
+    const pathResponse = await fetch(`/api/${kind.replace("-", "/")}/${basename}/paths`)
 
     if(!pathResponse.ok) {
       const errorText = await pathResponse.text();
@@ -17,9 +17,21 @@ onmessage = async (event: MessageEvent<YangTreePostMessage>) => {
     }
 
     const pathJson = await pathResponse.json()
-    paths = pathJson.map((k: PathDef) => ({...k, "is-state": ("is-state" in k ? "R" : "RW")}))
+    paths = pathJson.map((k: PathDef) => {
+      let value = "RW"
+    
+      if ("is-state" in k) value = "R"
+      else if ("is-rpc" in k) value = "RPC"
+      else if ("is-action" in k) value = "A"
+      else if ("is-notification" in k) value = "N"
+    
+      return {
+        ...k,
+        "added-filter": value
+      }
+    })
 
-    const stateFilter = paths.filter((x: PathDef) => stateInput == "" ? true : x["is-state"] == stateInput)
+    const stateFilter = paths.filter((x: PathDef) => stateInput.includes(x["added-filter"]) ? true : false)
     const searchFilter = stateFilter.filter((x: PathDef) => searchBasedFilter(x, searchInput))
     const defaultFilter = searchFilter.filter((x: PathDef) => defaultInput ? "default" in x : x)
 
