@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nsp-yang-browser
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nsp-yang-browser
+  namespace: nsp-yang-browser
+  labels:
+    app.kubernetes.io/name: nsp-yang-browser
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nsp-yang-browser
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nsp-yang-browser
+    spec:
+      securityContext:
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+      containers:
+      - name: nsp-yang-browser
+        image: sivasusi19/nsp-yang-browser:srx
+        imagePullPolicy: Always
+        ports:
+        - name: browser-gateway
+          containerPort: 4173
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsp-yang-browser-service
+  namespace: nsp-yang-browser
+  annotations:
+    networking.gke.io/load-balancer-ip-addresses: "nsp-yang-browser"
+    cloud.google.com/l4-rbs: "enabled"
+    networking.gke.io/load-balancer-type: "External"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: nsp-yang-browser
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 4173

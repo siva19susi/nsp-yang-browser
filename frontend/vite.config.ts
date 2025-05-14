@@ -6,7 +6,11 @@ export default defineConfig({
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
-
+	preview: {
+    host: '0.0.0.0',
+    port: 4173,
+    allowedHosts: ['nsp-yang-browser.srexperts.net']
+  },
 	server: {
 		proxy: {
 			// svelte uses the relative /api path to reach the backend

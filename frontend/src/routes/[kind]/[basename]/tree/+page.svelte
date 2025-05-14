@@ -116,7 +116,7 @@
           <ShowPrefixCheck bind:showPathPrefix />
           <WithDefaultCheck bind:pathWithDefault />
           <div class="dropdown">
-            <a href="/{kind}/{basename}/tree/payload{showPathPrefix ? '?prefix=true' : ''}" target="_blank" class="dropdown-button px-2 py-1 rounded-lg text-xs text-nowrap bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white inline-flex items-center align-bottom">
+            <a href="/{kind}/{basename}/tree/payload{showPathPrefix ? '?prefix=true' : ''}" class="dropdown-button px-2 py-1 rounded-lg text-xs text-nowrap bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white inline-flex items-center align-bottom">
               <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"/>
               </svg>

@@ -66,6 +66,10 @@ func main() {
 	s.be.HandleFunc("/uploaded/{name}", s.uploadedSpecific).Methods("GET")
 	s.be.HandleFunc("/uploaded/{name}/paths", s.pathFromYang).Methods("GET")
 
+	// DOWNLOAD HANDLER
+	s.be.HandleFunc("/download/{name}", s.downloadBundle).Methods("GET")
+	s.be.HandleFunc("/download/{name}/file/{yang}", s.downloadYang).Methods("GET")
+
 	// DELETE HANDLERS
 	s.be.HandleFunc("/delete/{name}", s.delete).Methods("DELETE")
 	s.be.HandleFunc("/delete/{name}/file/{yang}", s.deleteFile).Methods("DELETE")

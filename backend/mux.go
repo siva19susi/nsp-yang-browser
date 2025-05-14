@@ -271,6 +271,72 @@ func (s *srv) uploadedSpecific(w http.ResponseWriter, r *http.Request) {
 	writeJsonResponse(w, b)
 }
 
+func (s *srv) downloadBundle(w http.ResponseWriter, r *http.Request) {
+	folderName := mux.Vars(r)["name"]
+	folderPath := yangFolder + folderName
+	zipFileName := folderName + ".zip"
+
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+zipFileName+"\"")
+
+	zipWriter := zip.NewWriter(w)
+	defer zipWriter.Close()
+
+	err := filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		relPath := strings.TrimPrefix(path, folderPath)
+		relPath = strings.TrimLeft(relPath, string(filepath.Separator))
+
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+		header.Name = relPath
+		header.Method = zip.Deflate
+
+		writer, err := zipWriter.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(writer, file)
+		return err
+	})
+
+	if err != nil {
+		http.Error(w, "Failed to create zip: "+err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *srv) downloadYang(w http.ResponseWriter, r *http.Request) {
+	folderName := mux.Vars(r)["name"]
+	yangFileName := mux.Vars(r)["yang"]
+
+	yangFilePath := yangFolder + folderName + "/" + yangFileName
+	if strings.Contains(folderName, ".yang") {
+		yangFilePath = yangFolder + yangFileName
+	}
+
+	fileName := filepath.Base(yangFilePath)
+
+	w.Header().Set("Content-Disposition", "attachment; filename="+fileName)
+	w.Header().Set("Content-Type", "application/octet-stream")
+	http.ServeFile(w, r, yangFilePath)
+}
+
 // DELETE FOLDER OR REPO
 func (s *srv) delete(w http.ResponseWriter, r *http.Request) {
 	basename := mux.Vars(r)["name"]
