@@ -51,7 +51,7 @@
         <tbody>
           {#if $total > 0}
             {#each $paginated as item}
-              <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
+              <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
                 <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight"><div use:markRender={item.counterName}></div></td>
                 <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight group"><div use:markRender={item.dataType}></div></td>
                 <td class="px-3 py-1.5 font-fira text-[13px] tracking-tight"><div use:markRender={item.deviceXpath}></td>
