@@ -33,6 +33,7 @@ RUN mkdir -p /common
 RUN mkdir -p /uploads
 COPY uploads/ietf-inet-types.yang uploads/ietf-yang-types.yang /common/
 COPY uploads/nsp-model-extensions.yang uploads/webfwk-ui-metadata.yang /common/
+COPY uploads/nsp-lso-manager.yang uploads/nsp-lso-operation.yang /common/
 
 ENV HOST=0.0.0.0
 EXPOSE 4173
