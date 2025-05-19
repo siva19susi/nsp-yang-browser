@@ -65,6 +65,8 @@
                 <span>{xBasename} ({xKind})</span>
               </div>
             </div>
+          {:else if kind === "telemetry"}
+            <p class="text-sm">telemetry:{basename}</p>
           {:else}
             <p class="text-sm">{basename} ({kind})</p>
           {/if}
@@ -72,7 +74,7 @@
       </div>
     </div>
     <div class="flex items-center">
-      {#if !kind.includes(";")}
+      {#if !kind.includes(";") && kind !== "telemetry"}
         <button class="inline-block cursor-pointer {$compare.length ? 'animate-pulse text-blue-600 hover:text-blue-800 dark:text-blue-400 hover:dark:text-blue-600' : 'text-gray-600 dark:text-gray-400'}" on:click={() => visualiseCompare = !visualiseCompare}>
           <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" stroke="currentColor" stroke-width="10" aria-hidden="true">
             <path d="M420.266667 832c-17.066667 0-34.133333-6.4-44.8-19.2L104.533333 541.866667c-12.8-12.8-19.2-27.733333-19.2-44.8s6.4-34.133333 19.2-44.8L345.6 211.2c23.466667-23.466667 66.133333-23.466667 89.6 0l270.933333 270.933333c12.8 12.8 19.2 27.733333 19.2 44.8s-6.4 34.133333-19.2 44.8L465.066667 812.8c-10.666667 12.8-27.733333 19.2-44.8 19.2z m-29.866667-597.333333c-6.4 0-10.666667 2.133333-14.933333 6.4L134.4 482.133333c-4.266667 4.266667-6.4 8.533333-6.4 14.933334s2.133333 10.666667 6.4 14.933333L405.333333 782.933333c8.533333 8.533333 21.333333 8.533333 29.866667 0l241.066667-241.066666c4.266667-4.266667 6.4-8.533333 6.4-14.933334s-2.133333-10.666667-6.4-14.933333L405.333333 241.066667c-4.266667-4.266667-8.533333-6.4-14.933333-6.4z" />
@@ -84,6 +86,6 @@
     </div>
   </div>
 </nav>
-{#if !kind.includes(";")}
+{#if !kind.includes(";") && kind !== "telemetry"}
   <Compare bind:visualiseCompare/>
 {/if}

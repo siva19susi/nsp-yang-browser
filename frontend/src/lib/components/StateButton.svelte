@@ -7,7 +7,7 @@
 <div class="dropdown">
   <button class="dropdown-button px-2 py-1 text-xs text-center text-nowrap rounded-lg inline-flex items-center dark:text-white 
     {stateInput?.length ? 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600' : ''} border border-gray-200 dark:border-gray-600">
-      Added Filters
+      Filters
       <svg class="w-2.5 h-2.5 ms-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
       </svg>

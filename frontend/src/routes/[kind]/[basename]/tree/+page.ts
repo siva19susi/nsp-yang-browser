@@ -8,7 +8,7 @@ export async function load({ url, params, fetch }) {
   const isUrlTree = url.pathname.includes("tree") ? true : false
   let nspInfo = {"ip": ""}
 
-  if(kind !== "uploaded" && kind !== "nsp-module" && kind !== "nsp-intent-type") {
+  if(kind !== "uploaded" && kind !== "nsp-module" && kind !== "nsp-intent-type" && kind !== "nsp-lso-operation") {
     throw error(404, "Unsupported kind")
   }
 
