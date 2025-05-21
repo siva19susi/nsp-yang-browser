@@ -46,8 +46,6 @@
     console.log(response)
     if(response.ok) {
       idInfo = await response.json()
-    } else {
-      console.log(response.text())
     }
     return {}
   }

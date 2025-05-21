@@ -27,6 +27,7 @@ var (
 			"nsp-lso-operation.yang",
 			"nsp-model-extensions.yang",
 			"ietf-yang-types.yang",
+			"ietf-inet-types.yang",
 		},
 		Module: []string{
 			"nsp-model-extensions.yang",
