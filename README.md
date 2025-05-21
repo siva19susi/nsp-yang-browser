@@ -16,11 +16,11 @@ This tool provides a means to explore these YANG models either from a connected 
 ## How to try it out
 
 ```bash
-mkdir ~/Downloads/uploads
+mkdir ~/Downloads/offline
 
 docker pull sivasusi19/nsp-yang-browser:latest
 
-docker run -d -p 4173:4173 -v ~/Downloads/uploads:/uploads --name nsp-yang-browser sivasusi19/nsp-yang-browser:latest
+docker run -d -p 4173:4173 -v ~/Downloads/offline:/offline --name nsp-yang-browser sivasusi19/nsp-yang-browser:latest
 ```
 
 You can access the Yang Browser from: `http://localhost:4173`

@@ -45,7 +45,7 @@
 		</span>
 		<div title="{folder.details.path}" use:markRender={markFilter(folder.name, getUrlPath(), "tree")}></div>
 	</button>
-	<a href="/{$page.data.kind}/{$page.data.basename}/tree/payload?path={folder.details.path}{withPrefix ? '&prefix=true' : ''}&expand=false" target="_blank" 
+	<a href="/{$page.data.kind}/{$page.data.basename}/tree/payload?path={folder.details.path}{withPrefix ? '&prefix=true' : ''}&expand=false"  
 		class="dropdown-button px-2 py-0.5 rounded-lg text-[10px] text-nowrap bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-black dark:text-white inline-flex items-center align-bottom">
 		Payload
 	</a>

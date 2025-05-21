@@ -5,93 +5,51 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/openconfig/goyang/pkg/yang"
 )
 
-// Add YANG file to the list if not already present
-func addYangFileIfMissing(files []string, yangFileName string) []string {
-	for _, file := range files {
-		if strings.Contains(file, yangFileName) {
-			return files
-		}
-	}
-	return append(files, filepath.Join(yangFolder, yangFileName))
+type Dependency struct {
+	Lso        []string `json:"lso"`
+	Module     []string `json:"Module"`
+	IntentType []string `json:"intent-type"`
 }
 
-// Load YANG file content into IntentTypeYangModule
-func loadYangModule(yangFileName string) (IntentTypeYangModule, error) {
-	filePath := filepath.Join(yangFolder, yangFileName)
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return IntentTypeYangModule{}, fmt.Errorf("[Error] reading %s file: %v", yangFileName, err)
-	}
-	return IntentTypeYangModule{
-		Name:        yangFileName,
-		YangContent: string(content),
-	}, nil
-}
+const commonFolder = "../common/"
 
-// Get all common YANG files in the folder
-func getCommonYangFiles() ([]string, error) {
-	files, err := os.ReadDir(yangFolder)
-	if err != nil {
-		return nil, fmt.Errorf("[Error] reading yang repo: %v", err)
+var (
+	dependency = Dependency{
+		Lso: []string{
+			"nsp-lso-manager.yang",
+			"nsp-lso-operation.yang",
+			"nsp-model-extensions.yang",
+			"ietf-yang-types.yang",
+			"ietf-inet-types.yang",
+		},
+		Module: []string{
+			"nsp-model-extensions.yang",
+		},
+		IntentType: []string{
+			"ietf-inet-types.yang",
+			"ietf-yang-types.yang",
+			"webfwk-ui-metadata.yang",
+		},
 	}
-
-	var commonYangs []string
-	for _, file := range files {
-		if !file.IsDir() && filepath.Ext(file.Name()) == ".yang" {
-			commonYangs = append(commonYangs, file.Name())
-		}
-	}
-	return commonYangs, nil
-}
-
-// Get NSP repo specific uploaded YANG files in the folder
-func getNspRepoDependencyYang(name string) ([]string, error) {
-	dirPath := filepath.Join(yangFolder, "from-nsp-"+name)
-	files, err := os.ReadDir(dirPath)
-	if err != nil {
-		return nil, nil
-	}
-
-	var dependencyYangs []string
-	for _, file := range files {
-		if !file.IsDir() && filepath.Ext(file.Name()) == ".yang" {
-			dependencyYangs = append(dependencyYangs, file.Name())
-		}
-	}
-	return dependencyYangs, nil
-}
-
-// Read and parse YANG files in the specified directory
-func readYangFilesFromDir(dirPath string, commonYangs []string) ([]string, error) {
-	dirEntries, err := os.ReadDir(dirPath)
-	if err != nil {
-		return nil, fmt.Errorf("[Error] reading yang repo: %v", err)
-	}
-
-	var files []string
-	for _, entry := range dirEntries {
-		files = append(files, filepath.Join(dirPath, entry.Name()))
-	}
-
-	for _, commonYang := range commonYangs {
-		files = addYangFileIfMissing(files, commonYang)
-	}
-
-	return files, nil
-}
+)
 
 // Handler for generating schema from YANG files
 func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 
+	saveParam := r.URL.Query().Get("save")
+	save := saveParam == "true"
+
 	pathSegments := strings.Split(r.URL.Path, "/")
 	kind := pathSegments[1]
+	subKind := pathSegments[2]
 
 	app := &App{
 		SchemaTree: &yang.Entry{
@@ -100,68 +58,75 @@ func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 		modules: yang.NewModules(),
 	}
 
-	commonYangs, err := getCommonYangFiles()
-	if err != nil {
-		s.raiseError("[Error] reading common YANG files", err, w)
-		return
-	}
+	var definitions []YangDefinition
 
 	switch kind {
-	case "uploaded":
-		dirPath := filepath.Join(yangFolder, name)
-		files, err := readYangFilesFromDir(dirPath, commonYangs)
+	case "offline":
+		var files []string
+		dirPath := filepath.Join(commonFolder, name)
+		dirFiles, err := os.ReadDir(dirPath)
 		if err != nil {
-			s.raiseError("[Error] preparing YANG files", err, w)
+			s.raiseError("directory missing", err, w)
 			return
+		}
+		for _, file := range dirFiles {
+			files = append(files, filepath.Join(dirPath, file.Name()))
 		}
 
 		if err := app.readYangModules(files); err != nil {
-			s.raiseError("[Error] generating YANG schema", err, w)
+			s.raiseError("error generating YANG schema", err, w)
 			return
 		}
-
 	case "nsp":
-		dependencyYangs, err := getNspRepoDependencyYang(name)
-		if err != nil {
-			s.raiseError("[Error] reading repo specific dependency YANG files", err, w)
-			return
-		}
+		switch subKind {
+		case "intent-type":
+			{
+				yangModules, err := s.intentTypeYangModules(name)
+				if err != nil {
+					s.raiseError("", err, w)
+					return
+				}
+				for _, yangModule := range yangModules {
+					definitions = append(definitions, YangDefinition{
+						Name:       yangModule.Name,
+						Definition: yangModule.YangContent,
+					})
+				}
 
-		yangModules, err := s.intentTypeYangModules(name)
-		if err != nil {
-			s.raiseError("[Error] fetching YANG modules", err, w)
-			return
-		}
+				definitions, err = loadDependencyDefinition(definitions, dependency.IntentType)
+				if err != nil {
+					s.raiseError("", err, w)
+					return
+				}
 
-		for _, commonYang := range commonYangs {
-			module, err := loadYangModule(commonYang)
-			if err != nil {
-				s.raiseError("[Error] loading common YANG module", err, w)
-				return
+				if err := app.definitionToSchema(definitions); err != nil {
+					s.raiseError("error generating YANG schema", err, w)
+					return
+				}
 			}
-			yangModules = append(yangModules, module)
-		}
+		case "lso-operation":
+			{
+				operationName, operationYang, err := s.getLsoOperationModel(name)
+				if err != nil {
+					s.raiseError("", err, w)
+					return
+				}
+				definitions = append(definitions, YangDefinition{
+					Name:       operationName,
+					Definition: operationYang,
+				})
 
-		for _, dependencyYang := range dependencyYangs {
-			module, err := loadYangModule(filepath.Join("from-nsp-"+name, dependencyYang))
-			if err != nil {
-				s.raiseError("[Error] loading repo specific dependency YANG module", err, w)
-				return
+				definitions, err = loadDependencyDefinition(definitions, dependency.Lso)
+				if err != nil {
+					s.raiseError("", err, w)
+					return
+				}
+
+				if err := app.definitionToSchema(definitions); err != nil {
+					s.raiseError("error generating YANG schema", err, w)
+					return
+				}
 			}
-			yangModules = append(yangModules, module)
-		}
-
-		var definitions []YangDefinition
-		for _, module := range yangModules {
-			definitions = append(definitions, YangDefinition{
-				Name:       module.Name,
-				Definition: module.YangContent,
-			})
-		}
-
-		if err := app.definitionToSchema(definitions); err != nil {
-			s.raiseError("[Error] generating YANG schema", err, w)
-			return
 		}
 	}
 
@@ -171,6 +136,39 @@ func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(result)
+	if save {
+		if err := s.saveJsonFile(subKind, name, result); err != nil {
+			s.raiseError("", err, w)
+			return
+		}
+		writeResponse(w, "success", fmt.Sprintf("%s/%s.json was saved", subKind, name))
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(result)
+	}
+}
+
+func loadDependencyDefinition(definitions []YangDefinition, dependents []string) ([]YangDefinition, error) {
+	dirPath := filepath.Join(commonFolder)
+	files, err := os.ReadDir(dirPath)
+	if err != nil {
+		return definitions, fmt.Errorf("common yang folder missing %v", err)
+	}
+
+	for _, file := range files {
+		fileName := file.Name()
+		if !file.IsDir() && slices.Contains(dependents, fileName) {
+			filePath := filepath.Join(commonFolder, fileName)
+			content, err := os.ReadFile(filePath)
+			if err != nil {
+				return definitions, fmt.Errorf("error reading %s", fileName)
+			}
+			definitions = append(definitions, YangDefinition{
+				Name:       fileName,
+				Definition: string(content),
+			})
+		}
+	}
+
+	return definitions, nil
 }

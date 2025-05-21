@@ -7,15 +7,17 @@ export async function load({ url, params, fetch }) {
   const isUrlTree = url.pathname.includes("tree") ? true : false
   let nspInfo = {"ip": ""}
 
-  if(kind !== "uploaded" && kind !== "nsp-module" && kind !== "nsp-intent-type") {
+  if(kind !== "offline" && kind !== "nsp-module" && kind !== "nsp-intent-type" && kind !== "nsp-lso-operation") {
     throw error(404, "Unsupported kind")
   }
 
-  const resp = await fetch("/api/nsp/isConnected")
-  if((kind.includes("nsp") && !resp.ok)) {
-    throw error(404, "Check NSP connection")
-  } else if(resp.ok) {
-    nspInfo = await resp.json()
+  if(kind.includes("nsp")) {
+    const resp = await fetch("/api/nsp/isConnected")
+    if((kind.includes("nsp") && !resp.ok)) {
+      throw error(404, "Check NSP connection")
+    } else if(resp.ok) {
+      nspInfo = await resp.json()
+    }
   }
 
   return { kind, basename, urlPath, nspIp: nspInfo.ip, isUrlTree }

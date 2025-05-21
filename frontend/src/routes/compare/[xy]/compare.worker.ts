@@ -9,7 +9,7 @@ onmessage = async (event: MessageEvent<ComparePostMessage>) => {
   let xpaths: PathDef[] = []
   let ypaths: PathDef[] = []
 
-  async function fetchPaths(kind: string, basename: string) {
+  async function fetchPaths(kind: string, basename: string, compareTo: string) {
     const pathResponse = await fetch(`/api/${kind.replace("-", "/")}/${basename}/paths`)
 
     if(!pathResponse.ok) {
@@ -28,15 +28,16 @@ onmessage = async (event: MessageEvent<ComparePostMessage>) => {
     
       return {
         ...k,
-        compareTo: `${basename} (${kind})`,
+        kind, basename, 
+        compareTo: compareTo,
         "added-filter": value
       }
     })
   }
 
   try {
-    xpaths = await fetchPaths(xKind, xBasename)
-    ypaths = await fetchPaths(yKind, yBasename)
+    xpaths = await fetchPaths(xKind, xBasename, `${yBasename} (${yKind})`)
+    ypaths = await fetchPaths(yKind, yBasename, `${yBasename} (${yKind})`)
 
     // Start of Compare operation
     const xOnlyPath = xpaths.map((k :PathDef) => k.path)

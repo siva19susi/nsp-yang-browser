@@ -116,15 +116,20 @@
                 <li class="text-sm text-gray-700 dark:text-gray-300 darl:text-gray-200 {i > 0 ? 'border-t dark:border-gray-600' : ''}">
                   <div class="flex items-center justify-between">
                     <p class="px-4 py-3">{filename}</p>
-                    {#if repoDetail.name.includes(".yang") || repoDetail["files"].length > 1}
-                      <div class="flex items-center mx-4 space-x-5">
+                    <div class="flex items-center mx-4 space-x-5">
+                      <a target="_blank" href="/api/download/{repoDetail.name}/file/{filename}" class="text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-800 rounded-lg px-2 py-1">
+                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
+                        </svg>
+                      </a>
+                      {#if repoDetail.name.includes(".yang") || repoDetail["files"].length > 1}
                         <button class="hover:bg-red-500 hover:text-white text-red-400 rounded-lg p-1"  on:click={() => removeYangEntry("from-nsp-" + repoDetail.name, filename)}>
                           <svg class="w-4 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
                           </svg>
                         </button>
-                      </div>
-                    {/if}
+                      {/if}
+                    </div>
                   </div>
                 </li>
               {/each}

@@ -50,9 +50,11 @@
     <Navbar {kind} {basename} {nspIp}/>
     <div class="font-nunito">
       <div class="px-6 py-4 text-sm dark:text-white pt-[85px]">
-        <p class="pb-1 font-semibold text-black dark:text-white">Target Path:</p>
-        <pre>{urlPath}</pre>
-        <p class="pt-4 pb-1 font-semibold text-black dark:text-white">Sample Payload:</p>
+        {#if urlPath !== ""}
+          <p class="pb-1 font-semibold text-black dark:text-white">Target Path:</p>
+          <pre>{urlPath}</pre>
+        {/if}
+        <p class="{urlPath !== "" ? 'pt-4' : ''} pb-1 font-semibold text-black dark:text-white">Sample Payload:</p>
         <pre>{JSON.stringify(treePayload, null, 2)}</pre>
       </div>
       <Footer home={false}/>

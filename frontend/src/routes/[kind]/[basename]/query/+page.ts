@@ -7,7 +7,7 @@ export async function load({ params, url, fetch }) {
   const field = url.searchParams.get("field")?.trim() ?? ""
   let nspInfo = {"ip": ""}
 
-  if(kind !== "uploaded" && kind !== "nsp-module" && kind !== "nsp-intent-type") {
+  if(kind !== "uploaded" && kind !== "nsp-module" && kind !== "nsp-intent-type" && kind !== "nsp-lso-operation") {
     throw error(404, "Unsupported kind")
   }
 

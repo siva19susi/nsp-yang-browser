@@ -30,9 +30,10 @@ COPY --from=be-builder /build/server /app/server
 COPY entrypoint.sh /app/entrypoint.sh
 
 RUN mkdir -p /common
-RUN mkdir -p /uploads
-COPY uploads/ietf-inet-types.yang uploads/ietf-yang-types.yang /common/
-COPY uploads/nsp-model-extensions.yang uploads/webfwk-ui-metadata.yang /common/
+RUN mkdir -p /offline
+COPY common/ietf-inet-types.yang common/ietf-yang-types.yang /common/
+COPY common/nsp-model-extensions.yang common/webfwk-ui-metadata.yang /common/
+COPY common/nsp-lso-manager.yang common/nsp-lso-operation.yang /common/
 
 ENV HOST=0.0.0.0
 EXPOSE 4173

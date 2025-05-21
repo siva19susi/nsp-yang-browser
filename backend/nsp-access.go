@@ -25,6 +25,7 @@ func (s *srv) nspReset() {
 			RefreshToken: "",
 			TokenType:    "",
 			ExpiresIn:    0,
+			ConnectTime:  "",
 		},
 	}
 	s.Unlock()
@@ -41,7 +42,10 @@ func (s *srv) getToken() error {
 		return fmt.Errorf("[Error] parsing NSP access payload: %v", err)
 	}
 
+	s.Lock()
 	auth := s.nsp.User + ":" + s.nsp.Pass
+	s.Unlock()
+
 	authEncoded := base64.StdEncoding.EncodeToString([]byte(auth))
 
 	url := fmt.Sprintf("https://%s/rest-gateway/rest/api/v1/auth/token", s.nsp.Ip)
@@ -65,16 +69,23 @@ func (s *srv) getToken() error {
 		return fmt.Errorf("[Error] accessing NSP access response: %v", err)
 	}
 
+	s.Lock()
 	err = json.Unmarshal(body, &s.nsp.token)
 	if err != nil {
 		return fmt.Errorf("[Error] parsing NSP access response: %v", err)
 	}
+
+	s.nsp.token.ConnectTime = time.Now().Format("2006-01-02-15-04-05")
+	s.Unlock()
+
+	s.logger.Printf("[Info] Acquired token expires in %d seconds", s.nsp.token.ExpiresIn)
 
 	return nil
 }
 
 // REVOKE NSP TOKEN
 func (s *srv) revokeToken() error {
+	s.Lock()
 	payload := url.Values{
 		"token":           {s.nsp.token.AccessToken},
 		"token_type_hint": {"token"},
@@ -100,6 +111,7 @@ func (s *srv) revokeToken() error {
 		return fmt.Errorf("[Error] revoking NSP access with status: %s", resp.Status)
 	}
 
+	s.Unlock()
 	s.nspReset()
 	return nil
 }

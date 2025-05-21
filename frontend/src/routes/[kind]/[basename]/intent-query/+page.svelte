@@ -67,7 +67,6 @@
       target: formData.get("target") as string,
       "intent-key": basename.split("_")[0]
     }
-
     loadInventoryFindWorker(findPayload)
   }
 

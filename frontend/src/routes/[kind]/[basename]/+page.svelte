@@ -6,6 +6,7 @@
   import Popup from '$lib/components/Popup.svelte'
   import Loading from '$lib/components/Loading.svelte'
   import ErrorNotification from '$lib/components/ErrorNotification.svelte'
+  import EnableOfflineMode from '$lib/components/EnableOfflineMode.svelte'
 
   import StateButton from '$lib/components/StateButton.svelte'
   import SearchInput from '$lib/components/SearchInput.svelte'
@@ -92,6 +93,9 @@
             <StateButton bind:stateInput />
             <ShowPrefixCheck bind:showPathPrefix />
             <WithDefaultCheck bind:pathWithDefault />
+            {#if kind !== "offline"}
+              <EnableOfflineMode {kind} {basename} />
+            {/if}
           </div>
         </div>
         <Pagination />

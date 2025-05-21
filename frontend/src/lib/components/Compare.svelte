@@ -64,7 +64,7 @@
             <div class="text-center px-4 py-4 bg-gray-50 dark:bg-gray-700 border-t dark:border-gray-700 rounded-b-lg">
               <div class="flex items-center justify-between">
                 <button class="px-3 py-1 text-sm bg-blue-200 rounded-lg" on:click={() => compare.clear()}>Reset</button>
-                <a href="/compare/{$compare[0]}..{$compare[1]}" target="_blank"
+                <a href="/compare/{$compare[0]}..{$compare[1]}" 
                   class="px-4 py-1 rounded-lg text-sm text-white select-none 
                   {$compare.length === 2 ? 
                     'bg-green-600 hover:bg-green-700' : 
