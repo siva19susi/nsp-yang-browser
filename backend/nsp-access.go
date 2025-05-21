@@ -25,6 +25,7 @@ func (s *srv) nspReset() {
 			RefreshToken: "",
 			TokenType:    "",
 			ExpiresIn:    0,
+			ConnectTime:  "",
 		},
 	}
 	s.Unlock()
@@ -73,6 +74,8 @@ func (s *srv) getToken() error {
 	if err != nil {
 		return fmt.Errorf("[Error] parsing NSP access response: %v", err)
 	}
+
+	s.nsp.token.ConnectTime = time.Now().Format("2006-01-02-15-04-05")
 	s.Unlock()
 
 	s.logger.Printf("[Info] Acquired token expires in %d seconds", s.nsp.token.ExpiresIn)

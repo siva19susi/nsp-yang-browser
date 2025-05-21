@@ -3,21 +3,17 @@
 
   import Navbar from '$lib/components/Navbar.svelte'
   import Footer from '$lib/components/Footer.svelte'
-  import SwitchMenu from '$lib/components/SwitchMenu.svelte'
-  import NspRepoList from './NspRepoList.svelte'
   import LsoPagination from './LsoPagination.svelte'
   import TelemetryPagination from './TelemetryPagination.svelte'
 	
   import { intentTypeStore, total, pageCount, start, end, lsoStore, telemetryStore, lsoSearch, telemetrySearch, telemetryPaginated, lsoPaginated } from './store'
 	import type { IntentTypeSearch, IntentTypeSearchResponseMessage } from './structure'
 	import { compare } from '$lib/components/sharedStore'
-	import type { RepoListResponse } from '../uploads/structure'
 
   let search = ""
   let isSubmitting = false
   let typingTimer: number | undefined
   let doneTypingDelay = 500
-  let repoDetail: RepoListResponse
 
   let intentTypes: IntentTypeSearch = {
 	  total: 0,
@@ -74,15 +70,6 @@
     isSubmitting = false
   }
 
-  async function getYangDependency(name: string) {
-		const resp = await fetch(`/api/uploaded/from-nsp-${name}`)
-    if(resp.ok) {
-      repoDetail = {name, files: await resp.json()}
-    } else {
-      repoDetail = {name, files: []}
-    }
-  }
-
   function onSearchKeyUp(f: string) {
     clearTimeout(typingTimer)
     typingTimer = setTimeout(() => {
@@ -124,7 +111,7 @@
 </script>
 
 <svelte:head>
-	<title>NSP YANG Browser {nspIp != "" ? `| ${nspIp}` : ''}</title>
+	<title>NSP YANG Browser | Telemetry Type Definition</title>
 </svelte:head>
 
 <Navbar {nspIp}/>
@@ -228,7 +215,6 @@
     <div class="px-6 pt-6 pb-4 border-t dark:border-gray-700">
       <div class="flex items-center justify-between">
         <p class="text-lg pb-2 text-black dark:text-white">Intent Types</p>
-        <!-- <SwitchMenu isUpload={false} /> -->
       </div>
       <div class="py-2">
         <input type="text" placeholder="Search..." bind:value={search} on:keyup={() => onSearchKeyUp(search)} on:keydown={onSearchKeyDown}
@@ -269,13 +255,6 @@
                   <div class="flex items-center justify-between">
                     <a data-sveltekit-reload href="/nsp-intent-type/{name}" class="px-4 py-3 w-full overflow-x-auto">{name}</a>
                     <div class="flex items-center mx-4 space-x-5">
-                      <!--
-                      <button class="text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800 rounded-lg p-1" on:click={() => getYangDependency(name)}>
-                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01"/>
-                        </svg>
-                      </button>
-                      -->
                       <div title="Add to compare" class="flex">
                         <input type="checkbox" id="nsp-intent-type-{name}-check" class="peer hidden" 
                           disabled={isDisabled}
@@ -301,6 +280,5 @@
       </div>
     </div>
   {/if}
-  <NspRepoList bind:repoDetail />
   <Footer home={false}/>
 </div>

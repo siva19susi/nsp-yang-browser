@@ -1,19 +1,30 @@
 <script lang="ts">
+  import { onMount } from "svelte";
 	import Theme from "$lib/components/Theme.svelte"
 	import Compare from "./Compare.svelte"
 
 	import { compare } from "./sharedStore"
+	import type { OfflineInfo } from "$lib/structure"
 
   export let kind: string = ""
   export let basename: string = ""
   export let nspIp: string
 
+  let idInfo: OfflineInfo = {
+	  id: "",
+	  nspIp: "",
+	  timestamp: "",
+	  module: "",
+	  name: ""
+  }
   let visualiseCompare = false
   const isNspUrl = kind.includes("nsp") || nspIp != ""
+  
+  onMount(() => getOfflineIdInfo())
 
   function setHomeUrl() {
     if(kind.includes("nsp-")) return "/nsp"
-    else if(kind === "uploaded") return "/uploads"
+    else if(kind === "offline") return "/offline"
     return "/"
   }
 
@@ -28,6 +39,17 @@
         window.alert(`[Error] Failed to disconnect NSP. Page will reload to take effect.`)
       }
     }
+  }
+  
+  async function getOfflineIdInfo() {
+    const response = await fetch(`/api/offline/list/${basename.replace("telemetry:", "")}`)
+    console.log(response)
+    if(response.ok) {
+      idInfo = await response.json()
+    } else {
+      console.log(response.text())
+    }
+    return {}
   }
 </script>
 
@@ -65,8 +87,23 @@
                 <span>{xBasename} ({xKind})</span>
               </div>
             </div>
-          {:else if kind === "telemetry"}
-            <p class="text-sm">telemetry:{basename}</p>
+          {:else if kind === "offline" && idInfo.id !== ""}
+            <div class="dropdown">
+              <div class="dropdown-button py-1 rounded-lg text-sm cursor-pointer text-nowrap dark:text-white inline-flex items-center align-bottom">
+                <div class="flex items-center space-x-1">
+                  <span class="underline">{basename}</span>
+                  <span>({kind})</span>
+                </div>
+              </div>
+              <div class="dropdown-content absolute z-10 hidden bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg shadow">
+                <div class="my-2 max-w-[300px] px-3 text-xs text-wrap">
+                  <p>Name: {(idInfo.module === "telemetry-type" ? "/" + idInfo.name.replaceAll("_", "/") : idInfo.name)}</p>
+                  <p>Module: {idInfo.module}</p>
+                  <p>Snapshot from: {idInfo.nspIp}</p>
+                  <p>Timestamp: {idInfo.timestamp}</p>
+                </div>
+              </div>
+            </div>
           {:else}
             <p class="text-sm">{basename} ({kind})</p>
           {/if}

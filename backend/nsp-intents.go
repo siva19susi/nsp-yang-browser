@@ -253,7 +253,7 @@ func (s *srv) intentExplorer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := fmt.Sprintf("https://%s/mdt/rest/restconf/data/ibn:ibn/intent=%s,%s/intent-specific-data%s", s.nsp.Ip, pd.Target, pd.IntentKey, pd.Url)
+	url := fmt.Sprintf("https://%s/mdt/rest/restconf/data/ibn:ibn/intent=%s,%s/intent-specific-data%s", s.nsp.Ip, url.QueryEscape(pd.Target), pd.IntentKey, pd.Url)
 	headers := map[string]string{
 		"Content-Type":  "application/yang-data+json",
 		"Accept":        "application/yang-data+json",

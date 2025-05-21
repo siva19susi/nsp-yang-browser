@@ -18,6 +18,7 @@ type TokenDetail struct {
 	RefreshToken string `json:"refresh_token"`
 	TokenType    string `json:"token_type"`
 	ExpiresIn    int    `json:"expires_in"`
+	ConnectTime  string `json:"connect_time,omitempty"`
 }
 
 type NspAccess struct {
@@ -62,22 +63,17 @@ func main() {
 	// BASE API HEALTH CHECK
 	s.be.HandleFunc("/", connectionOk).Methods("GET")
 
-	// UPLOAD HANDLERS
+	// OFFLINE HANDLERS
 	s.be.HandleFunc("/upload", s.upload).Methods("POST")
-	s.be.HandleFunc("/upload/file", s.uploadFile).Methods("POST")
-	s.be.HandleFunc("/upload/file/{name}", s.uploadFile).Methods("POST")
-	s.be.HandleFunc("/uploaded/all", s.uploadedAll).Methods("GET")
-	s.be.HandleFunc("/uploaded/{name}", s.uploadedSpecific).Methods("GET")
-	s.be.HandleFunc("/uploaded/{name}/paths", s.pathFromYang).Methods("GET")
+	s.be.HandleFunc("/offline/list", s.uploadedAll).Methods("GET")
+	s.be.HandleFunc("/offline/list/{id}", s.uploadedInfo).Methods("GET")
+	s.be.HandleFunc("/offline/{id}/paths", s.uploadedPaths).Methods("GET")
 
 	// DOWNLOAD HANDLER
 	s.be.HandleFunc("/download/{name}", s.downloadBundle).Methods("GET")
-	s.be.HandleFunc("/download/{name}/file/{yang}", s.downloadYang).Methods("GET")
 
 	// DELETE HANDLERS
 	s.be.HandleFunc("/delete/{name}", s.delete).Methods("DELETE")
-	s.be.HandleFunc("/delete/{name}/file/{yang}", s.deleteFile).Methods("DELETE")
-	s.be.HandleFunc("/delete/file/{yang}", s.deleteFile).Methods("DELETE")
 
 	// NSP HANDLERS
 	s.be.HandleFunc("/nsp/connect", s.nspConnect).Methods("POST")

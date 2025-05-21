@@ -39,3 +39,11 @@ export interface PathDef {
   "if-features"?: string[]
   "added-filter" : string
 }
+
+export interface OfflineInfo {
+  id: string
+  nspIp: string
+  timestamp: string
+  module: string
+  name: string
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,7 +14,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/openconfig/goyang/pkg/yang"
 )
 
 const yangFolder = "../offline/"
@@ -81,6 +84,18 @@ func saveFile(file io.Reader, filepath string) error {
 	return nil
 }
 
+func (s *srv) saveJsonFile(moduleName string, fileName string, content []byte) error {
+	u := uuid.New()
+	uuid := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(u[:])
+	saveFileName := fmt.Sprintf("%s__%s__%s__%s__%s.json", uuid, s.nsp.Ip, s.nsp.token.ConnectTime, moduleName, fileName)
+	saveFilePath := filepath.Join(yangFolder, saveFileName)
+	err := os.WriteFile(saveFilePath, content, 0644)
+	if err != nil {
+		return fmt.Errorf("error saving to local directory %v", err)
+	}
+	return nil
+}
+
 // BACKEND CONNECTION VERIFICATION
 func connectionOk(w http.ResponseWriter, r *http.Request) {
 	writeResponse(w, "success", "Backend active")
@@ -103,7 +118,7 @@ func (s *srv) upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := extractYangFolder(handler.Filename); err != nil {
+	if err := s.extractYangFolder(handler.Filename); err != nil {
 		s.raiseError(fmt.Sprintf("extracting yang files from %s failed", handler.Filename), err, w)
 		return
 	}
@@ -112,7 +127,7 @@ func (s *srv) upload(w http.ResponseWriter, r *http.Request) {
 }
 
 // UNZIP YANG REPO
-func extractYangFolder(filename string) error {
+func (s *srv) extractYangFolder(filename string) error {
 	zipPath := yangFolder + filename
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
@@ -127,11 +142,14 @@ func extractYangFolder(filename string) error {
 		return fmt.Errorf("creating repo folder failed: %v", err)
 	}
 
+	var files []string
+
 	yangFileCount := 0
 	for _, f := range r.File {
 		if strings.HasSuffix(f.Name, ".yang") {
 			yangFileCount++
 			fpath := filepath.Join(destFolder, filepath.Base(f.Name))
+			files = append(files, fpath)
 
 			outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 			if err != nil {
@@ -152,90 +170,63 @@ func extractYangFolder(filename string) error {
 		}
 	}
 
-	return os.Remove(zipPath)
-}
-
-// UPLOAD FILE
-func (s *srv) uploadFile(w http.ResponseWriter, r *http.Request) {
-	basename, ok := mux.Vars(r)["name"]
-
-	r.ParseMultipartForm(10 << 20)
-	file, handler, err := r.FormFile("file")
-	if err != nil {
-		s.raiseError("retrieving .yang file failed", err, w)
-		return
-	}
-	defer file.Close()
-
-	folderPath := yangFolder
-	if ok {
-		folderPath = yangFolder + basename + "/"
+	if err = os.Remove(zipPath); err != nil {
+		return err
 	}
 
-	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
-		destFolder := filepath.Join(yangFolder + basename)
-
-		if err := os.MkdirAll(destFolder, os.ModePerm); err != nil {
-			s.raiseError(fmt.Sprintf("error creating repo (%s)", basename), err, w)
-			return
+	var failed = true
+	defer func() {
+		if failed {
+			os.RemoveAll(destFolder)
 		}
+	}()
+
+	app := &App{
+		SchemaTree: &yang.Entry{
+			Dir: make(map[string]*yang.Entry),
+		},
+		modules: yang.NewModules(),
 	}
 
-	filePath := folderPath + handler.Filename
-	if err := saveFile(file, filePath); err != nil {
-		s.raiseError(fmt.Sprintf("saving file %s failed", handler.Filename), err, w)
-		return
+	if err := app.readYangModules(files); err != nil {
+		return fmt.Errorf("error generating YANG schema %v", err)
 	}
 
-	writeResponse(w, "success", "File uploaded")
+	result, err := app.pathCmdRun()
+	if err != nil {
+		return fmt.Errorf("error running path command %v", err)
+	}
+
+	u := uuid.New()
+	uuid := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(u[:])
+	currentTime := time.Now().Format("2006-01-02-15-04-05")
+	fileName := fmt.Sprintf("%s__%s__%s__%s__%s.json", uuid, "local", currentTime, "uploaded", basename)
+	saveFile := filepath.Join(yangFolder, fileName)
+	err = os.WriteFile(saveFile, result, 0644)
+	if err != nil {
+		return fmt.Errorf("error saving to local directory %v", err)
+	}
+
+	failed = false
+	return os.RemoveAll(destFolder)
 }
 
 // LIST KIND
 func (s *srv) uploadedAll(w http.ResponseWriter, r *http.Request) {
-	type ListResponse struct {
-		Name  string   `json:"name"`
-		Files []string `json:"files,omitempty"`
-	}
+	var f []string
 
-	var f []ListResponse
-
-	dirEntries, err := os.ReadDir(yangFolder)
+	entries, err := os.ReadDir(yangFolder)
 	if err != nil {
-		s.raiseError("failed to read local offline directory", err, w)
+		s.raiseError("error reading offline folder", err, w)
 		return
 	}
 
-	for _, entry := range dirEntries {
-		if entry.IsDir() {
-			folderName := entry.Name()
-			repoEntries, err := os.ReadDir(yangFolder + folderName + "/")
-			if err != nil {
-				s.raiseError("reading local yang repos failed", err, w)
-				return
-			}
-
-			var fEntry ListResponse
-			fEntry.Name = folderName
-			for _, entry := range repoEntries {
-				if !entry.IsDir() {
-					fEntry.Files = append(fEntry.Files, entry.Name())
-				}
-			}
-			f = append(f, fEntry)
+	for _, entry := range entries {
+		name := strings.Replace(entry.Name(), ".json", "", -1)
+		if !entry.IsDir() && !strings.HasPrefix(name, ".") {
+			f = append(f, name)
 		}
 	}
-
-	var fEntry ListResponse
-	fEntry.Name = ""
-	for _, entry := range dirEntries {
-		if !entry.IsDir() {
-			yangFile := entry.Name()
-			if strings.ToLower(filepath.Ext(yangFile)) == ".yang" {
-				fEntry.Files = append(fEntry.Files, yangFile)
-			}
-		}
-	}
-	f = append(f, fEntry)
 
 	b, err := json.MarshalIndent(f, "", "  ")
 	if err != nil {
@@ -246,29 +237,71 @@ func (s *srv) uploadedAll(w http.ResponseWriter, r *http.Request) {
 	writeJsonResponse(w, b)
 }
 
-func (s *srv) uploadedSpecific(w http.ResponseWriter, r *http.Request) {
-	folderName := mux.Vars(r)["name"]
+func (s *srv) uploadedInfo(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
 
-	repoEntries, err := os.ReadDir(yangFolder + folderName + "/")
+	entries, err := os.ReadDir(yangFolder)
 	if err != nil {
-		s.raiseError("reading local yang repos failed", err, w)
+		s.raiseError("error reading offline folder", err, w)
 		return
 	}
 
-	var f []string
-	for _, entry := range repoEntries {
-		if !entry.IsDir() {
-			f = append(f, entry.Name())
+	type Uploaded struct {
+		Id        string `json:"id"`
+		NspIp     string `json:"nspIp"`
+		Timestamp string `json:"timestamp"`
+		Module    string `json:"module"`
+		Name      string `json:"name"`
+	}
+
+	var info Uploaded
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasPrefix(entry.Name(), id) {
+			parts := strings.Split(entry.Name(), "__")
+			info = Uploaded{
+				Id:        parts[0],
+				NspIp:     parts[1],
+				Timestamp: parts[2],
+				Module:    parts[3],
+				Name:      strings.Replace(parts[4], ".json", "", -1),
+			}
+			break
 		}
 	}
 
-	b, err := json.MarshalIndent(f, "", "  ")
+	response, err := json.MarshalIndent(info, "", "  ")
 	if err != nil {
 		s.raiseError("JSON creation failed", err, w)
 		return
 	}
 
-	writeJsonResponse(w, b)
+	writeJsonResponse(w, response)
+}
+
+func (s *srv) uploadedPaths(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+
+	entries, err := os.ReadDir(yangFolder)
+	if err != nil {
+		s.raiseError("error reading offline folder", err, w)
+		return
+	}
+
+	var filename string
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasPrefix(entry.Name(), id) {
+			filename = entry.Name()
+			break
+		}
+	}
+
+	data, err := os.ReadFile(filepath.Join(yangFolder, filename))
+	if err != nil {
+		s.raiseError("Unable to read file", err, w)
+		return
+	}
+
+	writeJsonResponse(w, data)
 }
 
 func (s *srv) downloadBundle(w http.ResponseWriter, r *http.Request) {
@@ -321,22 +354,6 @@ func (s *srv) downloadBundle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *srv) downloadYang(w http.ResponseWriter, r *http.Request) {
-	folderName := mux.Vars(r)["name"]
-	yangFileName := mux.Vars(r)["yang"]
-
-	yangFilePath := yangFolder + folderName + "/" + yangFileName
-	if strings.Contains(folderName, ".yang") {
-		yangFilePath = yangFolder + yangFileName
-	}
-
-	fileName := filepath.Base(yangFilePath)
-
-	w.Header().Set("Content-Disposition", "attachment; filename="+fileName)
-	w.Header().Set("Content-Type", "application/octet-stream")
-	http.ServeFile(w, r, yangFilePath)
-}
-
 // DELETE FOLDER OR REPO
 func (s *srv) delete(w http.ResponseWriter, r *http.Request) {
 	basename := mux.Vars(r)["name"]
@@ -353,29 +370,6 @@ func (s *srv) delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeResponse(w, "success", fmt.Sprintf("Local repo (%s) deleted", basename))
-}
-
-// DELETE FILE
-func (s *srv) deleteFile(w http.ResponseWriter, r *http.Request) {
-	basename, ok := mux.Vars(r)["name"]
-	yangFile := mux.Vars(r)["yang"]
-
-	filePath := yangFolder + yangFile
-	if ok {
-		filePath = yangFolder + basename + "/" + yangFile
-	}
-
-	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-		s.raiseError(fmt.Sprintf("%s yang file does not exist", yangFile), err, w)
-		return
-	}
-
-	if err := os.Remove(filePath); err != nil {
-		s.raiseError("error during file deletion", err, w)
-		return
-	}
-
-	writeResponse(w, "success", fmt.Sprintf("%s yang file deleted", yangFile))
 }
 
 // NSP CONNECT
@@ -499,15 +493,8 @@ func (s *srv) getNspModulePaths(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if save {
-		targetDir := filepath.Join(yangFolder, "module")
-		if err := os.MkdirAll(targetDir, os.ModePerm); err != nil {
-			s.raiseError("error creating local directory", err, w)
-			return
-		}
-		saveFile := filepath.Join(targetDir, name+".json")
-		err := os.WriteFile(saveFile, response, 0644)
-		if err != nil {
-			s.raiseError("error saving locally", err, w)
+		if err := s.saveJsonFile("module", name, response); err != nil {
+			s.raiseError("", err, w)
 			return
 		}
 		writeResponse(w, "success", fmt.Sprintf("module/%s.json was saved", name))

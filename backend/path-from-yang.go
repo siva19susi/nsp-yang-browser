@@ -60,7 +60,7 @@ func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 	var definitions []YangDefinition
 
 	switch kind {
-	case "uploaded":
+	case "offline":
 		var files []string
 		dirPath := filepath.Join(commonFolder, name)
 		dirFiles, err := os.ReadDir(dirPath)
@@ -136,15 +136,8 @@ func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if save {
-		targetDir := filepath.Join(yangFolder, subKind)
-		if err := os.MkdirAll(targetDir, os.ModePerm); err != nil {
-			s.raiseError("error creating local directory", err, w)
-			return
-		}
-		saveFile := filepath.Join(targetDir, name+".json")
-		err := os.WriteFile(saveFile, result, 0644)
-		if err != nil {
-			s.raiseError("error saving locally", err, w)
+		if err := s.saveJsonFile(subKind, name, result); err != nil {
+			s.raiseError("", err, w)
 			return
 		}
 		writeResponse(w, "success", fmt.Sprintf("%s/%s.json was saved", subKind, name))
