@@ -31,9 +31,9 @@ COPY entrypoint.sh /app/entrypoint.sh
 
 RUN mkdir -p /common
 RUN mkdir -p /offline
-COPY uploads/ietf-inet-types.yang uploads/ietf-yang-types.yang /common/
-COPY uploads/nsp-model-extensions.yang uploads/webfwk-ui-metadata.yang /common/
-COPY uploads/nsp-lso-manager.yang uploads/nsp-lso-operation.yang /common/
+COPY common/ietf-inet-types.yang common/ietf-yang-types.yang /common/
+COPY common/nsp-model-extensions.yang common/webfwk-ui-metadata.yang /common/
+COPY common/nsp-lso-manager.yang common/nsp-lso-operation.yang /common/
 
 ENV HOST=0.0.0.0
 EXPOSE 4173
