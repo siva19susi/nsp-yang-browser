@@ -18,6 +18,8 @@ type Dependency struct {
 	IntentType []string `json:"intent-type"`
 }
 
+const commonFolder = "../common/"
+
 var (
 	dependency = Dependency{
 		Lso: []string{
@@ -41,6 +43,9 @@ var (
 func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 
+	saveParam := r.URL.Query().Get("save")
+	save := saveParam == "true"
+
 	pathSegments := strings.Split(r.URL.Path, "/")
 	kind := pathSegments[1]
 	subKind := pathSegments[2]
@@ -57,7 +62,7 @@ func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 	switch kind {
 	case "uploaded":
 		var files []string
-		dirPath := filepath.Join(yangFolder, name)
+		dirPath := filepath.Join(commonFolder, name)
 		dirFiles, err := os.ReadDir(dirPath)
 		if err != nil {
 			s.raiseError("directory missing", err, w)
@@ -130,12 +135,27 @@ func (s *srv) pathFromYang(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(result)
+	if save {
+		targetDir := filepath.Join(yangFolder, subKind)
+		if err := os.MkdirAll(targetDir, os.ModePerm); err != nil {
+			s.raiseError("error creating local directory", err, w)
+			return
+		}
+		saveFile := filepath.Join(targetDir, name+".json")
+		err := os.WriteFile(saveFile, result, 0644)
+		if err != nil {
+			s.raiseError("error saving locally", err, w)
+			return
+		}
+		writeResponse(w, "success", fmt.Sprintf("%s/%s.json was saved", subKind, name))
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(result)
+	}
 }
 
 func loadDependencyDefinition(definitions []YangDefinition, dependents []string) ([]YangDefinition, error) {
-	dirPath := filepath.Join(yangFolder)
+	dirPath := filepath.Join(commonFolder)
 	files, err := os.ReadDir(dirPath)
 	if err != nil {
 		return definitions, fmt.Errorf("common yang folder missing %v", err)
@@ -144,7 +164,7 @@ func loadDependencyDefinition(definitions []YangDefinition, dependents []string)
 	for _, file := range files {
 		fileName := file.Name()
 		if !file.IsDir() && slices.Contains(dependents, fileName) {
-			filePath := filepath.Join(yangFolder, fileName)
+			filePath := filepath.Join(commonFolder, fileName)
 			content, err := os.ReadFile(filePath)
 			if err != nil {
 				return definitions, fmt.Errorf("error reading %s", fileName)

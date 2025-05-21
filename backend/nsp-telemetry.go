@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -56,6 +58,9 @@ func (s *srv) getTelemetryTypes(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *srv) getTelemetryTypeDefinition(w http.ResponseWriter, r *http.Request) {
+	saveParam := r.URL.Query().Get("save")
+	save := saveParam == "true"
+
 	type DefinitionInput struct {
 		Name string `json:"name"`
 	}
@@ -129,7 +134,23 @@ func (s *srv) getTelemetryTypeDefinition(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	writeJsonResponse(w, response)
+	if save {
+		targetDir := filepath.Join(yangFolder, "telemetry-type")
+		if err := os.MkdirAll(targetDir, os.ModePerm); err != nil {
+			s.raiseError("error creating local directory", err, w)
+			return
+		}
+		filename := strings.ReplaceAll(defInput.Name[1:], "/", "_")
+		saveFile := filepath.Join(targetDir, filename+".json")
+		err := os.WriteFile(saveFile, response, 0644)
+		if err != nil {
+			s.raiseError("error saving locally", err, w)
+			return
+		}
+		writeResponse(w, "success", fmt.Sprintf("telemetry-type/%s.json was saved", filename))
+	} else {
+		writeJsonResponse(w, response)
+	}
 }
 
 func formatNodeSupportEntries(input string) []NodeSupportEntry {

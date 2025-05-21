@@ -16,7 +16,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const yangFolder = "../uploads/"
+const yangFolder = "../offline/"
 
 func (s *srv) logMiddleware(next http.Handler) http.Handler {
 	const corHeader = "Access-Control-Allow-Origin"
@@ -201,7 +201,7 @@ func (s *srv) uploadedAll(w http.ResponseWriter, r *http.Request) {
 
 	dirEntries, err := os.ReadDir(yangFolder)
 	if err != nil {
-		s.raiseError("failed to read local uploads directory", err, w)
+		s.raiseError("failed to read local offline directory", err, w)
 		return
 	}
 
@@ -489,13 +489,31 @@ func (s *srv) getNspModules(w http.ResponseWriter, r *http.Request) {
 func (s *srv) getNspModulePaths(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
 
+	saveParam := r.URL.Query().Get("save")
+	save := saveParam == "true"
+
 	response, err := s.fetchYangDefinition(name)
 	if err != nil {
 		s.raiseError("error fetching YANG module definition", err, w)
 		return
 	}
 
-	writeJsonResponse(w, response)
+	if save {
+		targetDir := filepath.Join(yangFolder, "module")
+		if err := os.MkdirAll(targetDir, os.ModePerm); err != nil {
+			s.raiseError("error creating local directory", err, w)
+			return
+		}
+		saveFile := filepath.Join(targetDir, name+".json")
+		err := os.WriteFile(saveFile, response, 0644)
+		if err != nil {
+			s.raiseError("error saving locally", err, w)
+			return
+		}
+		writeResponse(w, "success", fmt.Sprintf("module/%s.json was saved", name))
+	} else {
+		writeJsonResponse(w, response)
+	}
 }
 
 // GET NSP INTENT TYPES

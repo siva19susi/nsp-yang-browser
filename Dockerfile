@@ -30,7 +30,7 @@ COPY --from=be-builder /build/server /app/server
 COPY entrypoint.sh /app/entrypoint.sh
 
 RUN mkdir -p /common
-RUN mkdir -p /uploads
+RUN mkdir -p /offline
 COPY uploads/ietf-inet-types.yang uploads/ietf-yang-types.yang /common/
 COPY uploads/nsp-model-extensions.yang uploads/webfwk-ui-metadata.yang /common/
 COPY uploads/nsp-lso-manager.yang uploads/nsp-lso-operation.yang /common/

@@ -1,12 +1,10 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-
   import Navbar from '$lib/components/Navbar.svelte'
   import Footer from '$lib/components/Footer.svelte'
   import SearchInput from '$lib/components/SearchInput.svelte'
   import Pagination from './Pagination.svelte'
 
-  import { markFilter, markRender, toLower } from '$lib/components/functions'
+  import { markRender, toLower } from '$lib/components/functions'
 	import { definitionStore, paginated, searchStore, total } from './store'
 
   // DEFAULTS
@@ -33,6 +31,15 @@
       <p class="text-gray-800 dark:text-gray-300">Telemetry Type Definition</p>
     </div>
     <SearchInput bind:searchInput />
+    <div class="px-1 py-1.5 text-xs text-gray-900 dark:text-gray-300">
+      <p>
+        Creating the object filter for NSP telemetry subscription can be framed  
+        by prepending the below NE identifier to the Device Path:
+      </p>
+      <p class="font-fira text-[11px] tracking-tight pt-1">
+        /network-device-mgr:network-devices/network-device[name='IPv4/IPv6-NE-ID']/root
+      </p>
+    </div>
     <Pagination />
     <div class="overflow-x-auto rounded-t-lg max-w-full mt-2">
       <table class="text-left w-full">
