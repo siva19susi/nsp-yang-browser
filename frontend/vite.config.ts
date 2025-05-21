@@ -9,7 +9,7 @@ export default defineConfig({
 	preview: {
     host: '0.0.0.0',
     port: 4173,
-    allowedHosts: ['nsp-yang-browser.srexperts.net']
+    allowedHosts: ['*']
   },
 	server: {
 		proxy: {
