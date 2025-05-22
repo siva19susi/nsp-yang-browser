@@ -34,6 +34,14 @@ spec:
         ports:
         - name: browser-gateway
           containerPort: 4173
+        volumeMounts:
+        - name: container-browser-volume
+          mountPath: /offline
+      volumes:
+      - name: local-browser-volume
+        hostPath:
+          path: /nsp-yang-browser/offline
+          type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
