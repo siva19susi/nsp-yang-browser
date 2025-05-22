@@ -12,6 +12,14 @@ This tool provides a means to explore these YANG models either from a connected 
 - **Model Comparison:** Seamlessly compare YANG models, whether manually uploaded or connected to an NSP.
 - **Advanced Filtering:** Filter paths by prefix, defaults, and state attributes for more refined results.
 - **Query NSP:** Query the connected NSP directly for live results of the yang paths.
+- **Offline Mode:** View any YANG model in offline mode in a click of a button.
+
+## Models that can be viewed
+
+- NSP Modules
+- LSO Operations
+- Telemetry Types
+- Intent Types
 
 ## How to try it out
 
