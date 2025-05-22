@@ -1,5 +1,9 @@
 # NSP YANG Browser
 
+## Release
+
+v2.0.0
+
 NSP allows you to create and execute intent-based automation model for implementing network-level changes that translates high-level designs into necessary network configuration. In order to faciliate this flow, YANG modeling is used to leverage the automation to its complete heights.
 
 This tool provides a means to explore these YANG models either from a connected NSP system or the YANG repository can be manually uploaded and explored.
