@@ -132,7 +132,7 @@
             {/each}
           {:else}
             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <td colspan="3" class="px-3 py-1.5 font-fira text-[13px] text-red-600 text-center">No results found</td>
+              <td colspan="6" class="px-3 py-1.5 font-fira text-[13px] text-red-600 text-center">No results found</td>
             </tr>
           {/if}
         </tbody>

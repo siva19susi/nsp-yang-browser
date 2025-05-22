@@ -213,7 +213,7 @@ func (s *srv) extractYangFolder(filename string) error {
 
 // LIST KIND
 func (s *srv) uploadedAll(w http.ResponseWriter, r *http.Request) {
-	var f []string
+	f := []string{}
 
 	entries, err := os.ReadDir(yangFolder)
 	if err != nil {
