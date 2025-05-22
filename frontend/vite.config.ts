@@ -9,7 +9,7 @@ export default defineConfig({
 	preview: {
     host: '0.0.0.0',
     port: 4173,
-    allowedHosts: ['*']
+    allowedHosts: ['.alcatel-lucent.com', '.nokia.com', '.srexperts.net']
   },
 	server: {
 		proxy: {
