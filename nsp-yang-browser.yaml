@@ -29,18 +29,18 @@ spec:
         fsGroup: 10000
       containers:
       - name: nsp-yang-browser
-        image: sivasusi19/nsp-yang-browser:srx
+        image: sivasusi19/nsp-yang-browser:latest
         imagePullPolicy: Always
         ports:
         - name: browser-gateway
           containerPort: 4173
         volumeMounts:
-        - name: container-browser-volume
+        - name: local-browser-volume
           mountPath: /offline
       volumes:
       - name: local-browser-volume
         hostPath:
-          path: /nsp-yang-browser/offline
+          path: /tmp/offline
           type: DirectoryOrCreate
 ---
 apiVersion: v1
