@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: go-backend
+    expose:
+      - "8080"
+
+  frontend:
+    build: ./frontend
+    container_name: svelte-frontend
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/default.all.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/ssl/myapp:ro
+    depends_on:
+      - backend
+      - frontend

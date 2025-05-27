@@ -20,7 +20,9 @@
   let visualiseCompare = false
   const isNspUrl = kind.includes("nsp") || nspIp != ""
   
-  onMount(() => getOfflineIdInfo())
+  onMount(() => {
+    if(kind === "offline") getOfflineIdInfo()
+  })
 
   function setHomeUrl() {
     if(kind.includes("nsp-")) return "/nsp"
@@ -42,8 +44,7 @@
   }
   
   async function getOfflineIdInfo() {
-    const response = await fetch(`/api/offline/list/${basename.replace("telemetry:", "")}`)
-    console.log(response)
+    const response = await fetch(`/api/offline/list${basename.replace("telemetry:", "/")}`)
     if(response.ok) {
       idInfo = await response.json()
     }

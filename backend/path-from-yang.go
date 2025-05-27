@@ -155,9 +155,19 @@ func loadDependencyDefinition(definitions []YangDefinition, dependents []string)
 		return definitions, fmt.Errorf("common yang folder missing %v", err)
 	}
 
+	defintionsAlreadyContains := func(name string) bool {
+		for _, def := range definitions {
+			if def.Name == name {
+				return true
+			}
+		}
+		return false
+	}
+
 	for _, file := range files {
 		fileName := file.Name()
-		if !file.IsDir() && slices.Contains(dependents, fileName) {
+
+		if !file.IsDir() && slices.Contains(dependents, fileName) && !defintionsAlreadyContains(fileName) {
 			filePath := filepath.Join(commonFolder, fileName)
 			content, err := os.ReadFile(filePath)
 			if err != nil {

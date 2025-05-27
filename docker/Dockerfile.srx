@@ -1,0 +1,41 @@
+FROM golang:1.24-alpine AS be-builder
+
+WORKDIR /app
+
+COPY ./backend .
+RUN go mod download
+
+RUN CGO_ENABLED=0 \
+    go build \
+    -ldflags "-s -w" \
+    -trimpath \
+    -o backend \
+    .
+
+##---------------------------------
+FROM node:23-slim AS fe-builder
+
+WORKDIR /app
+
+COPY ./frontend .
+
+RUN npm install
+RUN npm run build --mode=production
+
+##---------------------------------
+FROM node:23-slim
+
+COPY --from=fe-builder /app/build /app/frontend
+COPY --from=be-builder /app/backend /app/backend
+COPY entrypoint.srx.sh /app/entrypoint.sh
+
+RUN mkdir -p /common
+COPY common/ietf-inet-types.yang common/ietf-yang-types.yang /common/
+COPY common/nsp-model-extensions.yang common/webfwk-ui-metadata.yang /common/
+COPY common/nsp-lso-manager.yang common/nsp-lso-operation.yang /common/
+
+RUN mkdir -p /offline
+
+EXPOSE 3000
+EXPOSE 8080
+CMD [ "/app/entrypoint.sh" ]

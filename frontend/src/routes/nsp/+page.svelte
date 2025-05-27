@@ -12,7 +12,7 @@
 
   let search = ""
   let isSubmitting = false
-  let typingTimer: number | undefined
+  let typingTimer: ReturnType<typeof setTimeout>
   let doneTypingDelay = 500
 
   let intentTypes: IntentTypeSearch = {

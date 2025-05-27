@@ -14,7 +14,7 @@ export async function load({ url, params, fetch }) {
 
   if(kind.includes("nsp")) {
     const resp = await fetch("/api/nsp/isConnected")
-    if((kind.includes("nsp") && !resp.ok)) {
+    if(!resp.ok) {
       throw error(404, "Check NSP connection")
     } else if(resp.ok) {
       nspInfo = await resp.json()

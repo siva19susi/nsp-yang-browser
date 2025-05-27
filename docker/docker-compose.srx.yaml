@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  nspYangBrowser:
+    image: sivasusi19/nsp-yang-browser:srx
+    container_name: nsp-yang-browser
+    expose:
+      - "8080"
+      - "3000"
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/default.srx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/ssl/myapp:ro
+    depends_on:
+      - nspYangBrowser
