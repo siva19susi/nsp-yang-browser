@@ -1,12 +1,14 @@
-version: '3.8'
-
 services:
-  nspYangBrowser:
-    image: sivasusi19/nsp-yang-browser:srx
+  nspyangbrowser:
+    build:
+      context: .
+      dockerfile: Dockerfile.srx
     container_name: nsp-yang-browser
+    volumes:
+      - ./offline:/offline
     expose:
-      - "8080"
       - "3000"
+      - "8080"
 
   nginx:
     image: nginx:alpine
@@ -17,4 +19,4 @@ services:
       - ./nginx/default.srx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/ssl/myapp:ro
     depends_on:
-      - nspYangBrowser
+      - nspyangbrowser

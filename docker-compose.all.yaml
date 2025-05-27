@@ -1,15 +1,17 @@
-version: '3.8'
-
 services:
   backend:
     build: ./backend
     container_name: go-backend
+    volumes:
+      - ./offline:/offline
     expose:
       - "8080"
 
   frontend:
     build: ./frontend
     container_name: svelte-frontend
+    expose:
+      - "3000"
     depends_on:
       - backend
 

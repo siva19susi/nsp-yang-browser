@@ -30,9 +30,9 @@ COPY --from=be-builder /app/backend /app/backend
 COPY entrypoint.srx.sh /app/entrypoint.sh
 
 RUN mkdir -p /common
-COPY common/ietf-inet-types.yang common/ietf-yang-types.yang /common/
-COPY common/nsp-model-extensions.yang common/webfwk-ui-metadata.yang /common/
-COPY common/nsp-lso-manager.yang common/nsp-lso-operation.yang /common/
+COPY ./common/ietf-inet-types.yang common/ietf-yang-types.yang /common/
+COPY ./common/nsp-model-extensions.yang common/webfwk-ui-metadata.yang /common/
+COPY ./common/nsp-lso-manager.yang common/nsp-lso-operation.yang /common/
 
 RUN mkdir -p /offline
 
