@@ -27,7 +27,7 @@ FROM node:23-slim
 WORKDIR /app
 COPY --from=fe-builder /build .
 COPY --from=be-builder /build/server /app/server
-COPY entrypoint.sh /app/entrypoint.sh
+COPY ./entrypoint.sh /app/entrypoint.sh
 
 RUN mkdir -p /common
 RUN mkdir -p /offline
@@ -38,4 +38,4 @@ COPY ./common/nsp-lso-manager.yang common/nsp-lso-operation.yang /common/
 ENV HOST=0.0.0.0
 EXPOSE 4173
 
-CMD [ "/app/entrypoint.sh" ]
+CMD [ "bash", "/app/entrypoint.sh" ]

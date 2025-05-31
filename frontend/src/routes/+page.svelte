@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Footer from '$lib/components/Footer.svelte'
 
+  export let data
+  const { nspConnected } = data
 </script>
   
 <svelte:head>
@@ -24,7 +26,7 @@
         </p>
       </div>
       <div class="grid grid-cols-2 gap-3 mt-6 text-sm">
-        <a class="px-2 py-2 rounded-lg text-nowrap text-center text-white bg-gray-600 hover:bg-gray-700" href="/nsp">NSP Connect</a>
+        <a class="px-2 py-2 rounded-lg text-nowrap text-center text-white bg-gray-600 hover:bg-gray-700" href="/nsp">NSP {nspConnected ? 'Connected' : 'Connect'}</a>
         <a class="px-2 py-2 rounded-lg text-nowrap text-center text-white bg-gray-600 hover:bg-gray-700" href="/offline">Offline</a>
       </div>
     </div>

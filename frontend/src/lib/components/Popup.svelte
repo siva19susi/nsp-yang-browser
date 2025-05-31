@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { page } from '$app/stores'
-	import { copy } from 'svelte-copy'
-
   import { markRender } from '$lib/components/functions'
 	import { stateValues } from './sharedStore'
 
@@ -33,7 +30,7 @@
     const fromParam = (popupDetail.isUrlTree ? "" : "&from=pb")
     if(kind === "") kind = path.kind
     if(basename === "") basename = path.basename
-    return `/${kind}/${basename}${toTree}?path=${encodeURIComponent(path.path)}${fromParam}`
+    return `/${kind}/${kind === "offline" ? basename.split("__")[0] : basename}${toTree}?path=${encodeURIComponent(path.path)}${fromParam}`
   }
 
   function queryNsp(path: any) {
