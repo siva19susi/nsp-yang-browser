@@ -43,7 +43,6 @@ export interface PathDef {
 export interface OfflineInfo {
   id: string
   nspIp: string
-  timestamp: string
   module: string
   name: string
 }

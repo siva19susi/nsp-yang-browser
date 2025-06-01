@@ -12,6 +12,14 @@ export const end = derived([start, total, pageCount], ([$start, $total, $pageCou
 
 //--------------------------------------------------------------------------
 
+export const moduleStore = writable<string[]>([])
+export const moduleSearch = writable("")
+
+export const moduleSearchFilter = derived([moduleSearch, moduleStore], ([$moduleSearch, $moduleStore]) => 
+  $moduleStore.filter(x => $moduleSearch.split(/\s+/).every(y => x.includes(y))))
+
+//--------------------------------------------------------------------------
+
 export const lsoStore = writable<string[]>([])
 export const lsoSearch = writable("")
 export const lsoStart = writable(0)
@@ -22,10 +30,7 @@ export const lsoTotal = derived(lsoStore, ($lsoStore) => {
 })
 
 export const lsoSearchFilter = derived([lsoSearch, lsoStore], ([$lsoSearch, $lsoStore]) => 
-  {
-    console.log($lsoSearch)
-    return $lsoStore.filter(x => $lsoSearch.split(/\s+/).every(y => x.includes(y)))
-  })
+  $lsoStore.filter(x => $lsoSearch.split(/\s+/).every(y => x.includes(y))))
 
 export const lsoEnd = derived([lsoStart, lsoTotal], ([$lsoStart, $lsoTotal]) => 
   ($lsoStart + count) <= $lsoTotal ? ($lsoStart + count) : $lsoTotal)

@@ -1,26 +1,16 @@
 <script lang="ts">
-  import { onMount } from "svelte";
 	import Theme from "$lib/components/Theme.svelte"
 	import Compare from "./Compare.svelte"
 
 	import { compare } from "./sharedStore"
-	import type { OfflineInfo } from "$lib/structure"
 
   export let kind: string = ""
   export let basename: string = ""
   export let nspIp: string
 
-  let idInfo: OfflineInfo = {
-	  id: "",
-	  nspIp: "",
-	  timestamp: "",
-	  module: "",
-	  name: ""
-  }
+  const [, snapshotFrom, module, name ] = basename.split("__")
+
   let visualiseCompare = false
-  const isNspUrl = kind.includes("nsp") || nspIp != ""
-  
-  onMount(() => getOfflineIdInfo())
 
   function setHomeUrl() {
     if(kind.includes("nsp-")) return "/nsp"
@@ -40,14 +30,35 @@
       }
     }
   }
-  
-  async function getOfflineIdInfo() {
-    const response = await fetch(`/api/offline/list/${basename.replace("telemetry:", "")}`)
-    console.log(response)
-    if(response.ok) {
-      idInfo = await response.json()
+
+  function frameCompareInfo(kind: string, basename: string, fetch: string) {
+    const [xKind, yKind] = kind.split(";")
+    const [xBasename, yBasename] = basename.split(";")
+
+    const offlineFormat = (basename: string) => {
+      const [, snapshotFrom, module, name ] = basename.split("__")
+      return `${(module === "telemetry-type" ? "/" + name.replaceAll("_", "/") : name)} (${module}) | offline (${snapshotFrom})`
     }
-    return {}
+
+    let r = ""
+    switch(fetch) {
+      case "y":
+        if(yKind === "offline") {
+          r = offlineFormat(yBasename)
+        } else {
+          r = `${yBasename} (${yKind})`
+        }
+        break
+      case "x":
+        if(xKind === "offline") {
+          r = offlineFormat(xBasename)
+        } else {
+          r = `${xBasename} (${xKind})`
+        }
+        break
+    }
+
+    return r
   }
 </script>
 
@@ -58,50 +69,36 @@
       <div class="flex flex-col whitespace-nowrap overflow-x-auto scroll-light dark:scroll-dark w-44 sm:w-fit">
         <div class="flex items-center space-x-1 {kind != "" ? 'text-xs text-gray-500 dark:text-gray-400' : 'text-sm'}">
           <p class="">NSP YANG Browser</p>
-          {#if isNspUrl}
+          {#if kind === "offline"}
             <span>|</span>
-            {#if kind.includes(";")}
-              <span>Compare</span>
-            {:else}
-              <button class="text-blue-700 dark:text-blue-400 hover:underline" on:click={nspDisconnect}>{nspIp}</button>
-            {/if}
+            <span>Offline</span>
+            <span>({snapshotFrom})</span>
+          {:else if kind.includes(";")}
+            <span>|</span>
+            <span>Compare</span>
+          {:else if (kind.includes("nsp") || nspIp != "")}
+            <span>|</span>
+            <button class="text-blue-700 dark:text-blue-400 hover:underline" on:click={nspDisconnect}>{nspIp}</button>
           {/if}
         </div>
         {#if kind != ""}
           {#if kind.includes(";")}
-            {@const [xKind, yKind] = kind.split(";")}
-            {@const [xBasename, yBasename] = basename.split(";")}
             <div class="text-gray-800 text-xs lg:text-sm dark:text-white">
               <div class="flex flex-wrap items-center justify-center space-x-1">
                 <span class="dropdown">
-                  <button class="dropdown-button underline">{yBasename} ({yKind})</button>
+                  <button class="dropdown-button">{frameCompareInfo(kind, basename, "y")}</button>
                   <div class="dropdown-content absolute z-10 hidden bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg shadow">
                     <p class="my-2 max-w-[200px] px-2 text-xs text-wrap">
                       Changes and filters shown are with respect to this selection.
                     </p>
                   </div>
                 </span>
-                <span>with</span>
-                <span>{xBasename} ({xKind})</span>
+                <span class="text-gray-400">with</span>
+                <span class="text-gray-400">{frameCompareInfo(kind, basename, "x")}</span>
               </div>
             </div>
-          {:else if kind === "offline" && idInfo.id !== ""}
-            <div class="dropdown">
-              <div class="dropdown-button py-1 rounded-lg text-sm cursor-pointer text-nowrap dark:text-white inline-flex items-center align-bottom">
-                <div class="flex items-center space-x-1">
-                  <span class="underline">{basename}</span>
-                  <span>({kind})</span>
-                </div>
-              </div>
-              <div class="dropdown-content absolute z-10 hidden bg-gray-100 dark:bg-gray-700 dark:text-white rounded-lg shadow">
-                <div class="my-2 max-w-[300px] px-3 text-xs text-wrap">
-                  <p>Name: {(idInfo.module === "telemetry-type" ? "/" + idInfo.name.replaceAll("_", "/") : idInfo.name)}</p>
-                  <p>Module: {idInfo.module}</p>
-                  <p>Snapshot from: {idInfo.nspIp}</p>
-                  <p>Timestamp: {idInfo.timestamp}</p>
-                </div>
-              </div>
-            </div>
+          {:else if kind === "offline"}
+            <p class="text-sm">{(module === "telemetry-type" ? "/" + name.replaceAll("_", "/") : name)} ({module})</p>
           {:else}
             <p class="text-sm">{basename} ({kind})</p>
           {/if}

@@ -87,7 +87,7 @@ func saveFile(file io.Reader, filepath string) error {
 func (s *srv) saveJsonFile(moduleName string, fileName string, content []byte) error {
 	u := uuid.New()
 	uuid := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(u[:])
-	saveFileName := fmt.Sprintf("%s__%s__%s__%s__%s.json", uuid, s.nsp.Ip, s.nsp.token.ConnectTime, moduleName, fileName)
+	saveFileName := fmt.Sprintf("%s__%s__%s__%s.json", uuid, s.nsp.Ip, moduleName, fileName)
 	saveFilePath := filepath.Join(yangFolder, saveFileName)
 	err := os.WriteFile(saveFilePath, content, 0644)
 	if err != nil {
@@ -199,8 +199,7 @@ func (s *srv) extractYangFolder(filename string) error {
 
 	u := uuid.New()
 	uuid := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(u[:])
-	currentTime := time.Now().Format("2006-01-02-15-04-05")
-	fileName := fmt.Sprintf("%s__%s__%s__%s__%s.json", uuid, "local", currentTime, "uploaded", basename)
+	fileName := fmt.Sprintf("%s__%s__%s__%s.json", uuid, "local", "uploaded", basename)
 	saveFile := filepath.Join(yangFolder, fileName)
 	err = os.WriteFile(saveFile, result, 0644)
 	if err != nil {
@@ -247,11 +246,10 @@ func (s *srv) uploadedInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Uploaded struct {
-		Id        string `json:"id"`
-		NspIp     string `json:"nspIp"`
-		Timestamp string `json:"timestamp"`
-		Module    string `json:"module"`
-		Name      string `json:"name"`
+		Id     string `json:"id"`
+		NspIp  string `json:"nspIp"`
+		Module string `json:"module"`
+		Name   string `json:"name"`
 	}
 
 	var info Uploaded
@@ -259,11 +257,10 @@ func (s *srv) uploadedInfo(w http.ResponseWriter, r *http.Request) {
 		if !entry.IsDir() && strings.HasPrefix(entry.Name(), id) {
 			parts := strings.Split(entry.Name(), "__")
 			info = Uploaded{
-				Id:        parts[0],
-				NspIp:     parts[1],
-				Timestamp: parts[2],
-				Module:    parts[3],
-				Name:      strings.Replace(parts[4], ".json", "", -1),
+				Id:     parts[0],
+				NspIp:  parts[1],
+				Module: parts[2],
+				Name:   strings.Replace(parts[3], ".json", "", -1),
 			}
 			break
 		}

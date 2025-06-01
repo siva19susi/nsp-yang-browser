@@ -10,7 +10,7 @@ onmessage = async (event: MessageEvent<ComparePostMessage>) => {
   let ypaths: PathDef[] = []
 
   async function fetchPaths(kind: string, basename: string, compareTo: string) {
-    const pathResponse = await fetch(`/api/${kind.replace("-", "/")}/${basename}/paths`)
+    const pathResponse = await fetch(`/api/${kind.replace("-", "/")}/${kind === "offline" ? basename.split("__")[0] : basename}/paths`)
 
     if(!pathResponse.ok) {
       const errorText = await pathResponse.text();
@@ -36,8 +36,14 @@ onmessage = async (event: MessageEvent<ComparePostMessage>) => {
   }
 
   try {
-    xpaths = await fetchPaths(xKind, xBasename, `${yBasename} (${yKind})`)
-    ypaths = await fetchPaths(yKind, yBasename, `${yBasename} (${yKind})`)
+    let compareTo = `${yBasename} (${yKind})`
+    if(yKind === "offline") {
+      const [, snapshotFrom, module, name ] = yBasename.split("__")
+      compareTo = `${(module === "telemetry-type" ? "/" + name.replaceAll("_", "/") : name)} (${module}) | offline (${snapshotFrom})`
+    }
+
+    xpaths = await fetchPaths(xKind, xBasename, compareTo)
+    ypaths = await fetchPaths(yKind, yBasename, compareTo)
 
     // Start of Compare operation
     const xOnlyPath = xpaths.map((k :PathDef) => k.path)

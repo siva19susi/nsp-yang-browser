@@ -11,11 +11,30 @@
 
   function fetchCompareKey(key: string, fetch: string) {
     const [kind, basename] = key.split("@")
-    if(fetch === "kind") {
-      return kind
+    if(kind === "offline") {
+      const [id, nspIp, module, name ] = basename.split("__")
+      if(fetch === "kind") {
+        return `offline (${nspIp})`
+      } else if(fetch === "basename") {
+        return (module === "telemetry-type" ? "/" + name.replaceAll("_", "/") : name) + ` (${module})`
+      }
+    } else {
+      if(fetch === "kind") {
+        return kind
+      } else if(fetch === "basename") {
+        return basename
+      }
     }
-    if(fetch === "basename") {
-      return basename
+  }
+
+  function fetchCompareId(key: string) {
+    console.log(key)
+    const [kind, basename] = key.split("@")
+    if(kind === "offline") {
+      const [id, nspIp, module, name ] = basename.split("__")
+      return `${kind}@${id}`
+    } else {
+      return key
     }
   }
 </script>
@@ -64,7 +83,7 @@
             <div class="text-center px-4 py-4 bg-gray-50 dark:bg-gray-700 border-t dark:border-gray-700 rounded-b-lg">
               <div class="flex items-center justify-between">
                 <button class="px-3 py-1 text-sm bg-blue-200 rounded-lg" on:click={() => compare.clear()}>Reset</button>
-                <a href="/compare/{$compare[0]}..{$compare[1]}" 
+                <a href="/compare/{$compare.length === 2 ? `${fetchCompareId($compare[0])}..${fetchCompareId($compare[1])}` : '' }" 
                   class="px-4 py-1 rounded-lg text-sm text-white select-none 
                   {$compare.length === 2 ? 
                     'bg-green-600 hover:bg-green-700' : 

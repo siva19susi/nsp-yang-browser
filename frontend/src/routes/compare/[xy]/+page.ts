@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit'
 
-export async function load({ url, params }) {
+export async function load({ url, params, fetch }) {
   const xy = params.xy
 
   const sep = xy.split("..")
@@ -15,8 +15,24 @@ export async function load({ url, params }) {
     throw error(404, "X & Y models cannot be the same")
   }
 
-  const [xKind, xBasename] = x.split("@")
-  const [yKind, yBasename] = y.split("@")
+  let [xKind, xBasename] = x.split("@")
+  let [yKind, yBasename] = y.split("@")
+
+  if(xKind === "offline") {
+    const response = await fetch(`/api/offline/list/${xBasename}`)
+    if(response.ok) {
+      const tmp = await response.json()
+      xBasename = Object.values(tmp).join("__")
+    }
+  }
+
+  if(yKind === "offline") {
+    const response = await fetch(`/api/offline/list/${yBasename}`)
+    if(response.ok) {
+      const tmp = await response.json()
+      yBasename = Object.values(tmp).join("__")
+    }
+  }
 
   const urlPath = url.searchParams.get("path")?.trim() ?? ""
         

@@ -6,13 +6,13 @@
   import LsoPagination from './LsoPagination.svelte'
   import TelemetryPagination from './TelemetryPagination.svelte'
 	
-  import { intentTypeStore, total, pageCount, start, end, lsoStore, telemetryStore, lsoSearch, telemetrySearch, telemetryPaginated, lsoPaginated } from './store'
+  import { intentTypeStore, total, pageCount, start, end, lsoStore, telemetryStore, lsoSearch, telemetrySearch, telemetryPaginated, lsoPaginated, moduleSearch, moduleStore, moduleSearchFilter } from './store'
 	import type { IntentTypeSearch, IntentTypeSearchResponseMessage } from './structure'
 	import { compare } from '$lib/components/sharedStore'
 
   let search = ""
   let isSubmitting = false
-  let typingTimer: number | undefined
+  let typingTimer: ReturnType<typeof setTimeout>
   let doneTypingDelay = 500
 
   let intentTypes: IntentTypeSearch = {
@@ -93,7 +93,7 @@
 
   export let data
   const { nspInfo, modules, lsoOperations, telemetryTypes } = data
-  const {ip: nspIp, user: nspUser} = nspInfo
+  const {ip: nspIp} = nspInfo
   const nspConnected = (nspIp !== "" ? true : false)
   onMount(() => {
     start.set(0)
@@ -102,6 +102,7 @@
     }
   })
 
+  $: moduleStore.set(modules.sort())
   $: intentTypeStore.set(intentTypes.intentTypes)
   $: total.set(intentTypes.total)
   $: pageCount.set(intentTypes.pageCount)
@@ -141,9 +142,32 @@
   {:else}
     <div class="px-6 pt-2 pb-4">
       <p class="text-lg pb-2 text-black dark:text-white">Modules</p>
-      <div class="py-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:lg:grid-cols-5 2xl:lg:grid-cols-6 gap-4 pb-8">
-        {#each modules.sort() as module}
-          <a data-sveltekit-reload href="/nsp-module/{module}" class="font-medium rounded-lg text-sm px-3 py-2 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 dark:hover:border-gray-600">{module}</a>
+      <input type="text" placeholder="Search..." bind:value={$moduleSearch} 
+        class="px-3 py-2 mb-2 rounded-lg w-full text-[12.5px] text-gray-800 dark:text-gray-200 
+          dark:placeholder-gray-400 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+      <div class="py-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 2xl:lg:grid-cols-6 gap-4 pb-8">
+        {#each $moduleSearchFilter as module}
+          {@const compareValue = "nsp-module@" + module}
+          {@const isDisabled = selected.length === 2 && !selected.includes(compareValue)}
+          <a data-sveltekit-reload href="/nsp-module/{module}" class="flex items-center justify-between space-x-2 font-medium rounded-lg text-sm pl-3 pr-2 py-1.5 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 dark:hover:border-gray-600">
+            <span class="overflow-x-hidden scroll-x-light">{module}</span>
+            <div title="Add to compare" class="flex">
+              <input type="checkbox" id="nsp-module-{module}-check" class="peer hidden" 
+                disabled={isDisabled}
+                checked={selected.includes(compareValue)} 
+                on:change={(e) => e.currentTarget.checked ? compare.add(compareValue) : compare.remove(compareValue)} 
+                on:click|stopPropagation
+              />
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+              <label on:click|stopPropagation for="nsp-module-{module}-check" class="p-1 select-none rounded-lg peer-checked:bg-blue-600 peer-checked:hover:bg-blue-700 peer-checked:text-white {isDisabled ? 'cursor-not-allowed text-gray-200 dark:text-gray-600' : 'cursor-pointer hover:bg-blue-600 hover:text-white'}">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" stroke="currentColor" stroke-width="10" aria-hidden="true">
+                  <path d="M420.266667 832c-17.066667 0-34.133333-6.4-44.8-19.2L104.533333 541.866667c-12.8-12.8-19.2-27.733333-19.2-44.8s6.4-34.133333 19.2-44.8L345.6 211.2c23.466667-23.466667 66.133333-23.466667 89.6 0l270.933333 270.933333c12.8 12.8 19.2 27.733333 19.2 44.8s-6.4 34.133333-19.2 44.8L465.066667 812.8c-10.666667 12.8-27.733333 19.2-44.8 19.2z m-29.866667-597.333333c-6.4 0-10.666667 2.133333-14.933333 6.4L134.4 482.133333c-4.266667 4.266667-6.4 8.533333-6.4 14.933334s2.133333 10.666667 6.4 14.933333L405.333333 782.933333c8.533333 8.533333 21.333333 8.533333 29.866667 0l241.066667-241.066666c4.266667-4.266667 6.4-8.533333 6.4-14.933334s-2.133333-10.666667-6.4-14.933333L405.333333 241.066667c-4.266667-4.266667-8.533333-6.4-14.933333-6.4z" />
+                  <path d="M618.666667 832c-17.066667 0-34.133333-6.4-46.933334-19.2L317.866667 558.933333c-12.8-12.8-19.2-29.866667-19.2-46.933333s6.4-34.133333 19.2-46.933333L571.733333 211.2c25.6-25.6 68.266667-25.6 93.866667 0l253.866667 253.866667c25.6 25.6 25.6 68.266667 0 93.866666L665.6 812.8c-12.8 12.8-29.866667 19.2-46.933333 19.2z m0-597.333333c-6.4 0-12.8 2.133333-17.066667 6.4L347.733333 494.933333c-4.266667 4.266667-6.4 10.666667-6.4 17.066667s2.133333 12.8 6.4 17.066667l253.866667 253.866666c8.533333 8.533333 23.466667 8.533333 34.133333 0l253.866667-253.866666c8.533333-8.533333 8.533333-23.466667 0-34.133334L635.733333 241.066667c-4.266667-4.266667-10.666667-6.4-17.066666-6.4zM332.8 480z" />
+                </svg>
+              </label>
+            </div>
+          </a>
         {/each}
       </div>
     </div>
