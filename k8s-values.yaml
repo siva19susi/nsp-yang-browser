@@ -23,10 +23,10 @@ spec:
       labels:
         app.kubernetes.io/name: nsp-yang-browser
     spec:
-      securityContext:
-        runAsUser: 10000
-        runAsGroup: 10000
-        fsGroup: 10000
+      #securityContext:
+      #  runAsUser: 10000
+      #  runAsGroup: 10000
+      #  fsGroup: 10000
       containers:
       - name: nsp-yang-browser
         image: sivasusi19/nsp-yang-browser:latest
