@@ -78,7 +78,7 @@
 </script>
 
 <svelte:head>
-	<title>NSP YANG Browser | Query - {basename} ({kind})</title>
+	<title>NSP YANG Browser | Inventory Query - {basename} ({kind})</title>
 </svelte:head>
 
 
