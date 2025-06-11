@@ -112,7 +112,7 @@
 </script>
 
 <svelte:head>
-	<title>NSP YANG Browser | Telemetry Type Definition</title>
+	<title>NSP YANG Browser | NSP Connect</title>
 </svelte:head>
 
 <Navbar {nspIp}/>
