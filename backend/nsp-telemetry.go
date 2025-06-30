@@ -14,6 +14,12 @@ type NodeSupportEntry struct {
 	Releases []string `json:"releases"`
 }
 
+type FlatMapping struct {
+	NSPPath    string `yaml:"nsp-path"`
+	DevicePath string `yaml:"device-path"`
+	Path       string `yaml:"path"`
+}
+
 func (s *srv) getTelemetryTypes(w http.ResponseWriter, r *http.Request) {
 	// INPUT
 	url := fmt.Sprintf("https://%s/restconf/data/telemetry-admin:/ageout-policies/ageout-policy", s.nsp.Ip)
@@ -69,6 +75,8 @@ func (s *srv) getTelemetryTypeDefinition(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	telemetryType := defInput.Name
+	transformer := s.getTransformers(telemetryType)
+	fmt.Printf("%#v\n", transformer)
 
 	baseurl := fmt.Sprintf("https://%s/SearchApp/rest/api/v1/documents/telemetryData", s.nsp.Ip)
 	// remember order of params matters
@@ -123,6 +131,11 @@ func (s *srv) getTelemetryTypeDefinition(w http.ResponseWriter, r *http.Request)
 		local := data.RowData
 		local.NodeSupport = formatNodeSupportEntries(local.NodeSupportRaw)
 		local.NodeSupportRaw = ""
+		for _, entry := range transformer {
+			if strings.HasPrefix(local.DeviceXpath, entry.DevicePath) {
+				local.DeviceXpath = strings.ReplaceAll(local.DeviceXpath, strings.Split(entry.DevicePath, ":")[1], entry.Path)
+			}
+		}
 		ttd = append(ttd, local)
 	}
 
